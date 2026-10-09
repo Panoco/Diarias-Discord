@@ -136,15 +136,9 @@
                             <input type="file" id="avatar-file-input" accept="image/*" class="hidden">
                             <button id="btn-upload-avatar" type="button" class="px-2.5 py-1.5 bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
                                 <svg class="w-3.5 h-3.5 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 002-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                                 <span>Subir Imagen</span>
-                            </button>
-                            <button id="btn-url-avatar" type="button" class="px-2.5 py-1.5 bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
-                                <svg class="w-3.5 h-3.5 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                                </svg>
-                                <span>URL / Discord</span>
                             </button>
                             <button id="btn-remove-avatar" type="button" class="px-2 py-1.5 text-slate-400 hover:text-rose-400 text-xs transition hidden" title="Quitar foto">
                                 ✕
@@ -538,16 +532,6 @@
                     tempImg.src = event.target.result;
                 };
                 reader.readAsDataURL(file);
-            });
-
-            document.getElementById('btn-url-avatar').addEventListener('click', () => {
-                const url = prompt('Pega la URL de tu avatar (ej. Discord):');
-                if (!url || !url.trim()) return;
-                state.avatarUrl = url.trim();
-                updateAvatarUI();
-                saveStateToStorage();
-                preloadAvatarAndUpdateCanvas();
-                showToast('¡Avatar actualizado!', '🔗');
             });
 
             btnRemoveAvatar.addEventListener('click', () => {
