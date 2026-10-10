@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diarias Discord - Amigos Delaware</title>
+    <!-- Forzar recarga sin caché para actualizaciones inmediatas de juegos -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Catálogo de Minijuegos - Amigos Delaware</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,1377 +19,283 @@
                 extend: {
                     fontFamily: {
                         sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#f5f3ff',
-                            100: '#ede9fe',
-                            500: '#8b5cf6',
-                            600: '#7c3aed',
-                            700: '#6d28d9',
-                        }
                     }
                 }
             }
         }
     </script>
-    <style>
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
-    </style>
 </head>
-<body class="h-full bg-slate-950 text-slate-100 font-sans flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+<body class="h-full bg-slate-950 text-slate-100 font-sans flex flex-col antialiased selection:bg-purple-500 selection:text-white">
 
-    <!-- Iframe con identificador dinámico anticaché -->
-    <iframe id="catalog-frame" style="display:none;" title="Catalog Module"></iframe>
-
-    <!-- Toast Notification Banner -->
-    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-out bg-slate-800 border border-slate-700 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
-        <span id="toast-icon" class="text-xl">✨</span>
-        <span id="toast-message" class="font-medium text-sm">Notificación</span>
-    </div>
-
-    <!-- Modal: Catálogo de Juegos para Añadir -->
-    <div id="catalog-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
-        <div class="bg-slate-900 border border-purple-900/60 rounded-3xl max-w-2xl w-full p-6 shadow-2xl flex flex-col max-h-[88vh] space-y-4">
-            <div class="flex items-center justify-between border-b border-purple-900/40 pb-4">
-                <div>
-                    <h3 class="text-base font-extrabold text-white flex items-center gap-2">
-                        <span>📚 Catálogo de Minijuegos</span>
-                        <span id="catalog-badge-total" class="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">Cargando...</span>
-                    </h3>
-                    <p class="text-xs text-slate-400 mt-0.5">Elige los minijuegos que juegas habitualmente para incorporarlos a tu lista diaria.</p>
-                </div>
-                <button id="btn-close-modal" type="button" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition">
-                    ✕
-                </button>
-            </div>
-
+    <header class="border-b border-purple-900/40 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <input type="text" id="modal-search-input" placeholder="Buscar juego en el catálogo..." class="flex-1 bg-slate-950 border border-purple-900/60 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500 transition">
-                <button id="btn-create-custom-inside-modal" class="px-3.5 py-2 rounded-xl bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 text-xs font-semibold transition flex items-center gap-1.5 whitespace-nowrap">
-                    <span>+ Juego Personalizado</span>
-                </button>
-            </div>
-
-            <!-- Listado dinámico del catálogo -->
-            <div id="modal-catalog-list" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
-
-            <div class="flex items-center justify-between border-t border-purple-900/40 pt-4">
-                <a href="listajuegos.html" target="_blank" class="text-xs text-purple-400 hover:text-purple-300 transition flex items-center gap-1">
-                    <span>Ver módulo listajuegos.html</span>
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                </a>
-                <button id="btn-modal-done" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow-md">
-                    Guardar Selección
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Header Navigation -->
-    <header class="border-b border-purple-900/50 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-700 to-indigo-500 flex items-center justify-center shadow-lg shadow-purple-900/30 ring-1 ring-white/20">
-                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 0010 20.945M11 3.055T11 20.945M11 3.055a9 9 0 019 8.945M11 20.945a9 9 0 01-9-8.945M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-700 to-indigo-500 flex items-center justify-center shadow-lg text-white font-bold text-lg">
+                    📚
                 </div>
                 <div>
-                    <h1 class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent">Diarias Discord</h1>
-                    <p class="text-xs text-purple-300/70 hidden sm:block">Amigos Delaware · Compilador de Minijuegos</p>
+                    <h1 class="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent">
+                        Catálogo de Minijuegos Oficiales
+                    </h1>
+                    <p class="text-xs text-purple-300/70">Módulo de Reglas y Juegos · Amigos Delaware</p>
                 </div>
             </div>
-
-            <div class="flex items-center gap-2">
-                <span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-950/80 border border-purple-800/60 text-[11px] text-purple-200 font-medium" title="Tus datos se guardan durante el día y se limpian automáticamente a las 05:00 AM">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Reinicio diario: 05:00 AM
-                </span>
-                <button id="btn-load-sample" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800/60 text-purple-100 border border-purple-700/60 text-xs sm:text-sm font-semibold transition active:scale-95 shadow-sm">
-                    <svg class="w-4 h-4 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
-                    <span>Cargar Ejemplo</span>
-                </button>
-                <button id="btn-clear-all" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition" title="Limpiar resultados">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                </button>
-            </div>
+            <a href="index.html" class="px-3.5 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800/60 text-purple-200 border border-purple-700/60 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 shadow-sm">
+                <span>Ir al Generador</span>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </a>
         </div>
     </header>
 
-    <!-- Main Grid Content -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        <!-- Left Panel: Input & Profile Form -->
-        <section class="lg:col-span-5 space-y-6">
-            
-            <!-- User Info Card & Counters -->
-            <div class="bg-slate-900/80 border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4 backdrop-blur-sm">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-bold tracking-wider text-purple-300 uppercase flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-purple-500"></span>
-                        PERFIL DE JUGADOR
-                    </h2>
-                </div>
-
-                <!-- Game Counters Banner -->
-                <div class="grid grid-cols-2 gap-3 p-3 bg-purple-950/40 border border-purple-800/40 rounded-xl text-center">
-                    <div class="space-y-0.5">
-                        <span class="text-[11px] font-semibold text-purple-300 block uppercase tracking-wider">En esta imagen</span>
-                        <div class="text-xl font-extrabold text-white flex items-center justify-center gap-1">
-                            <span id="counter-today">0</span>
-                            <span class="text-xs font-normal text-purple-300">juegos</span>
-                        </div>
-                    </div>
-                    <div class="space-y-0.5 border-l border-purple-800/40">
-                        <span class="text-[11px] font-semibold text-amber-300 block uppercase tracking-wider">Total Acumulado</span>
-                        <div class="text-xl font-extrabold text-amber-300 flex items-center justify-center gap-1">
-                            <span id="counter-lifetime">0</span>
-                            <span class="text-xs font-normal text-amber-200/80">juegos</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Avatar Upload Section -->
-                <div class="flex items-center gap-4 p-3 bg-slate-950/60 rounded-xl border border-purple-900/30">
-                    <div class="relative group flex-shrink-0">
-                        <div id="avatar-preview-box" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-700 to-indigo-500 flex items-center justify-center text-white text-xl font-extrabold shadow-lg overflow-hidden border border-white/20">
-                            <span id="avatar-initial-text">U</span>
-                            <img id="avatar-img-preview" src="" class="w-full h-full object-cover hidden" alt="Avatar">
-                        </div>
-                    </div>
-
-                    <div class="flex-1 space-y-2">
-                        <span class="block text-xs font-semibold text-slate-300">Avatar / Foto de Perfil</span>
-                        <div class="flex flex-wrap gap-2">
-                            <input type="file" id="avatar-file-input" accept="image/*" class="hidden">
-                            <button id="btn-upload-avatar" type="button" class="px-2.5 py-1.5 bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
-                                <svg class="w-3.5 h-3.5 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <span>Subir Imagen</span>
-                            </button>
-                            <button id="btn-remove-avatar" type="button" class="px-2 py-1.5 text-slate-400 hover:text-rose-400 text-xs transition hidden" title="Quitar foto">
-                                ✕
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Nombre / Alias</label>
-                        <input type="text" id="user-name" placeholder="Ej: Alex, Gamer123..." class="w-full bg-slate-950 border border-purple-900/60 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Fecha del Resumen</label>
-                        <input type="date" id="summary-date" class="w-full bg-slate-950 border border-purple-900/60 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition">
-                    </div>
-                </div>
+    <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+        <div class="bg-slate-900/60 border border-purple-900/30 rounded-2xl p-5 backdrop-blur-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                    <span>Base de datos activa</span>
+                    <span id="catalog-count-badge" class="px-2 py-0.5 rounded-full text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30">Cargando...</span>
+                </h2>
+                <p class="text-xs text-slate-400 mt-1 max-w-xl">
+                    Este archivo suministra la lista y reglas particulares de procesamiento a <code>index.html</code>. Añadir un nuevo juego aquí lo pondrá disponible al instante para todos los miembros.
+                </p>
             </div>
+            <input type="text" id="search-input" placeholder="Buscar juego por nombre o etiqueta..." class="bg-slate-950 border border-purple-900/50 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 w-full md:w-64 transition">
+        </div>
 
-            <!-- Games Selection & Paste Boxes -->
-            <div class="bg-slate-900/80 border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4 backdrop-blur-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-bold tracking-wider text-purple-300 uppercase flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            MIS MINIJUEGOS
-                        </h2>
-                        <span id="active-games-count-badge" class="text-[11px] text-slate-400">0 juegos en tu plantilla</span>
-                    </div>
-                    <button id="btn-open-catalog-modal" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-md">
-                        <span>+ Añadir nuevo juego</span>
-                    </button>
-                </div>
-
-                <!-- Smart Auto Paste Input -->
-                <div class="relative">
-                    <textarea id="smart-paste-box" rows="3" placeholder="💡 ¡Pega aquí múltiples resultados de una vez y se procesarán automáticamente!" class="w-full bg-slate-950/80 border border-purple-500/40 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition resize-none placeholder-slate-500"></textarea>
-                    <button id="btn-process-smart" class="absolute bottom-3 right-3 px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-medium transition shadow-md">
-                        Procesar Todo
-                    </button>
-                </div>
-
-                <div class="border-t border-purple-900/40 my-3"></div>
-
-                <!-- Empty State for New Users -->
-                <div id="games-empty-state" class="p-8 border border-dashed border-purple-900/50 rounded-2xl bg-slate-950/40 text-center space-y-3">
-                    <div class="w-12 h-12 rounded-2xl bg-purple-900/30 border border-purple-800/40 text-purple-300 flex items-center justify-center mx-auto text-xl">
-                        🎮
-                    </div>
-                    <div class="space-y-1">
-                        <h3 class="text-sm font-bold text-slate-200">Tu lista diaria está vacía</h3>
-                        <p class="text-xs text-slate-400 max-w-sm mx-auto">
-                            Personaliza tu plantilla eligiendo únicamente los juegos que juegas habitualmente desde nuestro catálogo.
-                        </p>
-                    </div>
-                    <button id="btn-empty-state-add" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition shadow-lg inline-flex items-center gap-1.5">
-                        <span>Seleccionar minijuegos del catálogo</span>
-                    </button>
-                </div>
-
-                <!-- Dynamic game inputs container -->
-                <div id="games-inputs-container" class="space-y-3"></div>
-            </div>
-
-        </section>
-
-        <!-- Right Panel: Canvas Live Preview & Actions -->
-        <section class="lg:col-span-7 sticky top-20 space-y-4">
-            
-            <div class="bg-slate-900/80 border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4 backdrop-blur-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-bold tracking-wider text-purple-300 uppercase flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                            Vista Previa en Tiempo Real
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Plantilla Oficial Amigos Delaware</p>
-                    </div>
-                    <span class="text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 bg-purple-500/10 text-purple-300 border border-purple-500/20 rounded-full">HD 1080p</span>
-                </div>
-
-                <!-- Canvas Preview Box -->
-                <div class="relative rounded-xl overflow-hidden bg-slate-950 border border-purple-900/50 flex items-center justify-center min-h-[380px] p-2 sm:p-4 group">
-                    <canvas id="preview-canvas" class="max-w-full h-auto rounded-lg shadow-2xl transition-all duration-200"></canvas>
-                    
-                    <!-- Overlay empty state -->
-                    <div id="canvas-empty-state" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
-                        <div class="w-12 h-12 rounded-full bg-purple-900/40 flex items-center justify-center text-purple-300 mb-3 border border-purple-700/50">
-                            🎮
-                        </div>
-                        <h3 class="text-sm font-bold text-slate-200">Aún no has añadido resultados hoy</h3>
-                        <p class="text-xs text-slate-400 mt-1 max-w-xs">Añade juegos a tu lista o pulsa en "Cargar Ejemplo" para probar la plantilla.</p>
-                    </div>
-                </div>
-
-                <!-- Export Action Buttons -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                    <button id="btn-download" class="w-full py-2.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20 transition active:scale-[0.98]">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        <span>Descargar PNG</span>
-                    </button>
-
-                    <button id="btn-copy" class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
-                        <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002 0h2a2 2 0 002 0m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                        </svg>
-                        <span>Copiar Imagen</span>
-                    </button>
-
-                    <button id="btn-share" class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
-                        <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 11-6 0 3 3 0 016 0l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.368 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                        </svg>
-                        <span>Compartir</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="text-center text-xs text-slate-500">
-                Amigos Delaware · Imagen generada en alta definición con módulo <code>listajuegos.html</code>.
-            </div>
-
-        </section>
+        <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </main>
 
-    <script>
-        const STORAGE_KEY = 'daily_game_hub_delaware_v2';
-        const BG_IMAGE_URL = 'diariasbg.png';
-
-        // Catálogo dinámico cargado desde listajuegos.html
-        let CATALOG = {};
-
-        // Estado del usuario
-        let state = {
-            userName: 'Usuario desconocido',
-            avatarUrl: null,
-            date: new Date().toISOString().split('T')[0],
-            userSelectedGameIds: [],
-            results: {},
-            customGames: {},
-            lifetimeGamesCount: 0,
-            recordedGameKeys: {}
-        };
-
-        let loadedAvatarImage = null;
-        let loadedBgImage = null;
-
-        function getGamingDateString() {
-            const now = new Date();
-            if (now.getHours() < 5) {
-                now.setDate(now.getDate() - 1);
-            }
-            return now.toISOString().split('T')[0];
-        }
-
-        // Carga dinámica del módulo listajuegos.html con Cache-Busting estricto
-        async function fetchCatalogFromModule() {
-            const cacheBuster = '?t=' + Date.now();
-            try {
-                const response = await fetch('listajuegos.html' + cacheBuster, {
-                    cache: 'no-store',
-                    headers: {
-                        'Cache-Control': 'no-cache',
-                        'Pragma': 'no-cache'
-                    }
-                });
-                if (response.ok) {
-                    const htmlText = await response.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(htmlText, 'text/html');
-                    const scriptTag = doc.getElementById('delaware-catalog-script');
-                    if (scriptTag && scriptTag.textContent) {
-                        const runner = new Function(scriptTag.textContent);
-                        runner();
-                        if (window.DELAWARE_CATALOG && Object.keys(window.DELAWARE_CATALOG).length > 0) {
-                            CATALOG = window.DELAWARE_CATALOG;
-                            console.log('✓ Catálogo actualizado sin caché desde listajuegos.html:', Object.keys(CATALOG).length, 'juegos.');
-                            return;
+    <!-- ESTE SCRIPT ES LEÍDO DIRECTAMENTE POR index.html -->
+    <script id="delaware-catalog-script">
+        window.DELAWARE_CATALOG = {
+            crissle: {
+                id: 'crissle',
+                name: 'Crissle',
+                badgeColor: '#FA8072', // Salmón
+                pattern: /Crissle/i,
+                url: 'https://crissle.es/',
+                sample: `Crissle #42\n4/6 · 120 pts\n🟩🟩🟩🟩`,
+                description: 'Crucigrama diario con pistas por letras.'
+            },
+            gnarlyq: {
+                id: 'gnarlyq',
+                name: 'GnarlyQ',
+                badgeColor: '#1D3557', // Azul marino
+                pattern: /GnarlyQ|gnarly/i,
+                url: 'https://gnarlyq.com/',
+                sample: `GnarlyQ #87\n60 PTS · 39\n\n60 — catch me if you can.`,
+                description: 'Adivinanza matemática y de lógica rápida.'
+            },
+            maptap: {
+                id: 'maptap',
+                name: 'MapTap',
+                badgeColor: '#2D6A4F', // Verde bosque
+                pattern: /MapTap|maptap/i,
+                url: 'https://maptap.gg/',
+                sample: `MapTap October 8\n85 100 96 81 94\nFinal score: 902`,
+                description: 'Geografía y colocación de países en el mapa.'
+            },
+            ostra: {
+                id: 'ostra',
+                name: 'Ostra',
+                badgeColor: '#004B49', // Verde botella
+                pattern: /Ostra/i,
+                url: 'https://playostra.com/',
+                sample: `Ostra #30\n✨ Racha: 5 días\nCompletado en 3 intentos`,
+                description: 'Juego diario de asociación y pistas.'
+            },
+            pinstinct: {
+                id: 'pinstinct',
+                name: 'Pinstinct',
+                badgeColor: '#F97316', // Naranja
+                pattern: /Pinstinct/i,
+                url: 'https://pinstinct.tomjwatson.com/',
+                sample: `Pinstinct / 59\n\n4,068 / 4,531 / 5,000 / 3,505 / 3,480\n\nScore / 20,584 / Gold`,
+                description: 'Localización por instinto en mapas satélite.'
+            },
+            zanagramas: {
+                id: 'zanagramas',
+                name: 'Zanagramas',
+                badgeColor: '#6B7280', // Gris
+                pattern: /Zanagramas/i,
+                url: 'https://zanagrams.com/es/',
+                sample: `Zanagramas #78\n🔤 8/8 palabras encontradas\nTiempo: 01:45`,
+                description: 'Anagramas en español contrarreloj.'
+            },
+            catfishing: {
+                id: 'catfishing',
+                name: 'Catfishing',
+                badgeColor: '#10B981', // Verde esmeralda
+                pattern: /Catfishing/i,
+                url: 'https://catfishing.net/',
+                sample: `Catfishing #15\n🎣 Capturado con éxito\n100% de efectividad`,
+                description: 'Deducción y pesca de impostores.'
+            },
+            krillion: {
+                id: 'krillion',
+                name: 'Krillion',
+                badgeColor: '#38BDF8', // Celeste
+                pattern: /Krillion/i,
+                url: 'https://krillion.io/',
+                sample: `Krillion #99\n💎 1,250,000 pts\nNivel Máximo alcanzado`,
+                description: 'Juego incremental diario de récords.'
+            },
+            framed: {
+                id: 'framed',
+                name: 'Framed',
+                badgeColor: '#4169E1', // Azul royal
+                pattern: /Framed/i,
+                url: 'https://framed.wtf/',
+                sample: `Framed #1671\n🎥 🟩 ⬛ ⬛ ⬛ ⬛ ⬛`,
+                description: 'Adivina la película fotograma a fotograma.'
+            },
+            sizeitup: {
+                id: 'sizeitup',
+                name: 'Size It Up',
+                badgeColor: '#EF4444', // Rojo
+                pattern: /Size\s*It\s*Up|magnitudle/i,
+                url: 'https://magnitudle.com/size-it-up',
+                sample: `Size It Up\nOverall Score 336\n\n44\n54\n79\n73\n86`,
+                description: 'Compara y estima las escalas de tamaño.'
+            },
+            wikitrivia: {
+                id: 'wikitrivia',
+                name: 'Wikitrivia',
+                badgeColor: '#CC7722', // Ocre
+                pattern: /wikitrivia/i,
+                url: 'https://wikitrivia.tomjwatson.com/',
+                sample: `#wikitrivia / Daily for Oct 7 2026\n\nScore / 22 / Gold`,
+                description: 'Ordena eventos y figuras en la línea temporal.'
+            },
+            geoguessr: {
+                id: 'geoguessr',
+                name: 'GeoGuessr',
+                badgeColor: '#8B5CF6', // Morado
+                pattern: /geoguessr|\b\d+\.\s*[^:]+:\s*\d+\s*pts|Total:\s*[\d.,]+\s*pts/i,
+                url: 'https://www.geoguessr.com/es/daily-challenges',
+                sample: `1. Dinamarca: 4996 pts., 1,3 km, 3 min, 48 pasos\n2. Argentina: 5000 pts., 52 m, 3 min, 36 pasos\n3. Estados Unidos: 3285 pts., 626 km, 3 min, 64 pasos\n4. Camboya: 4529 pts., 148 km, 3 min, 43 pasos\n5. Túnez: 4286 pts., 230 km, 3 min, 56 pasos\nTotal: 22.096 pts., 1005 km, 15 min, 247 pasos`,
+                description: 'Desafío diario de exploración y orientación mundial.',
+                rules: {
+                    sanitize: function(text) {
+                        const lines = text.split('\n');
+                        return lines.map(line => {
+                            return line.replace(/^(\s*\d+\.\s*)([^:]+)(:\s*.*)$/, '$1📍$3');
+                        }).join('\n');
+                    },
+                    getSubtitle: function(text) {
+                        const lastCommaIdx = text.lastIndexOf(',');
+                        if (lastCommaIdx !== -1) {
+                            return text.substring(lastCommaIdx + 1).trim();
                         }
+                        return '';
                     }
                 }
-            } catch (err) {
-                console.warn('Fetch local con cache-buster no disponible, intentando leer via iframe...', err);
+            },
+            lapalabradeldia: {
+                id: 'lapalabradeldia',
+                name: 'La palabra del día',
+                badgeColor: '#EAB308', // Amarillo oro / Wordle
+                pattern: /La\s*palabra\s*del\s*d[ií]a/i,
+                url: 'https://lapalabradeldia.com/',
+                sample: `La palabra del día #1738 5/6\n\n⬛⬛⬛🟩⬛\n⬛⬛⬛🟩🟩\n⬛🟩🟩🟩🟩\n⬛🟩🟩🟩🟩\n🟩🟩🟩🟩🟩`,
+                description: 'Descubre la palabra oculta de 5 letras en 6 intentos.',
+                rules: {
+                    getSubtitle: function(text) {
+                        const match = text.match(/#(\d+)/);
+                        return match ? `#${match[1]}` : 'Diario';
+                    },
+                    getScore: function(text) {
+                        const match = text.match(/([X\d]\/6)/i);
+                        return match ? match[1] : 'Completado';
+                    }
+                }
+            },
+            nounsense: {
+                id: 'nounsense',
+                name: 'Noun Sense',
+                badgeColor: '#F4EEDC', // Crema
+                pattern: /Noun\s*Sense/i,
+                url: 'https://daily.gametje.com/nounsense/',
+                sample: `Noun Sense\n2026-10-10\n575\n/ 1000 POSSIBLE\ndaily.gametje.com`,
+                description: 'Adivina sustantivos y maximiza tu puntuación diaria.',
+                rules: {
+                    sanitize: function(text) {
+                        return text.replace(/https?:\/\/\S+/gi, '')
+                                   .replace(/daily\.gametje\.com\S*/gi, '')
+                                   .replace(/gametje\.com\S*/gi, '');
+                    },
+                    getSubtitle: function(text) {
+                        const dateMatch = text.match(/\b\d{4}-\d{2}-\d{2}\b/);
+                        return dateMatch ? dateMatch[0] : 'Diario';
+                    },
+                    getScore: function(text) {
+                        const scoreRatioMatch = text.match(/(\d+)\s*\n?\s*\/\s*(\d+)/i);
+                        if (scoreRatioMatch) {
+                            return `${scoreRatioMatch[1]} / ${scoreRatioMatch[2]}`;
+                        }
+                        const numberOnlyMatch = text.match(/\b\d{2,4}\b/);
+                        return numberOnlyMatch ? `${numberOnlyMatch[0]} pts` : 'Completado';
+                    }
+                }
+            }
+        };
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('catalog-grid');
+            const searchInput = document.getElementById('search-input');
+            const badgeCount = document.getElementById('catalog-count-badge');
+            const games = Object.values(window.DELAWARE_CATALOG || {});
+
+            if (badgeCount) {
+                badgeCount.textContent = `${games.length} juegos`;
             }
 
-            // Fallback via Iframe con parámetro de tiempo
-            const iframe = document.getElementById('catalog-frame');
-            if (iframe) {
-                iframe.src = 'listajuegos.html' + cacheBuster;
-                await new Promise(r => setTimeout(r, 150));
-                if (iframe.contentWindow && iframe.contentWindow.DELAWARE_CATALOG) {
-                    CATALOG = iframe.contentWindow.DELAWARE_CATALOG;
+            function renderCatalog(filter = '') {
+                grid.innerHTML = '';
+                const filtered = games.filter(g => 
+                    g.name.toLowerCase().includes(filter.toLowerCase()) || 
+                    (g.description && g.description.toLowerCase().includes(filter.toLowerCase()))
+                );
+
+                if (filtered.length === 0) {
+                    grid.innerHTML = `
+                        <div class="col-span-full py-12 text-center text-slate-500 text-sm">
+                            No se encontraron juegos que coincidan con "${filter}"
+                        </div>
+                    `;
                     return;
                 }
-            }
 
-            // Respaldo de seguridad si ya está en memoria global
-            if (window.DELAWARE_CATALOG) {
-                CATALOG = window.DELAWARE_CATALOG;
-            }
-        }
-
-        function saveStateToStorage() {
-            try {
-                const dataToSave = {
-                    gamingDate: getGamingDateString(),
-                    userName: state.userName,
-                    avatarUrl: state.avatarUrl,
-                    userSelectedGameIds: state.userSelectedGameIds,
-                    results: state.results,
-                    customGames: state.customGames,
-                    lifetimeGamesCount: state.lifetimeGamesCount,
-                    recordedGameKeys: state.recordedGameKeys
-                };
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
-            } catch (e) {
-                console.warn('No se pudo guardar en localStorage', e);
-            }
-        }
-
-        function loadStateFromStorage() {
-            try {
-                const savedRaw = localStorage.getItem(STORAGE_KEY);
-                if (!savedRaw) return;
-
-                const saved = JSON.parse(savedRaw);
-                const currentGamingDate = getGamingDateString();
-
-                state.userName = saved.userName || 'Usuario desconocido';
-                state.avatarUrl = saved.avatarUrl || null;
-                state.userSelectedGameIds = Array.isArray(saved.userSelectedGameIds) ? saved.userSelectedGameIds : [];
-                state.customGames = saved.customGames || {};
-                state.lifetimeGamesCount = saved.lifetimeGamesCount || 0;
-                state.recordedGameKeys = saved.recordedGameKeys || {};
-
-                // Custom games inherit white badge
-                Object.keys(state.customGames).forEach(id => {
-                    state.customGames[id].isCustom = true;
-                    state.customGames[id].badgeColor = '#ffffff';
-                });
-
-                if (saved.gamingDate !== currentGamingDate) {
-                    showToast('¡Nuevo día! Resultados anteriores reiniciados (05:00 AM)', '🌅');
-                    state.results = {};
-                    saveStateToStorage();
-                } else {
-                    state.results = saved.results || {};
-                }
-            } catch (e) {
-                console.warn('No se pudo cargar desde localStorage', e);
-            }
-        }
-
-        function preloadBgImage() {
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => { loadedBgImage = img; updateCanvas(); };
-            img.onerror = () => { updateCanvas(); };
-            img.src = BG_IMAGE_URL;
-        }
-
-        let canvas, ctx, userNameInput, dateInput, gamesContainer, gamesEmptyState, smartPasteBox;
-        let avatarFileInput, avatarImgPreview, avatarInitialText, btnRemoveAvatar;
-        let catalogModal, modalCatalogList, modalSearchInput;
-
-        async function init() {
-            canvas = document.getElementById('preview-canvas');
-            ctx = canvas.getContext('2d');
-            userNameInput = document.getElementById('user-name');
-            dateInput = document.getElementById('summary-date');
-            gamesContainer = document.getElementById('games-inputs-container');
-            gamesEmptyState = document.getElementById('games-empty-state');
-            smartPasteBox = document.getElementById('smart-paste-box');
-
-            avatarFileInput = document.getElementById('avatar-file-input');
-            avatarImgPreview = document.getElementById('avatar-img-preview');
-            avatarInitialText = document.getElementById('avatar-initial-text');
-            btnRemoveAvatar = document.getElementById('btn-remove-avatar');
-
-            catalogModal = document.getElementById('catalog-modal');
-            modalCatalogList = document.getElementById('modal-catalog-list');
-            modalSearchInput = document.getElementById('modal-search-input');
-
-            // 1. Cargar el catálogo externo desde listajuegos.html forzando versión fresca
-            await fetchCatalogFromModule();
-
-            // 2. Cargar estado guardado del usuario
-            loadStateFromStorage();
-
-            dateInput.value = state.date;
-            userNameInput.value = state.userName;
-
-            updateAvatarUI();
-            updateCountersUI();
-            renderActiveGames();
-            setupEventListeners();
-            preloadBgImage();
-            preloadAvatarAndUpdateCanvas();
-
-            if (document.fonts && document.fonts.ready) {
-                document.fonts.ready.then(() => updateCanvas());
-            }
-        }
-
-        function getCombinedGameDefinition(gameId) {
-            if (state.customGames[gameId]) {
-                return state.customGames[gameId];
-            }
-            if (CATALOG[gameId]) {
-                return CATALOG[gameId];
-            }
-            return {
-                id: gameId,
-                name: 'Juego',
-                badgeColor: '#ffffff'
-            };
-        }
-
-        function renderActiveGames() {
-            gamesContainer.innerHTML = '';
-            const activeIds = state.userSelectedGameIds;
-            const badgeTotal = document.getElementById('active-games-count-badge');
-            if (badgeTotal) {
-                badgeTotal.textContent = `${activeIds.length} ${activeIds.length === 1 ? 'juego' : 'juegos'} en tu plantilla`;
-            }
-
-            if (activeIds.length === 0) {
-                gamesEmptyState.classList.remove('hidden');
-                gamesContainer.classList.add('hidden');
-                updateCanvas();
-                return;
-            }
-
-            gamesEmptyState.classList.add('hidden');
-            gamesContainer.classList.remove('hidden');
-
-            activeIds.forEach(id => {
-                const game = getCombinedGameDefinition(id);
-                const card = document.createElement('div');
-                card.className = 'bg-slate-950/80 border border-purple-900/40 rounded-xl p-3 space-y-2';
-
-                let titleMarkup = '';
-                let extraActionMarkup = '';
-
-                if (game.isCustom || id.startsWith('custom_')) {
-                    titleMarkup = `
-                        <input type="text" id="name-input-${id}" data-game="${id}" value="${game.name}" placeholder="Nombre del juego..." class="custom-game-name-input bg-slate-900/90 border border-purple-800/60 focus:border-purple-400 rounded-lg px-2.5 py-1 text-xs font-bold text-white focus:outline-none w-48 transition" title="Haz clic para editar el nombre">
+                filtered.forEach(game => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-slate-900/80 border border-purple-900/30 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-lg hover:border-purple-500/50 transition';
+                    card.innerHTML = `
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-3.5 h-3.5 rounded-full ring-1 ring-white/30" style="background-color: ${game.badgeColor}"></span>
+                                    <span class="font-bold text-sm text-white">${game.name}</span>
+                                </div>
+                                <a href="${game.url}" target="_blank" rel="noopener noreferrer" class="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1 transition">
+                                    <span>Web</span>
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                </a>
+                            </div>
+                            <p class="text-xs text-slate-400 leading-relaxed">${game.description || 'Minijuego diario de la comunidad.'}</p>
+                        </div>
+                        <div class="pt-2 border-t border-purple-900/30 flex items-center justify-between text-[11px] text-slate-500">
+                            <span>ID: <code>${game.id}</code></span>
+                            <span class="text-emerald-400 font-semibold">${game.rules ? '⚡ Reglas activas' : '✓ Estándar'}</span>
+                        </div>
                     `;
-                } else if (game.url) {
-                    titleMarkup = `
-                        <a href="${game.url}" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-slate-200 hover:text-purple-300 no-underline transition flex items-center gap-1">
-                            <span>${game.name}</span>
-                            <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                        </a>
-                    `;
-                } else {
-                    titleMarkup = `<span class="text-xs font-bold text-slate-200">${game.name}</span>`;
-                }
-
-                extraActionMarkup = `
-                    <button type="button" data-game="${id}" class="btn-remove-from-roster text-[11px] text-slate-500 hover:text-rose-400 transition ml-2.5 font-medium" title="Quitar de mi plantilla">
-                        ✕ Quitar
-                    </button>
-                `;
-
-                const savedResultText = (state.results[id] && state.results[id].rawText) ? state.results[id].rawText : '';
-
-                card.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full shadow-sm ring-1 ring-white/30" style="background-color: ${game.badgeColor}"></span>
-                            ${titleMarkup}
-                        </div>
-                        <div class="flex items-center">
-                            <button type="button" data-game="${id}" class="btn-clear-game text-[11px] text-slate-500 hover:text-amber-400 transition">
-                                Limpiar
-                            </button>
-                            ${extraActionMarkup}
-                        </div>
-                    </div>
-                    <textarea id="input-${id}" data-game="${id}" rows="2" placeholder="Pega aquí el resultado..." class="game-textarea w-full bg-slate-900 border border-purple-900/40 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-purple-500 transition resize-none placeholder-slate-600 font-mono">${savedResultText}</textarea>
-                `;
-                gamesContainer.appendChild(card);
-            });
-
-            updateCanvas();
-        }
-
-        async function openCatalogModal() {
-            modalSearchInput.value = '';
-            // Volvemos a refrescar el catálogo cada vez que se abre el modal para ver juegos recién añadidos
-            await fetchCatalogFromModule();
-            renderModalCatalogList();
-            catalogModal.classList.remove('hidden');
-            requestAnimationFrame(() => catalogModal.classList.remove('opacity-0'));
-        }
-
-        function closeCatalogModal() {
-            catalogModal.classList.add('opacity-0');
-            setTimeout(() => {
-                catalogModal.classList.add('hidden');
-            }, 200);
-        }
-
-        function renderModalCatalogList(searchQuery = '') {
-            modalCatalogList.innerHTML = '';
-            const allAvailable = { ...CATALOG, ...state.customGames };
-            const gamesArray = Object.values(allAvailable);
-
-            document.getElementById('catalog-badge-total').textContent = `${gamesArray.length} disponibles`;
-
-            const filtered = gamesArray.filter(g => 
-                g.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                (g.description && g.description.toLowerCase().includes(searchQuery.toLowerCase()))
-            );
-
-            if (filtered.length === 0) {
-                modalCatalogList.innerHTML = `
-                    <div class="p-6 text-center text-slate-500 text-xs">
-                        No se encontró ningún juego con ese término. Puedes crearlo como personalizado.
-                    </div>
-                `;
-                return;
-            }
-
-            filtered.forEach(game => {
-                const isSelected = state.userSelectedGameIds.includes(game.id);
-                const item = document.createElement('div');
-                item.className = `p-3 rounded-xl border flex items-center justify-between gap-3 transition ${
-                    isSelected 
-                        ? 'bg-purple-950/40 border-purple-600/60' 
-                        : 'bg-slate-950/60 border-purple-900/30 hover:border-purple-700/50'
-                }`;
-
-                item.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="w-3.5 h-3.5 rounded-full ring-1 ring-white/30 flex-shrink-0" style="background-color: ${game.badgeColor}"></span>
-                        <div>
-                            <span class="text-xs font-bold text-white block">${game.name}</span>
-                            <span class="text-[11px] text-slate-400 block">${game.description || (game.isCustom ? 'Juego personalizado' : 'Minijuego diario')}</span>
-                        </div>
-                    </div>
-                    <button type="button" data-game="${game.id}" class="btn-toggle-modal-game px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                        isSelected 
-                            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30' 
-                            : 'bg-purple-600 hover:bg-purple-500 text-white'
-                    }">
-                        ${isSelected ? '✕ Quitar' : '+ Añadir'}
-                    </button>
-                `;
-                modalCatalogList.appendChild(item);
-            });
-        }
-
-        function toggleGameInRoster(gameId) {
-            const idx = state.userSelectedGameIds.indexOf(gameId);
-            if (idx > -1) {
-                state.userSelectedGameIds.splice(idx, 1);
-                delete state.results[gameId];
-            } else {
-                state.userSelectedGameIds.push(gameId);
-            }
-            saveStateToStorage();
-            renderModalCatalogList(modalSearchInput.value);
-            renderActiveGames();
-            updateCountersUI();
-        }
-
-        function createCustomGame() {
-            const gameId = 'custom_' + Date.now();
-            const defaultName = 'Nuevo Juego';
-
-            const newGame = {
-                id: gameId,
-                name: defaultName,
-                isCustom: true,
-                badgeColor: '#ffffff',
-                pattern: new RegExp(defaultName, 'i'),
-                sample: `${defaultName} #1\n¡Resultado completado con éxito!`
-            };
-
-            state.customGames[gameId] = newGame;
-            state.userSelectedGameIds.push(gameId);
-            saveStateToStorage();
-
-            closeCatalogModal();
-            renderActiveGames();
-
-            setTimeout(() => {
-                const nameInput = document.getElementById(`name-input-${gameId}`);
-                if (nameInput) {
-                    nameInput.focus();
-                    nameInput.select();
-                }
-            }, 80);
-
-            showToast('Nuevo juego añadido. Escribe su nombre.', '✨');
-        }
-
-        function sanitizeGameText(gameId, text) {
-            if (!text) return '';
-
-            let cleaned = text.replace(/[\u200B-\u200D\uFEFF]/g, '');
-            // Eliminar todas las URLs completamente
-            cleaned = cleaned.replace(/https?:\/\/\S+/gi, '').replace(/www\.\S+/gi, '');
-
-            const gameDef = getCombinedGameDefinition(gameId);
-
-            // Aplicar reglas particulares leídas desde el catálogo de listajuegos.html si existen
-            if (gameDef && gameDef.rules && typeof gameDef.rules.sanitize === 'function') {
-                cleaned = gameDef.rules.sanitize(cleaned);
-            } else if (gameId === 'geoguessr') {
-                const lines = cleaned.split('\n');
-                cleaned = lines.map(line => {
-                    return line.replace(/^(\s*\d+\.\s*)([^:]+)(:\s*.*)$/, '$1📍$3');
-                }).join('\n');
-            }
-
-            const lines = cleaned.split('\n').map(l => l.trimEnd());
-            while (lines.length > 0 && lines[0].trim() === '') lines.shift();
-            while (lines.length > 0 && lines[lines.length - 1].trim() === '') lines.pop();
-
-            return lines.join('\n');
-        }
-
-        function parseAndSetGameResult(gameId, rawText) {
-            const cleanedText = sanitizeGameText(gameId, rawText);
-
-            if (!cleanedText || !cleanedText.trim()) {
-                delete state.results[gameId];
-                updateCountersUI();
-                return;
-            }
-
-            const gameDef = getCombinedGameDefinition(gameId);
-            let edition = '';
-            let score = '';
-
-            // 1. Subtítulo con reglas particulares si existen
-            if (gameDef.rules && typeof gameDef.rules.getSubtitle === 'function') {
-                edition = gameDef.rules.getSubtitle(cleanedText);
-            } else if (gameId === 'geoguessr') {
-                const lastCommaIdx = cleanedText.lastIndexOf(',');
-                if (lastCommaIdx !== -1) {
-                    edition = cleanedText.substring(lastCommaIdx + 1).trim();
-                }
-            } else {
-                const edNumberMatch = cleanedText.match(/(?:#|\/\s*)(\d+)/);
-                const edDateMatch = cleanedText.match(/([A-Z][a-z]+\s+\d{1,2})/i);
-
-                if (edNumberMatch && edNumberMatch[1]) {
-                    edition = `#${edNumberMatch[1]}`;
-                } else if (edDateMatch && edDateMatch[1]) {
-                    edition = edDateMatch[1];
-                }
-            }
-
-            // 2. Extracción de puntuación con soporte para reglas particulares del catálogo
-            if (gameDef.rules && typeof gameDef.rules.getScore === 'function') {
-                score = gameDef.rules.getScore(cleanedText);
-            } else {
-                const scoreMatch = cleanedText.match(/Total\s*:\s*([\d,.]+\s*pts)/i) ||
-                                   cleanedText.match(/Overall\s*Score\s*([\d,.]+)/i) ||
-                                   cleanedText.match(/(?:Final\s*score|Score)\s*[:/]?\s*([\d,.]+)/i) || 
-                                   cleanedText.match(/(\d[\d,.]*\s*PTS(?:\s*·\s*\d+)?)/i) || 
-                                   cleanedText.match(/([\d,.]+\s*pts)/i) || 
-                                   cleanedText.match(/([X\d]\/6)/i) || 
-                                   cleanedText.match(/(\d+:\d+)/);
-
-                if (scoreMatch) {
-                    score = scoreMatch[1] || scoreMatch[0];
-                    if (!score.toLowerCase().includes('pts') && !score.includes('/') && !isNaN(score.replace(/,/g, ''))) {
-                        score = `${score} pts`;
-                    }
-                } else {
-                    score = 'Completado';
-                }
-            }
-
-            const lines = cleanedText.split('\n')
-                .map(line => line.trim())
-                .filter(line => {
-                    if (!line) return false;
-                    if (line.toLowerCase() === gameDef.name.toLowerCase()) return false;
-                    return true;
+                    grid.appendChild(card);
                 });
-
-            // Registro histórico
-            const recordKey = `${getGamingDateString()}_${gameId}`;
-            if (!state.recordedGameKeys[recordKey]) {
-                state.recordedGameKeys[recordKey] = true;
-                state.lifetimeGamesCount = (state.lifetimeGamesCount || 0) + 1;
             }
 
-            state.results[gameId] = {
-                id: gameId,
-                name: gameDef.name,
-                badgeColor: gameDef.badgeColor || '#ffffff',
-                edition: edition || 'Diario',
-                score: score,
-                rawText: cleanedText,
-                displayLines: lines.length > 0 ? lines : [cleanedText.substring(0, 40)]
-            };
-
-            updateCountersUI();
-        }
-
-        function processSmartPaste() {
-            const raw = smartPasteBox.value.trim();
-            if (!raw) {
-                showToast('Pega texto en el área primero', '⚠️');
-                return;
-            }
-
-            const allCatalog = { ...CATALOG, ...state.customGames };
-            const matches = [];
-
-            Object.keys(allCatalog).forEach(id => {
-                const game = allCatalog[id];
-                if (game.pattern) {
-                    const match = raw.match(game.pattern);
-                    if (match && match.index !== undefined) {
-                        matches.push({ id, index: match.index });
-                    }
-                }
-            });
-
-            if (matches.length === 0) {
-                showToast('No se identificó ningún juego del catálogo.', '💡');
-                return;
-            }
-
-            matches.sort((a, b) => a.index - b.index);
-
-            let matchedCount = 0;
-            for (let i = 0; i < matches.length; i++) {
-                const gameId = matches[i].id;
-                const start = matches[i].index;
-                const end = (i + 1 < matches.length) ? matches[i + 1].index : raw.length;
-                const segment = raw.substring(start, end).trim();
-
-                if (!state.userSelectedGameIds.includes(gameId)) {
-                    state.userSelectedGameIds.push(gameId);
-                }
-
-                const cleaned = sanitizeGameText(gameId, segment);
-                if (cleaned) {
-                    parseAndSetGameResult(gameId, cleaned);
-                    matchedCount++;
-                }
-            }
-
-            if (matchedCount > 0) {
-                smartPasteBox.value = '';
-                saveStateToStorage();
-                renderActiveGames();
-                updateCanvas();
-                showToast(`Se han procesado ${matchedCount} juego(s) sin URLs`, '🎉');
-            }
-        }
-
-        function loadSampleData() {
-            const sampleIds = ['crissle', 'gnarlyq', 'maptap', 'geoguessr', 'nounsense', 'lapalabradeldia'];
-            sampleIds.forEach(id => {
-                if (!state.userSelectedGameIds.includes(id)) {
-                    state.userSelectedGameIds.push(id);
-                }
-                const game = getCombinedGameDefinition(id);
-                if (game && game.sample) {
-                    const cleaned = sanitizeGameText(id, game.sample);
-                    parseAndSetGameResult(id, cleaned);
-                }
-            });
-            saveStateToStorage();
-            renderActiveGames();
-            updateCanvas();
-            showToast('¡Ejemplo cargado en tu plantilla!', '🚀');
-        }
-
-        function clearAll() {
-            state.results = {};
-            state.userSelectedGameIds.forEach(id => {
-                const textarea = document.getElementById(`input-${id}`);
-                if (textarea) textarea.value = '';
-            });
-            smartPasteBox.value = '';
-            saveStateToStorage();
-            updateCountersUI();
-            updateCanvas();
-            showToast('Resultados del día limpiados', '🗑️');
-        }
-
-        function updateAvatarUI() {
-            const initial = (state.userName || 'U').charAt(0).toUpperCase();
-            avatarInitialText.textContent = initial;
-
-            if (state.avatarUrl) {
-                avatarImgPreview.src = state.avatarUrl;
-                avatarImgPreview.classList.remove('hidden');
-                avatarInitialText.classList.add('hidden');
-                btnRemoveAvatar.classList.remove('hidden');
-            } else {
-                avatarImgPreview.src = '';
-                avatarImgPreview.classList.add('hidden');
-                avatarInitialText.classList.remove('hidden');
-                btnRemoveAvatar.classList.add('hidden');
-            }
-        }
-
-        function preloadAvatarAndUpdateCanvas() {
-            if (!state.avatarUrl) {
-                loadedAvatarImage = null;
-                updateCanvas();
-                return;
-            }
-
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => { loadedAvatarImage = img; updateCanvas(); };
-            img.onerror = () => { loadedAvatarImage = null; updateCanvas(); };
-            img.src = state.avatarUrl;
-        }
-
-        function updateCountersUI() {
-            const todayCount = Object.keys(state.results).length;
-            const todayCounterElem = document.getElementById('counter-today');
-            const lifetimeCounterElem = document.getElementById('counter-lifetime');
-
-            if (todayCounterElem) todayCounterElem.textContent = todayCount;
-            if (lifetimeCounterElem) lifetimeCounterElem.textContent = state.lifetimeGamesCount;
-        }
-
-        function setupEventListeners() {
-            userNameInput.addEventListener('input', (e) => {
-                state.userName = e.target.value || 'Usuario desconocido';
-                updateAvatarUI();
-                saveStateToStorage();
-                updateCanvas();
-            });
-
-            document.getElementById('btn-upload-avatar').addEventListener('click', () => avatarFileInput.click());
-            avatarFileInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const tempImg = new Image();
-                    tempImg.onload = () => {
-                        const offCanvas = document.createElement('canvas');
-                        offCanvas.width = 180;
-                        offCanvas.height = 180;
-                        const offCtx = offCanvas.getContext('2d');
-                        const minDim = Math.min(tempImg.width, tempImg.height);
-                        const sx = (tempImg.width - minDim) / 2;
-                        const sy = (tempImg.height - minDim) / 2;
-                        offCtx.drawImage(tempImg, sx, sy, minDim, minDim, 0, 0, 180, 180);
-
-                        state.avatarUrl = offCanvas.toDataURL('image/jpeg', 0.85);
-                        updateAvatarUI();
-                        saveStateToStorage();
-                        preloadAvatarAndUpdateCanvas();
-                        showToast('¡Avatar actualizado!', '🖼️');
-                    };
-                    tempImg.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
-
-            btnRemoveAvatar.addEventListener('click', () => {
-                state.avatarUrl = null;
-                loadedAvatarImage = null;
-                updateAvatarUI();
-                saveStateToStorage();
-                updateCanvas();
-                showToast('Avatar restablecido', '🗑️');
-            });
-
-            dateInput.addEventListener('change', (e) => {
-                state.date = e.target.value;
-                saveStateToStorage();
-                updateCanvas();
-            });
-
-            // Modal controls
-            document.getElementById('btn-open-catalog-modal').addEventListener('click', openCatalogModal);
-            document.getElementById('btn-empty-state-add').addEventListener('click', openCatalogModal);
-            document.getElementById('btn-close-modal').addEventListener('click', closeCatalogModal);
-            document.getElementById('btn-modal-done').addEventListener('click', closeCatalogModal);
-            document.getElementById('btn-create-custom-inside-modal').addEventListener('click', createCustomGame);
-
-            modalSearchInput.addEventListener('input', (e) => {
-                renderModalCatalogList(e.target.value);
-            });
-
-            modalCatalogList.addEventListener('click', (e) => {
-                const btn = e.target.closest('.btn-toggle-modal-game');
-                if (btn) {
-                    const gameId = btn.dataset.game;
-                    toggleGameInRoster(gameId);
-                }
-            });
-
-            // Input en lista activa
-            gamesContainer.addEventListener('input', (e) => {
-                if (e.target.classList.contains('custom-game-name-input')) {
-                    const gameId = e.target.dataset.game;
-                    const newName = e.target.value.trim() || 'Juego';
-                    if (state.customGames[gameId]) {
-                        state.customGames[gameId].name = newName;
-                        state.customGames[gameId].pattern = new RegExp(newName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-                    }
-                    if (state.results[gameId]) {
-                        state.results[gameId].name = newName;
-                    }
-                    saveStateToStorage();
-                    updateCanvas();
-                } else if (e.target.classList.contains('game-textarea')) {
-                    const gameId = e.target.dataset.game;
-                    parseAndSetGameResult(gameId, e.target.value);
-                    saveStateToStorage();
-                    updateCanvas();
-                }
-            });
-
-            gamesContainer.addEventListener('click', (e) => {
-                if (e.target.classList.contains('btn-clear-game')) {
-                    const gameId = e.target.dataset.game;
-                    const textarea = document.getElementById(`input-${gameId}`);
-                    if (textarea) textarea.value = '';
-                    delete state.results[gameId];
-                    saveStateToStorage();
-                    updateCountersUI();
-                    updateCanvas();
-                } else if (e.target.classList.contains('btn-remove-from-roster')) {
-                    const gameId = e.target.dataset.game;
-                    state.userSelectedGameIds = state.userSelectedGameIds.filter(id => id !== gameId);
-                    delete state.results[gameId];
-                    if (state.customGames[gameId]) {
-                        delete state.customGames[gameId];
-                    }
-                    saveStateToStorage();
-                    renderActiveGames();
-                    updateCountersUI();
-                    showToast('Juego quitado de tu plantilla', '🗑️');
-                }
-            });
-
-            document.getElementById('btn-process-smart').addEventListener('click', processSmartPaste);
-            document.getElementById('btn-load-sample').addEventListener('click', loadSampleData);
-            document.getElementById('btn-clear-all').addEventListener('click', clearAll);
-
-            document.getElementById('btn-download').addEventListener('click', downloadCanvasImage);
-            document.getElementById('btn-copy').addEventListener('click', copyCanvasImage);
-            document.getElementById('btn-share').addEventListener('click', shareCanvasImage);
-        }
-
-        function wrapTextLines(ctx, text, maxWidth) {
-            if (!text) return [''];
-            if (ctx.measureText(text).width <= maxWidth) return [text];
-
-            const words = text.split(' ');
-            const lines = [];
-            let currentLine = '';
-
-            for (let word of words) {
-                const testLine = currentLine ? currentLine + ' ' + word : word;
-                if (ctx.measureText(testLine).width <= maxWidth) {
-                    currentLine = testLine;
-                } else {
-                    if (currentLine) {
-                        lines.push(currentLine);
-                        currentLine = '';
-                    }
-                    if (ctx.measureText(word).width <= maxWidth) {
-                        currentLine = word;
-                    } else {
-                        let segment = '';
-                        const characters = Array.from(word);
-                        for (let ch of characters) {
-                            if (ctx.measureText(segment + ch).width <= maxWidth) {
-                                segment += ch;
-                            } else {
-                                if (segment) lines.push(segment);
-                                segment = ch;
-                            }
-                        }
-                        currentLine = segment;
-                    }
-                }
-            }
-            if (currentLine) lines.push(currentLine);
-            return lines;
-        }
-
-        function updateCanvas() {
-            if (!canvas) return;
-            const activeResults = Object.values(state.results);
-            const emptyState = document.getElementById('canvas-empty-state');
-
-            if (activeResults.length === 0) {
-                emptyState.classList.remove('hidden');
-            } else {
-                emptyState.classList.add('hidden');
-            }
-
-            const width = 1080;
-            const padding = 60;
-            const columnGap = 30;
-            const colWidth = (width - (padding * 2) - columnGap) / 2;
-            const cardInnerPadding = 24;
-            const maxTextWidth = colWidth - (cardInnerPadding * 2);
-            const lineHeight = 30;
-            const headerHeight = 85;
-
-            // Medición de texto y salto de línea adaptativo sin límite de líneas
-            const measuredCards = activeResults.map(result => {
-                const wrappedLines = [];
-                result.displayLines.forEach(rawLine => {
-                    const hasEmojis = /(\p{Extended_Pictographic}|[🟩🟨⬛⬜🟪🟦🟫🟡🔴🟥🟧⚪⚫📍])/u.test(rawLine);
-                    ctx.save();
-                    if (hasEmojis) {
-                        ctx.font = '22px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
-                    } else {
-                        ctx.font = '600 16px "Plus Jakarta Sans", sans-serif';
-                    }
-                    const wrapped = wrapTextLines(ctx, rawLine, maxTextWidth);
-                    wrappedLines.push(...wrapped);
-                    ctx.restore();
-                });
-
-                const contentHeight = Math.max(wrappedLines.length * lineHeight, lineHeight);
-                const cardHeight = headerHeight + contentHeight + 28;
-
-                return {
-                    result,
-                    wrappedLines,
-                    height: cardHeight
-                };
-            });
-
-            // Masonry de doble columna independiente
-            const avatarSize = 90;
-            const startY = padding + avatarSize + 40;
-            const colY = [startY, startY];
-
-            const cardPlacements = measuredCards.map(item => {
-                const col = colY[0] <= colY[1] ? 0 : 1;
-                const x = padding + (col * (colWidth + columnGap));
-                const y = colY[col];
-                colY[col] += item.height + 24;
-
-                return {
-                    ...item,
-                    x,
-                    y,
-                    width: colWidth
-                };
-            });
-
-            const cardsMaxY = activeResults.length === 0 ? startY + 200 : Math.max(...colY);
-            const height = Math.max(1400, cardsMaxY + 95);
-
-            canvas.width = width;
-            canvas.height = height;
-
-            // Fondo HD 1080px sin deformación
-            if (loadedBgImage) {
-                ctx.fillStyle = '#18191c';
-                ctx.fillRect(0, 0, width, height);
-                const bgSourceHeight = loadedBgImage.naturalHeight || 1920;
-                const cropHeight = Math.min(height, bgSourceHeight);
-                ctx.drawImage(loadedBgImage, 0, 0, width, cropHeight, 0, 0, width, cropHeight);
-            } else {
-                const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
-                bgGradient.addColorStop(0, '#32353b');
-                bgGradient.addColorStop(0.3, '#2a2c32');
-                bgGradient.addColorStop(0.7, '#212328');
-                bgGradient.addColorStop(1, '#18191c');
-                ctx.fillStyle = bgGradient;
-                ctx.fillRect(0, 0, width, height);
-            }
-
-            // Avatar Rendering
-            const avatarX = padding;
-            const avatarY = padding;
-            
-            if (loadedAvatarImage) {
-                ctx.save();
-                ctx.beginPath();
-                ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, Math.PI * 2);
-                ctx.clip();
-                ctx.drawImage(loadedAvatarImage, avatarX, avatarY, avatarSize, avatarSize);
-                ctx.restore();
-
-                ctx.save();
-                ctx.strokeStyle = '#a855f7';
-                ctx.lineWidth = 3.5;
-                ctx.beginPath();
-                ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, Math.PI * 2);
-                ctx.stroke();
-                ctx.restore();
-            } else {
-                drawRoundedRect(ctx, avatarX, avatarY, avatarSize, avatarSize, 26, '#7c3aed', true);
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '800 40px "Plus Jakarta Sans", sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                const initial = (state.userName || 'U').charAt(0).toUpperCase();
-                ctx.fillText(initial, avatarX + avatarSize/2, avatarY + avatarSize/2);
-            }
-
-            // Nombre de Usuario prominente y fecha
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'top';
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '800 44px "Plus Jakarta Sans", sans-serif';
-            ctx.fillText(state.userName || 'Usuario desconocido', avatarX + avatarSize + 24, avatarY + 8);
-
-            ctx.fillStyle = '#e2e8f0';
-            ctx.font = '600 20px "Plus Jakarta Sans", sans-serif';
-            const formattedDate = new Date(state.date).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            ctx.fillText(formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1), avatarX + avatarSize + 24, avatarY + 56);
-
-            // Contadores en la imagen (Arriba a la derecha alineados con la fecha)
-            const todayCount = Object.keys(state.results).length;
-            const lifetimeCount = state.lifetimeGamesCount || 0;
-            const badgeY = avatarY + 48;
-            const badgeHeight = 34;
-
-            const lifetimeText = `🏆 Total: ${lifetimeCount}`;
-            ctx.font = 'bold 15px "Plus Jakarta Sans", sans-serif';
-            const lifetimeWidth = ctx.measureText(lifetimeText).width + 24;
-            const lifetimeX = width - padding - lifetimeWidth;
-
-            drawRoundedRect(ctx, lifetimeX, badgeY, lifetimeWidth, badgeHeight, 10, 'rgba(245, 158, 11, 0.16)', true, 'rgba(245, 158, 11, 0.50)');
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = '#fde68a';
-            ctx.fillText(lifetimeText, lifetimeX + (lifetimeWidth / 2), badgeY + (badgeHeight / 2));
-
-            const todayText = `⚡ Hoy: ${todayCount}`;
-            const todayWidth = ctx.measureText(todayText).width + 24;
-            const todayX = lifetimeX - todayWidth - 12;
-
-            drawRoundedRect(ctx, todayX, badgeY, todayWidth, badgeHeight, 10, 'rgba(168, 85, 247, 0.18)', true, 'rgba(168, 85, 247, 0.50)');
-            ctx.fillStyle = '#e9d5ff';
-            ctx.fillText(todayText, todayX + (todayWidth / 2), badgeY + (badgeHeight / 2));
-
-            // Renderizado de tarjetas de minijuegos
-            const cardBg = 'rgba(28, 30, 36, 0.88)';
-            const cardBorder = 'rgba(168, 85, 247, 0.30)';
-
-            cardPlacements.forEach(item => {
-                const { result, wrappedLines, x, y, width: cWidth, height: cHeight } = item;
-
-                drawRoundedRect(ctx, x, y, cWidth, cHeight, 20, cardBg, true, cardBorder);
-                drawRoundedRect(ctx, x + 20, y + 20, 10, 34, 5, result.badgeColor, true);
-
-                ctx.textAlign = 'left';
-                ctx.textBaseline = 'top';
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 22px "Plus Jakarta Sans", sans-serif';
-                ctx.fillText(result.name, x + 40, y + 20);
-
-                ctx.fillStyle = '#cbd5e1';
-                ctx.font = '500 16px "Plus Jakarta Sans", sans-serif';
-                ctx.fillText(result.edition, x + 40, y + 46);
-
-                // Insignia de puntuación a la derecha
-                const scoreText = result.score;
-                ctx.font = 'bold 18px "Plus Jakarta Sans", sans-serif';
-                const scoreWidth = ctx.measureText(scoreText).width + 30;
-                drawRoundedRect(ctx, x + cWidth - scoreWidth - 20, y + 20, scoreWidth, 36, 12, 'rgba(255,255,255,0.12)', true);
-                
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#ffffff';
-                ctx.fillText(scoreText, x + cWidth - (scoreWidth/2) - 20, y + 26);
-
-                // Separador
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-                ctx.beginPath();
-                ctx.moveTo(x + 20, y + 78);
-                ctx.lineTo(x + cWidth - 20, y + 78);
-                ctx.stroke();
-
-                // Líneas envueltas
-                ctx.textAlign = 'left';
-                let lineY = y + 98;
-
-                wrappedLines.forEach(line => {
-                    const hasEmojis = /(\p{Extended_Pictographic}|[🟩🟨⬛⬜🟪🟦🟫🟡🔴🟥🟧⚪⚫📍])/u.test(line);
-                    if (hasEmojis) {
-                        ctx.font = '22px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
-                        ctx.fillStyle = '#ffffff';
-                    } else {
-                        ctx.font = '600 16px "Plus Jakarta Sans", sans-serif';
-                        ctx.fillStyle = '#f1f5f9';
-                    }
-                    ctx.fillText(line, x + 24, lineY);
-                    lineY += lineHeight;
-                });
-            });
-
-            // Pie de imagen
-            const footerY = height - 45;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = '#cbd5e1';
-            ctx.font = '600 16px "Plus Jakarta Sans", sans-serif';
-            ctx.fillText('Generado con Diarias Discord · Amigos Delaware', width / 2, footerY);
-        }
-
-        function drawRoundedRect(ctx, x, y, width, height, radius, fillStyle, fill = true, strokeStyle = null) {
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(x + radius, y);
-            ctx.arcTo(x + width, y, x + width, y + height, radius);
-            ctx.arcTo(x + width, y + height, x, y + height, radius);
-            ctx.arcTo(x, y + height, x, y, radius);
-            ctx.arcTo(x, y, x + width, y, radius);
-            ctx.closePath();
-
-            if (fill && fillStyle) {
-                ctx.fillStyle = fillStyle;
-                ctx.fill();
-            }
-
-            if (strokeStyle) {
-                ctx.strokeStyle = strokeStyle;
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
-            }
-            ctx.restore();
-        }
-
-        function downloadCanvasImage() {
-            if (Object.keys(state.results).length === 0) {
-                showToast('Añade al menos un resultado antes de descargar', '⚠️');
-                return;
-            }
-            const link = document.createElement('a');
-            link.download = `diarias-discord-${state.date}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            showToast('¡Imagen descargada!', '💾');
-        }
-
-        async function copyCanvasImage() {
-            if (Object.keys(state.results).length === 0) {
-                showToast('Añade al menos un resultado antes de copiar', '⚠️');
-                return;
-            }
-            try {
-                canvas.toBlob(async (blob) => {
-                    const item = new ClipboardItem({ 'image/png': blob });
-                    await navigator.clipboard.write([item]);
-                    showToast('¡Imagen copiada al portapapeles!', '📋');
-                });
-            } catch (err) {
-                showToast('Error al copiar. Intenta descargarla.', '❌');
-            }
-        }
-
-        async function shareCanvasImage() {
-            if (Object.keys(state.results).length === 0) {
-                showToast('Añade al menos un resultado antes de compartir', '⚠️');
-                return;
-            }
-            try {
-                canvas.toBlob(async (blob) => {
-                    const file = new File([blob], `diarias-${state.date}.png`, { type: 'image/png' });
-                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            title: 'Diarias Discord - Amigos Delaware',
-                            text: '¡Mis resultados de minijuegos de hoy!',
-                            files: [file]
-                        });
-                        showToast('Compartido con éxito', '🚀');
-                    } else {
-                        copyCanvasImage();
-                    }
-                });
-            } catch (err) {
-                showToast('No se pudo abrir el menú nativo de compartir', '⚠️');
-            }
-        }
-
-        function showToast(message, icon = '✨') {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').textContent = message;
-            document.getElementById('toast-icon').textContent = icon;
-
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
-        }
-
-        window.onload = init;
+            searchInput.addEventListener('input', (e) => renderCatalog(e.target.value));
+            renderCatalog();
+        });
     </script>
 </body>
 </html>
