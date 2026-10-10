@@ -48,51 +48,10 @@
 </head>
 <body class="h-full bg-slate-950 text-slate-100 font-sans flex flex-col antialiased selection:bg-brand-500 selection:text-white">
 
-    <!-- Iframe invisible que carga listajuegos.html de forma paralela y transparente -->
-    <iframe id="catalog-frame" src="listajuegos.html" style="display:none;" title="Catalog Module"></iframe>
-
     <!-- Toast Notification Banner -->
     <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-out bg-slate-800 border border-slate-700 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
         <span id="toast-icon" class="text-xl">✨</span>
         <span id="toast-message" class="font-medium text-sm">Notificación</span>
-    </div>
-
-    <!-- Modal: Catálogo de Juegos para Añadir -->
-    <div id="catalog-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
-        <div class="bg-slate-900 border border-purple-900/60 rounded-3xl max-w-2xl w-full p-6 shadow-2xl flex flex-col max-h-[88vh] space-y-4">
-            <div class="flex items-center justify-between border-b border-purple-900/40 pb-4">
-                <div>
-                    <h3 class="text-base font-extrabold text-white flex items-center gap-2">
-                        <span>📚 Catálogo de Minijuegos</span>
-                        <span id="catalog-badge-total" class="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">Cargando...</span>
-                    </h3>
-                    <p class="text-xs text-slate-400 mt-0.5">Elige los minijuegos que juegas habitualmente para incorporarlos a tu lista diaria.</p>
-                </div>
-                <button id="btn-close-modal" type="button" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition">
-                    ✕
-                </button>
-            </div>
-
-            <div class="flex items-center gap-3">
-                <input type="text" id="modal-search-input" placeholder="Buscar juego en el catálogo..." class="flex-1 bg-slate-950 border border-purple-900/60 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500 transition">
-                <button id="btn-create-custom-inside-modal" class="px-3.5 py-2 rounded-xl bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 text-xs font-semibold transition flex items-center gap-1.5 whitespace-nowrap">
-                    <span>+ Juego Personalizado</span>
-                </button>
-            </div>
-
-            <!-- Listado dinámico del catálogo -->
-            <div id="modal-catalog-list" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
-
-            <div class="flex items-center justify-between border-t border-purple-900/40 pt-4">
-                <a href="listajuegos.html" target="_blank" class="text-xs text-purple-400 hover:text-purple-300 transition flex items-center gap-1">
-                    <span>Ver módulo listajuegos.html</span>
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                </a>
-                <button id="btn-modal-done" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow-md">
-                    Guardar Selección
-                </button>
-            </div>
-        </div>
     </div>
 
     <!-- Header Navigation -->
@@ -121,7 +80,7 @@
                     </svg>
                     <span>Cargar Ejemplo</span>
                 </button>
-                <button id="btn-clear-all" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition" title="Limpiar resultados">
+                <button id="btn-clear-all" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition" title="Limpiar todo">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
@@ -141,11 +100,11 @@
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-bold tracking-wider text-purple-300 uppercase flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-purple-500"></span>
-                        1. Información del Jugador
+                        Información del Jugador
                     </h2>
                 </div>
 
-                <!-- Game Counters Banner -->
+                <!-- Game Counters Banner in Page UI -->
                 <div class="grid grid-cols-2 gap-3 p-3 bg-purple-950/40 border border-purple-800/40 rounded-xl text-center">
                     <div class="space-y-0.5">
                         <span class="text-[11px] font-semibold text-purple-300 block uppercase tracking-wider">En esta imagen</span>
@@ -204,21 +163,22 @@
             <!-- Games Selection & Paste Boxes -->
             <div class="bg-slate-900/80 border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4 backdrop-blur-sm">
                 <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-bold tracking-wider text-purple-300 uppercase flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            2. Tu Lista de Minijuegos
-                        </h2>
-                        <span id="active-games-count-badge" class="text-[11px] text-slate-400">0 juegos en tu plantilla</span>
-                    </div>
-                    <button id="btn-open-catalog-modal" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-md">
+                    <h2 class="text-sm font-bold tracking-wider text-purple-300 uppercase flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        Minijuegos Amigos Delaware
+                    </h2>
+                    <button id="btn-add-custom-game" class="text-xs font-semibold text-purple-400 hover:text-purple-300 transition flex items-center gap-1">
                         <span>+ Añadir nuevo juego</span>
                     </button>
                 </div>
 
+                <p class="text-xs text-slate-400">
+                    Haz clic en el nombre de cualquier juego para ir a su web, o pega los resultados directamente aquí.
+                </p>
+
                 <!-- Smart Auto Paste Input -->
                 <div class="relative">
-                    <textarea id="smart-paste-box" rows="3" placeholder="💡 ¡Pega aquí múltiples resultados de una vez y se procesarán automáticamente!" class="w-full bg-slate-950/80 border border-purple-500/40 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition resize-none placeholder-slate-500"></textarea>
+                    <textarea id="smart-paste-box" rows="3" placeholder="💡 ¡Puedes pegar aquí múltiples resultados seguidos directamente de una sola vez!" class="w-full bg-slate-950/80 border border-purple-500/40 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition resize-none placeholder-slate-500"></textarea>
                     <button id="btn-process-smart" class="absolute bottom-3 right-3 px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-medium transition shadow-md">
                         Procesar Todo
                     </button>
@@ -226,23 +186,7 @@
 
                 <div class="border-t border-purple-900/40 my-3"></div>
 
-                <!-- Empty State for New Users -->
-                <div id="games-empty-state" class="p-8 border border-dashed border-purple-900/50 rounded-2xl bg-slate-950/40 text-center space-y-3">
-                    <div class="w-12 h-12 rounded-2xl bg-purple-900/30 border border-purple-800/40 text-purple-300 flex items-center justify-center mx-auto text-xl">
-                        🎮
-                    </div>
-                    <div class="space-y-1">
-                        <h3 class="text-sm font-bold text-slate-200">Tu lista diaria está vacía</h3>
-                        <p class="text-xs text-slate-400 max-w-sm mx-auto">
-                            Personaliza tu plantilla eligiendo únicamente los juegos que juegas habitualmente desde nuestro catálogo.
-                        </p>
-                    </div>
-                    <button id="btn-empty-state-add" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition shadow-lg inline-flex items-center gap-1.5">
-                        <span>Seleccionar minijuegos del catálogo</span>
-                    </button>
-                </div>
-
-                <!-- Dynamic game inputs container -->
+                <!-- Dynamic game inputs injected here via JS -->
                 <div id="games-inputs-container" class="space-y-3"></div>
             </div>
 
@@ -267,13 +211,13 @@
                 <div class="relative rounded-xl overflow-hidden bg-slate-950 border border-purple-900/50 flex items-center justify-center min-h-[380px] p-2 sm:p-4 group">
                     <canvas id="preview-canvas" class="max-w-full h-auto rounded-lg shadow-2xl transition-all duration-200"></canvas>
                     
-                    <!-- Overlay empty state -->
+                    <!-- Overlay loading/empty state -->
                     <div id="canvas-empty-state" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
                         <div class="w-12 h-12 rounded-full bg-purple-900/40 flex items-center justify-center text-purple-300 mb-3 border border-purple-700/50">
                             🎮
                         </div>
-                        <h3 class="text-sm font-bold text-slate-200">Aún no has añadido resultados hoy</h3>
-                        <p class="text-xs text-slate-400 mt-1 max-w-xs">Añade juegos a tu lista o pulsa en "Cargar Ejemplo" para probar la plantilla.</p>
+                        <h3 class="text-sm font-bold text-slate-200">Aún no has añadido resultados</h3>
+                        <p class="text-xs text-slate-400 mt-1 max-w-xs">Pega el resultado de algún juego o haz clic en "Cargar Ejemplo" para ver la plantilla.</p>
                     </div>
                 </div>
 
@@ -303,34 +247,116 @@
             </div>
 
             <div class="text-center text-xs text-slate-500">
-                Amigos Delaware · Imagen generada en alta definición con módulo <code>listajuegos.html</code>.
+                Amigos Delaware · Imagen generada en alta definición.
             </div>
 
         </section>
     </main>
 
+    <!-- JavaScript Logic & Engine -->
     <script>
-        const STORAGE_KEY = 'daily_game_hub_delaware_v2';
-        const BG_IMAGE_URL = 'https://i.imgur.com/PjCLFIL.png';
-
-        // Catálogo dinámico cargado desde listajuegos.html
-        let CATALOG = {};
-
-        // Estado del usuario
-        let state = {
-            userName: 'Usuario desconocido',
-            avatarUrl: null,
-            date: new Date().toISOString().split('T')[0],
-            userSelectedGameIds: [], // Inicialmente vacío para cada usuario nuevo
-            results: {},
-            customGames: {},
-            lifetimeGamesCount: 0,
-            recordedGameKeys: {}
+        const GAMES = {
+            crissle: {
+                id: 'crissle',
+                name: 'Crissle',
+                badgeColor: '#FA8072', // Salmón
+                pattern: /Crissle/i,
+                url: 'https://crissle.es/',
+                sample: `Crissle #42\n4/6 · 120 pts\n🟩🟩🟩🟩`
+            },
+            gnarlyq: {
+                id: 'gnarlyq',
+                name: 'GnarlyQ',
+                badgeColor: '#1D3557', // Azul marino
+                pattern: /GnarlyQ|gnarly/i,
+                url: 'https://gnarlyq.com/',
+                sample: `GnarlyQ #87\n60 PTS · 39\n\n60 — catch me if you can.`
+            },
+            maptap: {
+                id: 'maptap',
+                name: 'MapTap',
+                badgeColor: '#2D6A4F', // Verde bosque
+                pattern: /MapTap|maptap/i,
+                url: 'https://maptap.gg/',
+                sample: `MapTap October 8\n85 100 96 81 94\nFinal score: 902`
+            },
+            ostra: {
+                id: 'ostra',
+                name: 'Ostra',
+                badgeColor: '#004B49', // Verde botella
+                pattern: /Ostra/i,
+                url: 'https://playostra.com/',
+                sample: `Ostra #30\n✨ Racha: 5 días\nCompletado en 3 intentos`
+            },
+            pinstinct: {
+                id: 'pinstinct',
+                name: 'Pinstinct',
+                badgeColor: '#F97316', // Naranja
+                pattern: /Pinstinct/i,
+                url: 'https://pinstinct.tomjwatson.com/',
+                sample: `Pinstinct / 59\n\n4,068 / 4,531 / 5,000 / 3,505 / 3,480\n\nScore / 20,584 / Gold`
+            },
+            zanagramas: {
+                id: 'zanagramas',
+                name: 'Zanagramas',
+                badgeColor: '#6B7280', // Gris
+                pattern: /Zanagramas/i,
+                url: 'https://zanagrams.com/es/',
+                sample: `Zanagramas #78\n🔤 8/8 palabras encontradas\nTiempo: 01:45`
+            },
+            catfishing: {
+                id: 'catfishing',
+                name: 'Catfishing',
+                badgeColor: '#10B981', // Verde esmeralda
+                pattern: /Catfishing/i,
+                url: 'https://catfishing.net/',
+                sample: `Catfishing #15\n🎣 Capturado con éxito\n100% de efectividad`
+            },
+            krillion: {
+                id: 'krillion',
+                name: 'Krillion',
+                badgeColor: '#38BDF8', // Celeste
+                pattern: /Krillion/i,
+                url: 'https://krillion.io/',
+                sample: `Krillion #99\n💎 1,250,000 pts\nNivel Máximo alcanzado`
+            },
+            framed: {
+                id: 'framed',
+                name: 'Framed',
+                badgeColor: '#4169E1', // Azul royal
+                pattern: /Framed/i,
+                url: 'https://framed.wtf/',
+                sample: `Framed #1671\n🎥 🟩 ⬛ ⬛ ⬛ ⬛ ⬛`
+            },
+            sizeitup: {
+                id: 'sizeitup',
+                name: 'Size It Up',
+                badgeColor: '#EF4444', // Rojo
+                pattern: /Size\s*It\s*Up|magnitudle/i,
+                url: 'https://magnitudle.com/size-it-up',
+                sample: `Size It Up\nOverall Score 336\n\n44\n54\n79\n73\n86`
+            },
+            wikitrivia: {
+                id: 'wikitrivia',
+                name: 'Wikitrivia',
+                badgeColor: '#CC7722', // Ocre
+                pattern: /wikitrivia/i,
+                url: 'https://wikitrivia.tomjwatson.com/',
+                sample: `#wikitrivia / Daily for Oct 7 2026\n\nScore / 22 / Gold`
+            },
+            geoguessr: {
+                id: 'geoguessr',
+                name: 'GeoGuessr',
+                badgeColor: '#8B5CF6', // Morado
+                pattern: /geoguessr|\b\d+\.\s*[^:]+:\s*\d+\s*pts|Total:\s*[\d.,]+\s*pts/i,
+                url: 'https://www.geoguessr.com/es/daily-challenges',
+                sample: `1. 📍: 4996 pts., 1,3 km, 3 min, 48 pasos\n2. 📍: 5000 pts., 52 m, 3 min, 36 pasos\n3. 📍: 3285 pts., 626 km, 3 min, 64 pasos\n4. 📍: 4529 pts., 148 km, 3 min, 43 pasos\n5. 📍: 4286 pts., 230 km, 3 min, 56 pasos\nTotal: 22.096 pts., 1005 km, 15 min, 247 pasos`
+            }
         };
 
-        let loadedAvatarImage = null;
-        let loadedBgImage = null;
+        const STORAGE_KEY = 'daily_game_hub_delaware_v1';
 
+        // Gaming Date string (Daily reset occurs strictly at 05:00 AM)
         function getGamingDateString() {
             const now = new Date();
             if (now.getHours() < 5) {
@@ -339,40 +365,33 @@
             return now.toISOString().split('T')[0];
         }
 
-        // Carga dinámica del módulo listajuegos.html
-        async function fetchCatalogFromModule() {
-            try {
-                const response = await fetch('listajuegos.html');
-                if (response.ok) {
-                    const htmlText = await response.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(htmlText, 'text/html');
-                    const scriptTag = doc.getElementById('delaware-catalog-script');
-                    if (scriptTag && scriptTag.textContent) {
-                        const runner = new Function(scriptTag.textContent);
-                        runner();
-                        if (window.DELAWARE_CATALOG && Object.keys(window.DELAWARE_CATALOG).length > 0) {
-                            CATALOG = window.DELAWARE_CATALOG;
-                            console.log('✓ Catálogo leído con éxito desde listajuegos.html:', Object.keys(CATALOG).length, 'juegos.');
-                            return;
-                        }
-                    }
-                }
-            } catch (err) {
-                console.warn('Fetch local bloqueado o no disponible, intentando leer via iframe...', err);
-            }
+        // Application State
+        let state = {
+            userName: 'Usuario desconocido',
+            avatarUrl: null,
+            date: new Date().toISOString().split('T')[0],
+            results: {},
+            customGames: {},
+            lifetimeGamesCount: 0,
+            recordedGameKeys: {}
+        };
 
-            // Fallback via Iframe
-            const iframe = document.getElementById('catalog-frame');
-            if (iframe && iframe.contentWindow && iframe.contentWindow.DELAWARE_CATALOG) {
-                CATALOG = iframe.contentWindow.DELAWARE_CATALOG;
-                return;
-            }
+        let loadedAvatarImage = null;
+        let loadedBgImage = null;
+        const BG_IMAGE_URL = 'diariasbg.png';
 
-            // Respaldo de seguridad si se abre en file:// sin servidor
-            if (window.DELAWARE_CATALOG) {
-                CATALOG = window.DELAWARE_CATALOG;
-            }
+        function preloadBgImage() {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => { 
+                loadedBgImage = img; 
+                updateCanvas(); 
+            };
+            img.onerror = () => { 
+                console.warn('No se pudo cargar la imagen de fondo desde la URL'); 
+                updateCanvas(); 
+            };
+            img.src = BG_IMAGE_URL;
         }
 
         function saveStateToStorage() {
@@ -381,7 +400,6 @@
                     gamingDate: getGamingDateString(),
                     userName: state.userName,
                     avatarUrl: state.avatarUrl,
-                    userSelectedGameIds: state.userSelectedGameIds,
                     results: state.results,
                     customGames: state.customGames,
                     lifetimeGamesCount: state.lifetimeGamesCount,
@@ -389,7 +407,7 @@
                 };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
             } catch (e) {
-                console.warn('No se pudo guardar en localStorage', e);
+                console.warn('Could not save to localStorage', e);
             }
         }
 
@@ -403,12 +421,11 @@
 
                 state.userName = saved.userName || 'Usuario desconocido';
                 state.avatarUrl = saved.avatarUrl || null;
-                state.userSelectedGameIds = Array.isArray(saved.userSelectedGameIds) ? saved.userSelectedGameIds : [];
                 state.customGames = saved.customGames || {};
                 state.lifetimeGamesCount = saved.lifetimeGamesCount || 0;
                 state.recordedGameKeys = saved.recordedGameKeys || {};
 
-                // Custom games inherit white badge
+                // Custom games inherit white badge color
                 Object.keys(state.customGames).forEach(id => {
                     state.customGames[id].isCustom = true;
                     state.customGames[id].badgeColor = '#ffffff';
@@ -422,29 +439,28 @@
                     state.results = saved.results || {};
                 }
             } catch (e) {
-                console.warn('No se pudo cargar desde localStorage', e);
+                console.warn('Could not load from localStorage', e);
             }
         }
 
-        function preloadBgImage() {
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => { loadedBgImage = img; updateCanvas(); };
-            img.onerror = () => { updateCanvas(); };
-            img.src = BG_IMAGE_URL;
+        let canvas, ctx, userNameInput, dateInput, gamesContainer, smartPasteBox;
+        let avatarFileInput, avatarImgPreview, avatarInitialText, btnRemoveAvatar;
+
+        function updateCountersUI() {
+            const todayCount = Object.keys(state.results).length;
+            const todayCounterElem = document.getElementById('counter-today');
+            const lifetimeCounterElem = document.getElementById('counter-lifetime');
+
+            if (todayCounterElem) todayCounterElem.textContent = todayCount;
+            if (lifetimeCounterElem) lifetimeCounterElem.textContent = state.lifetimeGamesCount;
         }
 
-        let canvas, ctx, userNameInput, dateInput, gamesContainer, gamesEmptyState, smartPasteBox;
-        let avatarFileInput, avatarImgPreview, avatarInitialText, btnRemoveAvatar;
-        let catalogModal, modalCatalogList, modalSearchInput;
-
-        async function init() {
+        function init() {
             canvas = document.getElementById('preview-canvas');
             ctx = canvas.getContext('2d');
             userNameInput = document.getElementById('user-name');
             dateInput = document.getElementById('summary-date');
             gamesContainer = document.getElementById('games-inputs-container');
-            gamesEmptyState = document.getElementById('games-empty-state');
             smartPasteBox = document.getElementById('smart-paste-box');
 
             avatarFileInput = document.getElementById('avatar-file-input');
@@ -452,74 +468,59 @@
             avatarInitialText = document.getElementById('avatar-initial-text');
             btnRemoveAvatar = document.getElementById('btn-remove-avatar');
 
-            catalogModal = document.getElementById('catalog-modal');
-            modalCatalogList = document.getElementById('modal-catalog-list');
-            modalSearchInput = document.getElementById('modal-search-input');
-
-            // 1. Cargar el catálogo externo desde listajuegos.html
-            await fetchCatalogFromModule();
-
-            // 2. Cargar estado guardado del usuario
             loadStateFromStorage();
 
             dateInput.value = state.date;
             userNameInput.value = state.userName;
 
+            Object.assign(GAMES, state.customGames);
+
+            // Sync updated game colors into loaded results
+            Object.keys(state.results).forEach(id => {
+                if (GAMES[id]) {
+                    state.results[id].badgeColor = GAMES[id].badgeColor;
+                }
+            });
+
+            renderGameInputs();
             updateAvatarUI();
             updateCountersUI();
-            renderActiveGames();
+
+            Object.values(state.results).forEach(res => {
+                const inputElem = document.getElementById(`input-${res.id}`);
+                if (inputElem && res.rawText) {
+                    inputElem.value = res.rawText;
+                }
+            });
+
             setupEventListeners();
             preloadBgImage();
             preloadAvatarAndUpdateCanvas();
 
             if (document.fonts && document.fonts.ready) {
-                document.fonts.ready.then(() => updateCanvas());
+                document.fonts.ready.then(() => {
+                    updateCanvas();
+                });
             }
         }
 
-        function getCombinedGameDefinition(gameId) {
-            if (state.customGames[gameId]) {
-                return state.customGames[gameId];
-            }
-            if (CATALOG[gameId]) {
-                return CATALOG[gameId];
-            }
-            return {
-                id: gameId,
-                name: 'Juego',
-                badgeColor: '#ffffff'
-            };
-        }
-
-        function renderActiveGames() {
+        function renderGameInputs() {
             gamesContainer.innerHTML = '';
-            const activeIds = state.userSelectedGameIds;
-            const badgeTotal = document.getElementById('active-games-count-badge');
-            if (badgeTotal) {
-                badgeTotal.textContent = `${activeIds.length} ${activeIds.length === 1 ? 'juego' : 'juegos'} en tu plantilla`;
-            }
-
-            if (activeIds.length === 0) {
-                gamesEmptyState.classList.remove('hidden');
-                gamesContainer.classList.add('hidden');
-                updateCanvas();
-                return;
-            }
-
-            gamesEmptyState.classList.add('hidden');
-            gamesContainer.classList.remove('hidden');
-
-            activeIds.forEach(id => {
-                const game = getCombinedGameDefinition(id);
+            Object.values(GAMES).forEach(game => {
                 const card = document.createElement('div');
                 card.className = 'bg-slate-950/80 border border-purple-900/40 rounded-xl p-3 space-y-2';
-
+                
                 let titleMarkup = '';
                 let extraActionMarkup = '';
 
-                if (game.isCustom || id.startsWith('custom_')) {
+                if (game.isCustom || game.id.startsWith('custom_')) {
                     titleMarkup = `
-                        <input type="text" id="name-input-${id}" data-game="${id}" value="${game.name}" placeholder="Nombre del juego..." class="custom-game-name-input bg-slate-900/90 border border-purple-800/60 focus:border-purple-400 rounded-lg px-2.5 py-1 text-xs font-bold text-white focus:outline-none w-48 transition" title="Haz clic para editar el nombre">
+                        <input type="text" id="name-input-${game.id}" data-game="${game.id}" value="${game.name}" placeholder="Nombre del juego..." class="custom-game-name-input bg-slate-900/90 border border-purple-800/60 focus:border-purple-400 rounded-lg px-2.5 py-1 text-xs font-bold text-white focus:outline-none w-48 transition" title="Haz clic para editar el nombre">
+                    `;
+                    extraActionMarkup = `
+                        <button type="button" data-game="${game.id}" class="btn-delete-custom text-[11px] text-slate-500 hover:text-rose-400 transition ml-2" title="Eliminar juego">
+                            Eliminar
+                        </button>
                     `;
                 } else if (game.url) {
                     titleMarkup = `
@@ -532,14 +533,6 @@
                     titleMarkup = `<span class="text-xs font-bold text-slate-200">${game.name}</span>`;
                 }
 
-                extraActionMarkup = `
-                    <button type="button" data-game="${id}" class="btn-remove-from-roster text-[11px] text-slate-500 hover:text-rose-400 transition ml-2.5 font-medium" title="Quitar de mi plantilla">
-                        ✕ Quitar
-                    </button>
-                `;
-
-                const savedResultText = (state.results[id] && state.results[id].rawText) ? state.results[id].rawText : '';
-
                 card.innerHTML = `
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
@@ -547,318 +540,16 @@
                             ${titleMarkup}
                         </div>
                         <div class="flex items-center">
-                            <button type="button" data-game="${id}" class="btn-clear-game text-[11px] text-slate-500 hover:text-amber-400 transition">
+                            <button type="button" data-game="${game.id}" class="btn-clear-game text-[11px] text-slate-500 hover:text-rose-400 transition">
                                 Limpiar
                             </button>
                             ${extraActionMarkup}
                         </div>
                     </div>
-                    <textarea id="input-${id}" data-game="${id}" rows="2" placeholder="Pega aquí el resultado..." class="game-textarea w-full bg-slate-900 border border-purple-900/40 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-purple-500 transition resize-none placeholder-slate-600 font-mono">${savedResultText}</textarea>
+                    <textarea id="input-${game.id}" data-game="${game.id}" rows="2" placeholder="Pega aquí el resultado..." class="game-textarea w-full bg-slate-900 border border-purple-900/40 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-purple-500 transition resize-none placeholder-slate-600 font-mono"></textarea>
                 `;
                 gamesContainer.appendChild(card);
             });
-
-            updateCanvas();
-        }
-
-        function openCatalogModal() {
-            modalSearchInput.value = '';
-            renderModalCatalogList();
-            catalogModal.classList.remove('hidden');
-            requestAnimationFrame(() => catalogModal.classList.remove('opacity-0'));
-        }
-
-        function closeCatalogModal() {
-            catalogModal.classList.add('opacity-0');
-            setTimeout(() => {
-                catalogModal.classList.add('hidden');
-            }, 200);
-        }
-
-        function renderModalCatalogList(searchQuery = '') {
-            modalCatalogList.innerHTML = '';
-            const allAvailable = { ...CATALOG, ...state.customGames };
-            const gamesArray = Object.values(allAvailable);
-
-            document.getElementById('catalog-badge-total').textContent = `${gamesArray.length} disponibles`;
-
-            const filtered = gamesArray.filter(g => 
-                g.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                (g.description && g.description.toLowerCase().includes(searchQuery.toLowerCase()))
-            );
-
-            if (filtered.length === 0) {
-                modalCatalogList.innerHTML = `
-                    <div class="p-6 text-center text-slate-500 text-xs">
-                        No se encontró ningún juego con ese término. Puedes crearlo como personalizado.
-                    </div>
-                `;
-                return;
-            }
-
-            filtered.forEach(game => {
-                const isSelected = state.userSelectedGameIds.includes(game.id);
-                const item = document.createElement('div');
-                item.className = `p-3 rounded-xl border flex items-center justify-between gap-3 transition ${
-                    isSelected 
-                        ? 'bg-purple-950/40 border-purple-600/60' 
-                        : 'bg-slate-950/60 border-purple-900/30 hover:border-purple-700/50'
-                }`;
-
-                item.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="w-3.5 h-3.5 rounded-full ring-1 ring-white/30 flex-shrink-0" style="background-color: ${game.badgeColor}"></span>
-                        <div>
-                            <span class="text-xs font-bold text-white block">${game.name}</span>
-                            <span class="text-[11px] text-slate-400 block">${game.description || (game.isCustom ? 'Juego personalizado' : 'Minijuego diario')}</span>
-                        </div>
-                    </div>
-                    <button type="button" data-game="${game.id}" class="btn-toggle-modal-game px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                        isSelected 
-                            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30' 
-                            : 'bg-purple-600 hover:bg-purple-500 text-white'
-                    }">
-                        ${isSelected ? '✕ Quitar' : '+ Añadir'}
-                    </button>
-                `;
-                modalCatalogList.appendChild(item);
-            });
-        }
-
-        function toggleGameInRoster(gameId) {
-            const idx = state.userSelectedGameIds.indexOf(gameId);
-            if (idx > -1) {
-                state.userSelectedGameIds.splice(idx, 1);
-                delete state.results[gameId];
-            } else {
-                state.userSelectedGameIds.push(gameId);
-            }
-            saveStateToStorage();
-            renderModalCatalogList(modalSearchInput.value);
-            renderActiveGames();
-            updateCountersUI();
-        }
-
-        function createCustomGame() {
-            const gameId = 'custom_' + Date.now();
-            const defaultName = 'Nuevo Juego';
-
-            const newGame = {
-                id: gameId,
-                name: defaultName,
-                isCustom: true,
-                badgeColor: '#ffffff',
-                pattern: new RegExp(defaultName, 'i'),
-                sample: `${defaultName} #1\n¡Resultado completado con éxito!`
-            };
-
-            state.customGames[gameId] = newGame;
-            state.userSelectedGameIds.push(gameId);
-            saveStateToStorage();
-
-            closeCatalogModal();
-            renderActiveGames();
-
-            setTimeout(() => {
-                const nameInput = document.getElementById(`name-input-${gameId}`);
-                if (nameInput) {
-                    nameInput.focus();
-                    nameInput.select();
-                }
-            }, 80);
-
-            showToast('Nuevo juego añadido. Escribe su nombre.', '✨');
-        }
-
-        function sanitizeGameText(gameId, text) {
-            if (!text) return '';
-
-            let cleaned = text.replace(/[\u200B-\u200D\uFEFF]/g, '');
-            // Eliminar todas las URLs completamente
-            cleaned = cleaned.replace(/https?:\/\/\S+/gi, '').replace(/www\.\S+/gi, '');
-
-            const gameDef = getCombinedGameDefinition(gameId);
-
-            // Aplicar reglas particulares leídas desde el catálogo de listajuegos.html si existen
-            if (gameDef && gameDef.rules && typeof gameDef.rules.sanitize === 'function') {
-                cleaned = gameDef.rules.sanitize(cleaned);
-            } else if (gameId === 'geoguessr') {
-                // Regla por defecto GeoGuessr: sustituir el nombre del país entre el número y : por 📍
-                const lines = cleaned.split('\n');
-                cleaned = lines.map(line => {
-                    return line.replace(/^(\s*\d+\.\s*)([^:]+)(:\s*.*)$/, '$1📍$3');
-                }).join('\n');
-            }
-
-            const lines = cleaned.split('\n').map(l => l.trimEnd());
-            while (lines.length > 0 && lines[0].trim() === '') lines.shift();
-            while (lines.length > 0 && lines[lines.length - 1].trim() === '') lines.pop();
-
-            return lines.join('\n');
-        }
-
-        function parseAndSetGameResult(gameId, rawText) {
-            const cleanedText = sanitizeGameText(gameId, rawText);
-
-            if (!cleanedText || !cleanedText.trim()) {
-                delete state.results[gameId];
-                updateCountersUI();
-                return;
-            }
-
-            const gameDef = getCombinedGameDefinition(gameId);
-            let edition = '';
-            let score = '';
-
-            // Subtítulo con reglas particulares (GeoGuessr: todo tras la última coma)
-            if (gameDef.rules && typeof gameDef.rules.getSubtitle === 'function') {
-                edition = gameDef.rules.getSubtitle(cleanedText);
-            } else if (gameId === 'geoguessr') {
-                const lastCommaIdx = cleanedText.lastIndexOf(',');
-                if (lastCommaIdx !== -1) {
-                    edition = cleanedText.substring(lastCommaIdx + 1).trim();
-                }
-            } else {
-                const edNumberMatch = cleanedText.match(/(?:#|\/\s*)(\d+)/);
-                const edDateMatch = cleanedText.match(/([A-Z][a-z]+\s+\d{1,2})/i);
-
-                if (edNumberMatch && edNumberMatch[1]) {
-                    edition = `#${edNumberMatch[1]}`;
-                } else if (edDateMatch && edDateMatch[1]) {
-                    edition = edDateMatch[1];
-                }
-            }
-
-            // Extracción de puntuación
-            const scoreMatch = cleanedText.match(/Total\s*:\s*([\d,.]+\s*pts)/i) ||
-                               cleanedText.match(/Overall\s*Score\s*([\d,.]+)/i) ||
-                               cleanedText.match(/(?:Final\s*score|Score)\s*[:/]?\s*([\d,.]+)/i) || 
-                               cleanedText.match(/(\d[\d,.]*\s*PTS(?:\s*·\s*\d+)?)/i) || 
-                               cleanedText.match(/([\d,.]+\s*pts)/i) || 
-                               cleanedText.match(/([X\d]\/6)/i) || 
-                               cleanedText.match(/(\d+:\d+)/);
-
-            if (scoreMatch) {
-                score = scoreMatch[1] || scoreMatch[0];
-                if (!score.toLowerCase().includes('pts') && !score.includes('/') && !isNaN(score.replace(/,/g, ''))) {
-                    score = `${score} pts`;
-                }
-            } else {
-                score = 'Completado';
-            }
-
-            const lines = cleanedText.split('\n')
-                .map(line => line.trim())
-                .filter(line => {
-                    if (!line) return false;
-                    if (line.toLowerCase() === gameDef.name.toLowerCase()) return false;
-                    return true;
-                });
-
-            // Registro histórico
-            const recordKey = `${getGamingDateString()}_${gameId}`;
-            if (!state.recordedGameKeys[recordKey]) {
-                state.recordedGameKeys[recordKey] = true;
-                state.lifetimeGamesCount = (state.lifetimeGamesCount || 0) + 1;
-            }
-
-            state.results[gameId] = {
-                id: gameId,
-                name: gameDef.name,
-                badgeColor: gameDef.badgeColor || '#ffffff',
-                edition: edition || 'Diario',
-                score: score,
-                rawText: cleanedText,
-                displayLines: lines.length > 0 ? lines : [cleanedText.substring(0, 40)]
-            };
-
-            updateCountersUI();
-        }
-
-        function processSmartPaste() {
-            const raw = smartPasteBox.value.trim();
-            if (!raw) {
-                showToast('Pega texto en el área primero', '⚠️');
-                return;
-            }
-
-            const allCatalog = { ...CATALOG, ...state.customGames };
-            const matches = [];
-
-            Object.keys(allCatalog).forEach(id => {
-                const game = allCatalog[id];
-                if (game.pattern) {
-                    const match = raw.match(game.pattern);
-                    if (match && match.index !== undefined) {
-                        matches.push({ id, index: match.index });
-                    }
-                }
-            });
-
-            if (matches.length === 0) {
-                showToast('No se identificó ningún juego del catálogo.', '💡');
-                return;
-            }
-
-            matches.sort((a, b) => a.index - b.index);
-
-            let matchedCount = 0;
-            for (let i = 0; i < matches.length; i++) {
-                const gameId = matches[i].id;
-                const start = matches[i].index;
-                const end = (i + 1 < matches.length) ? matches[i + 1].index : raw.length;
-                const segment = raw.substring(start, end).trim();
-
-                // Si el usuario no tiene este juego en su lista, lo incorporamos automáticamente
-                if (!state.userSelectedGameIds.includes(gameId)) {
-                    state.userSelectedGameIds.push(gameId);
-                }
-
-                const cleaned = sanitizeGameText(gameId, segment);
-                if (cleaned) {
-                    parseAndSetGameResult(gameId, cleaned);
-                    matchedCount++;
-                }
-            }
-
-            if (matchedCount > 0) {
-                smartPasteBox.value = '';
-                saveStateToStorage();
-                renderActiveGames();
-                updateCanvas();
-                showToast(`Se han procesado ${matchedCount} juego(s) sin URLs`, '🎉');
-            }
-        }
-
-        function loadSampleData() {
-            const sampleIds = ['crissle', 'gnarlyq', 'maptap', 'geoguessr', 'framed', 'wikitrivia'];
-            sampleIds.forEach(id => {
-                if (!state.userSelectedGameIds.includes(id)) {
-                    state.userSelectedGameIds.push(id);
-                }
-                const game = getCombinedGameDefinition(id);
-                if (game && game.sample) {
-                    const cleaned = sanitizeGameText(id, game.sample);
-                    parseAndSetGameResult(id, cleaned);
-                }
-            });
-            saveStateToStorage();
-            renderActiveGames();
-            updateCanvas();
-            showToast('¡Ejemplo cargado en tu plantilla!', '🚀');
-        }
-
-        function clearAll() {
-            state.results = {};
-            state.userSelectedGameIds.forEach(id => {
-                const textarea = document.getElementById(`input-${id}`);
-                if (textarea) textarea.value = '';
-            });
-            smartPasteBox.value = '';
-            saveStateToStorage();
-            updateCountersUI();
-            updateCanvas();
-            showToast('Resultados del día limpiados', '🗑️');
         }
 
         function updateAvatarUI() {
@@ -887,18 +578,15 @@
 
             const img = new Image();
             img.crossOrigin = 'anonymous';
-            img.onload = () => { loadedAvatarImage = img; updateCanvas(); };
-            img.onerror = () => { loadedAvatarImage = null; updateCanvas(); };
+            img.onload = () => { 
+                loadedAvatarImage = img; 
+                updateCanvas(); 
+            };
+            img.onerror = () => { 
+                loadedAvatarImage = null; 
+                updateCanvas(); 
+            };
             img.src = state.avatarUrl;
-        }
-
-        function updateCountersUI() {
-            const todayCount = Object.keys(state.results).length;
-            const todayCounterElem = document.getElementById('counter-today');
-            const lifetimeCounterElem = document.getElementById('counter-lifetime');
-
-            if (todayCounterElem) todayCounterElem.textContent = todayCount;
-            if (lifetimeCounterElem) lifetimeCounterElem.textContent = state.lifetimeGamesCount;
         }
 
         function setupEventListeners() {
@@ -952,44 +640,37 @@
                 updateCanvas();
             });
 
-            // Modal controls
-            document.getElementById('btn-open-catalog-modal').addEventListener('click', openCatalogModal);
-            document.getElementById('btn-empty-state-add').addEventListener('click', openCatalogModal);
-            document.getElementById('btn-close-modal').addEventListener('click', closeCatalogModal);
-            document.getElementById('btn-modal-done').addEventListener('click', closeCatalogModal);
-            document.getElementById('btn-create-custom-inside-modal').addEventListener('click', createCustomGame);
-
-            modalSearchInput.addEventListener('input', (e) => {
-                renderModalCatalogList(e.target.value);
-            });
-
-            modalCatalogList.addEventListener('click', (e) => {
-                const btn = e.target.closest('.btn-toggle-modal-game');
-                if (btn) {
-                    const gameId = btn.dataset.game;
-                    toggleGameInRoster(gameId);
-                }
-            });
-
-            // Input en lista activa
             gamesContainer.addEventListener('input', (e) => {
                 if (e.target.classList.contains('custom-game-name-input')) {
                     const gameId = e.target.dataset.game;
                     const newName = e.target.value.trim() || 'Juego';
-                    if (state.customGames[gameId]) {
-                        state.customGames[gameId].name = newName;
-                        state.customGames[gameId].pattern = new RegExp(newName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+                    if (GAMES[gameId]) {
+                        GAMES[gameId].name = newName;
+                        GAMES[gameId].pattern = new RegExp(newName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+                        if (state.customGames[gameId]) {
+                            state.customGames[gameId].name = newName;
+                            state.customGames[gameId].pattern = GAMES[gameId].pattern;
+                        }
+                        if (state.results[gameId]) {
+                            state.results[gameId].name = newName;
+                        }
+                        saveStateToStorage();
+                        updateCanvas();
                     }
-                    if (state.results[gameId]) {
-                        state.results[gameId].name = newName;
-                    }
-                    saveStateToStorage();
-                    updateCanvas();
                 } else if (e.target.classList.contains('game-textarea')) {
                     const gameId = e.target.dataset.game;
                     parseAndSetGameResult(gameId, e.target.value);
                     saveStateToStorage();
                     updateCanvas();
+                }
+            });
+
+            gamesContainer.addEventListener('focusout', (e) => {
+                if (e.target.classList.contains('game-textarea')) {
+                    const gameId = e.target.dataset.game;
+                    if (state.results[gameId] && state.results[gameId].rawText) {
+                        e.target.value = state.results[gameId].rawText;
+                    }
                 }
             });
 
@@ -1002,27 +683,304 @@
                     saveStateToStorage();
                     updateCountersUI();
                     updateCanvas();
-                } else if (e.target.classList.contains('btn-remove-from-roster')) {
+                } else if (e.target.classList.contains('btn-delete-custom')) {
                     const gameId = e.target.dataset.game;
-                    state.userSelectedGameIds = state.userSelectedGameIds.filter(id => id !== gameId);
+                    delete GAMES[gameId];
+                    delete state.customGames[gameId];
                     delete state.results[gameId];
-                    if (state.customGames[gameId]) {
-                        delete state.customGames[gameId];
-                    }
                     saveStateToStorage();
-                    renderActiveGames();
+                    renderGameInputs();
                     updateCountersUI();
-                    showToast('Juego quitado de tu plantilla', '🗑️');
+                    updateCanvas();
+                    showToast('Juego eliminado', '🗑️');
                 }
             });
 
+            document.getElementById('btn-add-custom-game').addEventListener('click', addNewCustomGame);
             document.getElementById('btn-process-smart').addEventListener('click', processSmartPaste);
+
             document.getElementById('btn-load-sample').addEventListener('click', loadSampleData);
             document.getElementById('btn-clear-all').addEventListener('click', clearAll);
 
             document.getElementById('btn-download').addEventListener('click', downloadCanvasImage);
             document.getElementById('btn-copy').addEventListener('click', copyCanvasImage);
             document.getElementById('btn-share').addEventListener('click', shareCanvasImage);
+        }
+
+        function addNewCustomGame() {
+            const gameId = 'custom_' + Date.now();
+            const defaultName = 'Nuevo Juego';
+
+            const newGame = {
+                id: gameId,
+                name: defaultName,
+                isCustom: true,
+                badgeColor: '#ffffff',
+                pattern: new RegExp(defaultName, 'i'),
+                sample: `${defaultName} #1\n¡Resultado completado con éxito!`
+            };
+
+            GAMES[gameId] = newGame;
+            state.customGames[gameId] = newGame;
+            saveStateToStorage();
+
+            renderGameInputs();
+
+            setTimeout(() => {
+                const nameInput = document.getElementById(`name-input-${gameId}`);
+                if (nameInput) {
+                    nameInput.focus();
+                    nameInput.select();
+                }
+            }, 60);
+
+            showToast('Nuevo juego añadido. Escribe su nombre.', '✨');
+        }
+
+        function sanitizeGameText(gameId, text) {
+            if (!text) return '';
+
+            // 1. Remove zero-width spaces and formatting artifacts
+            let cleaned = text.replace(/[\u200B-\u200D\uFEFF]/g, '');
+
+            // 2. Strip all URLs completely (http, https, www)
+            cleaned = cleaned.replace(/https?:\/\/\S+/gi, '').replace(/www\.\S+/gi, '');
+
+            // 3. For GeoGuessr, replace country names between ordinal and colon with 📍
+            if (gameId === 'geoguessr') {
+                const lines = cleaned.split('\n');
+                const replacedLines = lines.map(line => {
+                    return line.replace(/^(\s*\d+\.\s*)([^:]+)(:\s*.*)$/, '$1📍$3');
+                });
+                cleaned = replacedLines.join('\n');
+            }
+
+            // 4. Clean empty and hanging whitespace lines
+            const lines = cleaned.split('\n').map(l => l.trimEnd());
+            while (lines.length > 0 && lines[0].trim() === '') lines.shift();
+            while (lines.length > 0 && lines[lines.length - 1].trim() === '') lines.pop();
+
+            return lines.join('\n');
+        }
+
+        function parseAndSetGameResult(gameId, rawText) {
+            const cleanedText = sanitizeGameText(gameId, rawText);
+
+            if (!cleanedText || !cleanedText.trim()) {
+                delete state.results[gameId];
+                updateCountersUI();
+                return;
+            }
+
+            const gameDef = GAMES[gameId] || { name: 'Juego', badgeColor: '#ffffff' };
+            let edition = '';
+            let score = '';
+
+            // GeoGuessr: subtitle extracts everything after the last comma (the total steps)
+            if (gameId === 'geoguessr') {
+                const lastCommaIdx = cleanedText.lastIndexOf(',');
+                if (lastCommaIdx !== -1) {
+                    const pasosText = cleanedText.substring(lastCommaIdx + 1).trim();
+                    if (pasosText) {
+                        edition = pasosText;
+                    }
+                }
+            } else {
+                const edNumberMatch = cleanedText.match(/(?:#|\/\s*)(\d+)/);
+                const edDateMatch = cleanedText.match(/([A-Z][a-z]+\s+\d{1,2})/i);
+
+                if (edNumberMatch && edNumberMatch[1]) {
+                    edition = `#${edNumberMatch[1]}`;
+                } else if (edDateMatch && edDateMatch[1]) {
+                    edition = edDateMatch[1];
+                }
+            }
+
+            // Score patterns
+            const scoreMatch = cleanedText.match(/Total\s*:\s*([\d,.]+\s*pts)/i) ||
+                               cleanedText.match(/Overall\s*Score\s*([\d,.]+)/i) ||
+                               cleanedText.match(/(?:Final\s*score|Score)\s*[:/]?\s*([\d,.]+)/i) || 
+                               cleanedText.match(/(\d[\d,.]*\s*PTS(?:\s*·\s*\d+)?)/i) || 
+                               cleanedText.match(/([\d,.]+\s*pts)/i) || 
+                               cleanedText.match(/([X\d]\/6)/i) || 
+                               cleanedText.match(/(\d+:\d+)/);
+
+            if (scoreMatch) {
+                score = scoreMatch[1] || scoreMatch[0];
+                if (!score.toLowerCase().includes('pts') && !score.includes('/') && !isNaN(score.replace(/,/g, ''))) {
+                    score = `${score} pts`;
+                }
+            } else {
+                score = 'Completado';
+            }
+
+            const lines = cleanedText.split('\n')
+                .map(line => line.trim())
+                .filter(line => {
+                    if (!line) return false;
+                    if (line.toLowerCase() === gameDef.name.toLowerCase()) return false;
+                    return true;
+                });
+
+            // Lifetime tracking key: Date + GameId
+            const recordKey = `${getGamingDateString()}_${gameId}`;
+            if (!state.recordedGameKeys[recordKey]) {
+                state.recordedGameKeys[recordKey] = true;
+                state.lifetimeGamesCount = (state.lifetimeGamesCount || 0) + 1;
+            }
+
+            state.results[gameId] = {
+                id: gameId,
+                name: gameDef.name,
+                badgeColor: gameDef.badgeColor || '#ffffff',
+                edition: edition || 'Diario',
+                score: score,
+                rawText: cleanedText,
+                displayLines: lines.length > 0 ? lines : [cleanedText.substring(0, 40)]
+            };
+
+            updateCountersUI();
+        }
+
+        function processSmartPaste() {
+            const raw = smartPasteBox.value.trim();
+            if (!raw) {
+                showToast('Pega texto en el área primero', '⚠️');
+                return;
+            }
+
+            const gameKeys = Object.keys(GAMES);
+            const matches = [];
+
+            gameKeys.forEach(id => {
+                const game = GAMES[id];
+                if (game.pattern) {
+                    const match = raw.match(game.pattern);
+                    if (match && match.index !== undefined) {
+                        matches.push({ id, index: match.index });
+                    }
+                }
+            });
+
+            if (matches.length === 0) {
+                showToast('No se identificó ningún juego. Prueba a pegar individualmente.', '💡');
+                return;
+            }
+
+            matches.sort((a, b) => a.index - b.index);
+
+            let matchedCount = 0;
+            for (let i = 0; i < matches.length; i++) {
+                const gameId = matches[i].id;
+                const start = matches[i].index;
+                const end = (i + 1 < matches.length) ? matches[i + 1].index : raw.length;
+                const segment = raw.substring(start, end).trim();
+
+                const cleaned = sanitizeGameText(gameId, segment);
+                if (cleaned) {
+                    parseAndSetGameResult(gameId, cleaned);
+                    const textarea = document.getElementById(`input-${gameId}`);
+                    if (textarea) textarea.value = cleaned;
+                    matchedCount++;
+                }
+            }
+
+            if (matchedCount > 0) {
+                smartPasteBox.value = '';
+                saveStateToStorage();
+                updateCanvas();
+                showToast(`Se han procesado ${matchedCount} juego(s) sin URLs`, '🎉');
+            }
+        }
+
+        function loadSampleData() {
+            Object.values(GAMES).forEach(game => {
+                if (game.sample) {
+                    const cleaned = sanitizeGameText(game.id, game.sample);
+                    const textarea = document.getElementById(`input-${game.id}`);
+                    if (textarea) textarea.value = cleaned;
+                    parseAndSetGameResult(game.id, cleaned);
+                }
+            });
+            saveStateToStorage();
+            updateCanvas();
+            showToast('¡Ejemplo cargado!', '🚀');
+        }
+
+        function clearAll() {
+            state.results = {};
+            Object.values(GAMES).forEach(game => {
+                const textarea = document.getElementById(`input-${game.id}`);
+                if (textarea) textarea.value = '';
+            });
+            smartPasteBox.value = '';
+            saveStateToStorage();
+            updateCountersUI();
+            updateCanvas();
+            showToast('Resultados limpiados', '🗑️');
+        }
+
+        function drawOfficialMascotBackground(ctx, width, height) {
+            const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
+            bgGradient.addColorStop(0, '#32353b');
+            bgGradient.addColorStop(0.3, '#2a2c32');
+            bgGradient.addColorStop(0.7, '#212328');
+            bgGradient.addColorStop(1, '#18191c');
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.save();
+            const mascotCenterX = width - 175;
+            const mascotCenterY = 175;
+            
+            ctx.translate(mascotCenterX, mascotCenterY);
+            ctx.rotate(-0.20);
+
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.50)';
+            ctx.shadowBlur = 26;
+            ctx.shadowOffsetX = 10;
+            ctx.shadowOffsetY = 14;
+
+            ctx.fillStyle = '#f4f4f6';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 130, 110, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(10, -100);
+            ctx.quadraticCurveTo(35, -155, 60, -105);
+            ctx.quadraticCurveTo(85, -140, 95, -85);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.shadowColor = 'transparent';
+
+            ctx.fillStyle = '#212328';
+            ctx.beginPath();
+            ctx.arc(-52, -12, 30, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(58, -12, 30, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#f5b324';
+            ctx.beginPath();
+            ctx.moveTo(-24, 12);
+            ctx.lineTo(24, 12);
+            ctx.lineTo(0, 62);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#d99116';
+            ctx.beginPath();
+            ctx.moveTo(0, 62);
+            ctx.lineTo(24, 12);
+            ctx.lineTo(4, 25);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
         }
 
         function wrapTextLines(ctx, text, maxWidth) {
@@ -1083,7 +1041,7 @@
             const lineHeight = 30;
             const headerHeight = 85;
 
-            // Medición de texto y salto de línea adaptativo sin límite de líneas
+            // Pre-calculate line wrapping and dynamic height for all cards
             const measuredCards = activeResults.map(result => {
                 const wrappedLines = [];
                 result.displayLines.forEach(rawLine => {
@@ -1109,7 +1067,7 @@
                 };
             });
 
-            // Masonry de doble columna independiente
+            // True Masonry layout with independent column stacking
             const avatarSize = 90;
             const startY = padding + avatarSize + 40;
             const colY = [startY, startY];
@@ -1134,7 +1092,7 @@
             canvas.width = width;
             canvas.height = height;
 
-            // Fondo HD 1080px sin deformación
+            // Background rendering (URL or fallback)
             if (loadedBgImage) {
                 ctx.fillStyle = '#18191c';
                 ctx.fillRect(0, 0, width, height);
@@ -1142,13 +1100,7 @@
                 const cropHeight = Math.min(height, bgSourceHeight);
                 ctx.drawImage(loadedBgImage, 0, 0, width, cropHeight, 0, 0, width, cropHeight);
             } else {
-                const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
-                bgGradient.addColorStop(0, '#32353b');
-                bgGradient.addColorStop(0.3, '#2a2c32');
-                bgGradient.addColorStop(0.7, '#212328');
-                bgGradient.addColorStop(1, '#18191c');
-                ctx.fillStyle = bgGradient;
-                ctx.fillRect(0, 0, width, height);
+                drawOfficialMascotBackground(ctx, width, height);
             }
 
             // Avatar Rendering
@@ -1172,6 +1124,7 @@
                 ctx.restore();
             } else {
                 drawRoundedRect(ctx, avatarX, avatarY, avatarSize, avatarSize, 26, '#7c3aed', true);
+                
                 ctx.fillStyle = '#ffffff';
                 ctx.font = '800 40px "Plus Jakarta Sans", sans-serif';
                 ctx.textAlign = 'center';
@@ -1180,24 +1133,26 @@
                 ctx.fillText(initial, avatarX + avatarSize/2, avatarY + avatarSize/2);
             }
 
-            // Nombre de Usuario prominente y fecha
+            // User Name: Fixed, large typography
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
             ctx.fillStyle = '#ffffff';
             ctx.font = '800 44px "Plus Jakarta Sans", sans-serif';
             ctx.fillText(state.userName || 'Usuario desconocido', avatarX + avatarSize + 24, avatarY + 8);
 
+            // Subtitle Date
             ctx.fillStyle = '#e2e8f0';
             ctx.font = '600 20px "Plus Jakarta Sans", sans-serif';
             const formattedDate = new Date(state.date).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             ctx.fillText(formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1), avatarX + avatarSize + 24, avatarY + 56);
 
-            // Contadores en la imagen (Arriba a la derecha alineados con la fecha)
+            // Stats Badges (Top Right, aligned vertically with Date)
             const todayCount = Object.keys(state.results).length;
             const lifetimeCount = state.lifetimeGamesCount || 0;
             const badgeY = avatarY + 48;
             const badgeHeight = 34;
 
+            // Cumulative badge on the right edge
             const lifetimeText = `🏆 Total: ${lifetimeCount}`;
             ctx.font = 'bold 15px "Plus Jakarta Sans", sans-serif';
             const lifetimeWidth = ctx.measureText(lifetimeText).width + 24;
@@ -1209,6 +1164,7 @@
             ctx.fillStyle = '#fde68a';
             ctx.fillText(lifetimeText, lifetimeX + (lifetimeWidth / 2), badgeY + (badgeHeight / 2));
 
+            // Today badge placed to the left of cumulative badge
             const todayText = `⚡ Hoy: ${todayCount}`;
             const todayWidth = ctx.measureText(todayText).width + 24;
             const todayX = lifetimeX - todayWidth - 12;
@@ -1217,7 +1173,7 @@
             ctx.fillStyle = '#e9d5ff';
             ctx.fillText(todayText, todayX + (todayWidth / 2), badgeY + (badgeHeight / 2));
 
-            // Renderizado de tarjetas de minijuegos
+            // Render each card according to its independent masonry placement
             const cardBg = 'rgba(28, 30, 36, 0.88)';
             const cardBorder = 'rgba(168, 85, 247, 0.30)';
 
@@ -1225,6 +1181,8 @@
                 const { result, wrappedLines, x, y, width: cWidth, height: cHeight } = item;
 
                 drawRoundedRect(ctx, x, y, cWidth, cHeight, 20, cardBg, true, cardBorder);
+
+                // Vertical color bar alongside the name (white for custom games)
                 drawRoundedRect(ctx, x + 20, y + 20, 10, 34, 5, result.badgeColor, true);
 
                 ctx.textAlign = 'left';
@@ -1237,7 +1195,7 @@
                 ctx.font = '500 16px "Plus Jakarta Sans", sans-serif';
                 ctx.fillText(result.edition, x + 40, y + 46);
 
-                // Insignia de puntuación a la derecha
+                // Score Badge Right
                 const scoreText = result.score;
                 ctx.font = 'bold 18px "Plus Jakarta Sans", sans-serif';
                 const scoreWidth = ctx.measureText(scoreText).width + 30;
@@ -1247,14 +1205,14 @@
                 ctx.fillStyle = '#ffffff';
                 ctx.fillText(scoreText, x + cWidth - (scoreWidth/2) - 20, y + 26);
 
-                // Separador
+                // Line Divider
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
                 ctx.beginPath();
                 ctx.moveTo(x + 20, y + 78);
                 ctx.lineTo(x + cWidth - 20, y + 78);
                 ctx.stroke();
 
-                // Líneas envueltas
+                // Draw wrapped lines
                 ctx.textAlign = 'left';
                 let lineY = y + 98;
 
@@ -1272,7 +1230,7 @@
                 });
             });
 
-            // Pie de imagen
+            // Official Uniform Footer
             const footerY = height - 45;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
