@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Evitar caché en navegadores para que las actualizaciones se reflejen al instante -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Catálogo de Minijuegos - Amigos Delaware</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -48,7 +52,7 @@
             <div>
                 <h2 class="text-base font-bold text-white flex items-center gap-2">
                     <span>Base de datos activa</span>
-                    <span id="catalog-count-badge" class="px-2 py-0.5 rounded-full text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30">12 juegos</span>
+                    <span id="catalog-count-badge" class="px-2 py-0.5 rounded-full text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30">13 juegos</span>
                 </h2>
                 <p class="text-xs text-slate-400 mt-1 max-w-xl">
                     Este archivo suministra la lista y reglas particulares de procesamiento a <code>index.html</code>. Añadir un nuevo juego aquí lo pondrá disponible al instante para todos los miembros.
@@ -187,6 +191,25 @@
                         return '';
                     }
                 }
+            },
+            lapalabradeldia: {
+                id: 'lapalabradeldia',
+                name: 'La palabra del día',
+                badgeColor: '#EAB308', // Amarillo oro / Wordle
+                pattern: /La\s*palabra\s*del\s*d[ií]a/i,
+                url: 'https://lapalabradeldia.com/',
+                sample: `La palabra del día #1738 5/6\n\n⬛⬛⬛🟩⬛\n⬛⬛⬛🟩🟩\n⬛🟩🟩🟩🟩\n⬛🟩🟩🟩🟩\n🟩🟩🟩🟩🟩\nhttps://lapalabradeldia.com/`,
+                description: 'Descubre la palabra oculta de 5 letras en 6 intentos.',
+                rules: {
+                    getSubtitle: function(text) {
+                        const match = text.match(/#(\d+)/);
+                        return match ? `#${match[1]}` : 'Diario';
+                    },
+                    getScore: function(text) {
+                        const match = text.match(/([X\d]\/6)/i);
+                        return match ? match[1] : 'Completado';
+                    }
+                }
             }
         };
     </script>
@@ -195,7 +218,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             const grid = document.getElementById('catalog-grid');
             const searchInput = document.getElementById('search-input');
+            const badgeCount = document.getElementById('catalog-count-badge');
             const games = Object.values(window.DELAWARE_CATALOG || {});
+
+            if (badgeCount) {
+                badgeCount.textContent = `${games.length} juegos`;
+            }
 
             function renderCatalog(filter = '') {
                 grid.innerHTML = '';
