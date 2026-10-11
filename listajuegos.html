@@ -236,6 +236,107 @@
                         return numberOnlyMatch ? `${numberOnlyMatch[0]} pts` : 'Completado';
                     }
                 }
+            },
+            octordle_normal: {
+                id: 'octordle_normal',
+                name: 'Octordle Normal',
+                badgeColor: '#475569', // Azul pizarra
+                pattern: /Daily\s*Octordle\s*#\d+/i,
+                url: 'https://www.merriam-webster.com/games/octordle/daily',
+                sample: `Daily Octordle #1721\n9️⃣8️⃣\n🕚🔟\n7️⃣🕐\n6️⃣🕛\nScore: 76`,
+                description: 'Resuelve 8 tableros de palabras simultáneamente.',
+                rules: {
+                    getSubtitle: function(text) {
+                        const match = text.match(/#(\d+)/);
+                        return match ? `#${match[1]}` : 'Diario';
+                    },
+                    getScore: function(text) {
+                        const scoreMatch = text.match(/Score:\s*(\d+)/i);
+                        return scoreMatch ? `${scoreMatch[1]} pts` : 'Completado';
+                    }
+                }
+            },
+            octordle_extreme: {
+                id: 'octordle_extreme',
+                name: 'Octordle Extreme',
+                badgeColor: '#DC2626', // Rojo carmesí
+                pattern: /Octordle\s*(?:Extreme|EXTREME)/i,
+                url: 'https://www.merriam-webster.com/games/octordle/extreme',
+                sample: `Extreme Octordle #1721\n🔟9️⃣\n🕚🕛\n8️⃣7️⃣\n6️⃣5️⃣\nScore: 84`,
+                description: 'Modalidad de extrema dificultad de Octordle.',
+                rules: {
+                    getSubtitle: function(text) {
+                        const match = text.match(/#(\d+)/);
+                        return match ? `#${match[1]}` : 'Extreme';
+                    },
+                    getScore: function(text) {
+                        const scoreMatch = text.match(/Score:\s*(\d+)/i);
+                        return scoreMatch ? `${scoreMatch[1]} pts` : 'Completado';
+                    }
+                }
+            },
+            octordle_sequence: {
+                id: 'octordle_sequence',
+                name: 'Octordle Sequence',
+                badgeColor: '#6366F1', // Violeta Índigo
+                pattern: /Octordle\s*(?:Sequence|SEQUENCE)/i,
+                url: 'https://www.merriam-webster.com/games/octordle/daily-sequence',
+                sample: `Sequence Octordle #1721\n1️⃣2️⃣\n3️⃣4️⃣\n5️⃣6️⃣\n7️⃣8️⃣\nScore: 71`,
+                description: 'Adivina 8 palabras una detrás de otra en secuencia.',
+                rules: {
+                    getSubtitle: function(text) {
+                        const match = text.match(/#(\d+)/);
+                        return match ? `#${match[1]}` : 'Sequence';
+                    },
+                    getScore: function(text) {
+                        const scoreMatch = text.match(/Score:\s*(\d+)/i);
+                        return scoreMatch ? `${scoreMatch[1]} pts` : 'Completado';
+                    }
+                }
+            },
+            octordle_chill: {
+                id: 'octordle_chill',
+                name: 'Octordle Chill',
+                badgeColor: '#06B6D4', // Turquesa
+                pattern: /Octordle\s*(?:Chill|CHILL)/i,
+                url: 'https://www.merriam-webster.com/games/octordle/chill',
+                sample: `Chill Octordle #1721\n8️⃣7️⃣\n6️⃣5️⃣\n4️⃣3️⃣\n2️⃣1️⃣\nScore: 68`,
+                description: 'Octordle relajado con intentos ilimitados o más margen.',
+                rules: {
+                    getSubtitle: function(text) {
+                        const match = text.match(/#(\d+)/);
+                        return match ? `#${match[1]}` : 'Chill';
+                    },
+                    getScore: function(text) {
+                        const scoreMatch = text.match(/Score:\s*(\d+)/i);
+                        return scoreMatch ? `${scoreMatch[1]} pts` : 'Completado';
+                    }
+                }
+            },
+            numble: {
+                id: 'numble',
+                name: 'Numble',
+                badgeColor: '#84CC16', // Lima / Verde Menta
+                pattern: /Numble/i,
+                url: 'https://www.thenumble.app/',
+                sample: `#Numble # 1714\n\n⬛️⬛️🟩⬛️⬛️⬛️🟨\n⬛️🟨🟩🟩⬛️⬛️⬛️\n⬛️⬛️🟩🟩🟨🟩🟩\n🟩🟩🟩🟩🟩🟩🟩\n\n4/6\n\nwww.thenumble.app`,
+                description: 'Descubre la ecuación o secuencia matemática diaria.',
+                rules: {
+                    sanitize: function(text) {
+                        return text.replace(/https?:\/\/\S+/gi, '')
+                                   .replace(/www\.thenumble\.app\S*/gi, '')
+                                   .replace(/thenumble\.app\S*/gi, '');
+                    },
+                    getSubtitle: function(text) {
+                        // Tolera formatos como #Numble # 1714 o Numble #1714
+                        const match = text.match(/#\s*(\d+)/);
+                        return match ? `#${match[1]}` : 'Diario';
+                    },
+                    getScore: function(text) {
+                        const match = text.match(/([X\d]\/\d+)/i);
+                        return match ? match[1] : 'Completado';
+                    }
+                }
             }
         };
     </script>
