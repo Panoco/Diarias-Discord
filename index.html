@@ -48,7 +48,7 @@
 </head>
 <body class="h-full bg-slate-950 text-slate-100 font-sans flex flex-col antialiased selection:bg-brand-500 selection:text-white">
 
-    <!-- Iframe con identificador dinámico anticaché -->
+    <!-- Iframe invisible que carga listajuegos.html de forma paralela y transparente con anticaché -->
     <iframe id="catalog-frame" style="display:none;" title="Catalog Module"></iframe>
 
     <!-- Toast Notification Banner -->
@@ -278,7 +278,7 @@
                 </div>
 
                 <!-- Export Action Buttons -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                     <button id="btn-download" class="w-full py-2.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20 transition active:scale-[0.98]">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -291,6 +291,13 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002 0h2a2 2 0 002 0m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                         </svg>
                         <span>Copiar Imagen</span>
+                    </button>
+
+                    <button id="btn-sync-sheets" class="w-full py-2.5 px-4 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-700/25 border border-emerald-600/60 transition active:scale-[0.98]">
+                        <svg class="w-4 h-4 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span id="btn-sync-sheets-text">Guardar en Google Sheets</span>
                     </button>
 
                     <button id="btn-share" class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
@@ -310,6 +317,12 @@
     </main>
 
     <script>
+        // =========================================================================
+        // CONFIGURACIÓN DE CONEXIÓN CON GOOGLE SHEETS
+        // Pega aquí la URL de la aplicación web que te dio Google Apps Script
+        // =========================================================================
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzhJNhmtoAXaivcnX3x6HO8VKWeZd7N_s4avscU7DdgXCth4oJ-VE21TmlAVOM1N4RFjA/exec';
+
         const STORAGE_KEY = 'daily_game_hub_delaware_v2';
         const BG_IMAGE_URL = 'diariasbg.png';
 
@@ -574,7 +587,7 @@
 
         async function openCatalogModal() {
             modalSearchInput.value = '';
-            // Volvemos a refrescar el catálogo cada vez que se abre el modal para ver juegos recién añadidos
+            // Refrescar catálogo en segundo plano
             await fetchCatalogFromModule();
             renderModalCatalogList();
             catalogModal.classList.remove('hidden');
@@ -750,7 +763,7 @@
                                    cleanedText.match(/(?:Final\s*score|Score)\s*[:/]?\s*([\d,.]+)/i) || 
                                    cleanedText.match(/(\d[\d,.]*\s*PTS(?:\s*·\s*\d+)?)/i) || 
                                    cleanedText.match(/([\d,.]+\s*pts)/i) || 
-                                   cleanedText.match(/([X\d]\/6)/i) || 
+                                   cleanedText.match(/([X\d]\/\d+)/i) || 
                                    cleanedText.match(/(\d+:\d+)/);
 
                 if (scoreMatch) {
@@ -845,8 +858,69 @@
             }
         }
 
+        async function sendResultsToGoogleSheet(quiet = false) {
+            const activeResults = Object.values(state.results);
+            if (activeResults.length === 0) {
+                if (!quiet) showToast('Añade al menos un resultado antes de enviar', '⚠️');
+                return false;
+            }
+
+            // Comprobación de URL configurada
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT' || !GOOGLE_SCRIPT_URL.startsWith('http')) {
+                if (!quiet) {
+                    showToast('Falta pegar la URL de Google Apps Script en index.html', '⚠️');
+                }
+                console.warn('Google Apps Script URL no configurada en GOOGLE_SCRIPT_URL.');
+                return false;
+            }
+
+            const btnSync = document.getElementById('btn-sync-sheets');
+            const btnText = document.getElementById('btn-sync-sheets-text');
+            if (btnSync && btnText) {
+                btnSync.disabled = true;
+                btnText.textContent = 'Enviando a Sheets...';
+            }
+
+            try {
+                const payload = {
+                    date: state.date,
+                    userName: state.userName || 'Anónimo',
+                    results: activeResults.map(r => ({
+                        id: r.id,
+                        name: r.name,
+                        edition: r.edition,
+                        score: r.score,
+                        rawText: r.rawText
+                    }))
+                };
+
+                // Enviamos con mode: 'no-cors' para evitar restricciones de preflight en Apps Script
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                showToast(`¡${activeResults.length} juego(s) guardados en Google Sheets!`, '📊');
+                return true;
+
+            } catch (error) {
+                console.error('Error al sincronizar con Google Sheets:', error);
+                if (!quiet) showToast('No se pudo enviar a Google Sheets', '❌');
+                return false;
+            } finally {
+                if (btnSync && btnText) {
+                    btnSync.disabled = false;
+                    btnText.textContent = 'Guardar en Google Sheets';
+                }
+            }
+        }
+
         function loadSampleData() {
-            const sampleIds = ['crissle', 'gnarlyq', 'maptap', 'geoguessr', 'nounsense', 'lapalabradeldia'];
+            const sampleIds = ['crissle', 'gnarlyq', 'maptap', 'geoguessr', 'nounsense', 'lapalabradeldia', 'octordle_normal', 'numble'];
             sampleIds.forEach(id => {
                 if (!state.userSelectedGameIds.includes(id)) {
                     state.userSelectedGameIds.push(id);
@@ -1035,8 +1109,21 @@
             document.getElementById('btn-load-sample').addEventListener('click', loadSampleData);
             document.getElementById('btn-clear-all').addEventListener('click', clearAll);
 
-            document.getElementById('btn-download').addEventListener('click', downloadCanvasImage);
-            document.getElementById('btn-copy').addEventListener('click', copyCanvasImage);
+            // Botones de exportación con autosincronización
+            document.getElementById('btn-download').addEventListener('click', () => {
+                downloadCanvasImage();
+                sendResultsToGoogleSheet(true);
+            });
+
+            document.getElementById('btn-copy').addEventListener('click', () => {
+                copyCanvasImage();
+                sendResultsToGoogleSheet(true);
+            });
+
+            document.getElementById('btn-sync-sheets').addEventListener('click', () => {
+                sendResultsToGoogleSheet(false);
+            });
+
             document.getElementById('btn-share').addEventListener('click', shareCanvasImage);
         }
 
