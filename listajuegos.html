@@ -328,13 +328,40 @@
                                    .replace(/thenumble\.app\S*/gi, '');
                     },
                     getSubtitle: function(text) {
-                        // Tolera formatos como #Numble # 1714 o Numble #1714
                         const match = text.match(/#\s*(\d+)/);
                         return match ? `#${match[1]}` : 'Diario';
                     },
                     getScore: function(text) {
                         const match = text.match(/([X\d]\/\d+)/i);
                         return match ? match[1] : 'Completado';
+                    }
+                }
+            },
+            panigma: {
+                id: 'panigma',
+                name: 'Panigma',
+                badgeColor: '#EC4899', // Rosa frambuesa / Fucsia
+                pattern: /Panigma/i,
+                url: 'https://panigma.fr/',
+                sample: `Panigma — Oct 16, 2026 — Round #36\nScore: 254 — Correct answers: 4/8\n🟢🔴🟢🟢🔴🔴🔴🟢`,
+                description: 'Enigmas diarios de cultura general basados en artículos de Wikipedia.',
+                rules: {
+                    sanitize: function(text) {
+                        return text.replace(/https?:\/\/\S+/gi, '')
+                                   .replace(/panigma\.fr\S*/gi, '');
+                    },
+                    getSubtitle: function(text) {
+                        const match = text.match(/Round\s*#(\d+)|#(\d+)/i);
+                        if (match) return `#${match[1] || match[2]}`;
+                        const dateMatch = text.match(/([A-Z][a-z]+\s+\d{1,2}(?:,\s*\d{4})?)/i);
+                        return dateMatch ? dateMatch[1] : 'Diario';
+                    },
+                    getScore: function(text) {
+                        const scoreMatch = text.match(/Score:\s*(\d+)/i);
+                        if (scoreMatch) return `${scoreMatch[1]} pts`;
+                        const ratioMatch = text.match(/Correct answers:\s*(\d+\/\d+)/i) || text.match(/(\d+\/\d+)/);
+                        if (ratioMatch) return ratioMatch[1];
+                        return 'Completado';
                     }
                 }
             }
