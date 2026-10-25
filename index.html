@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Añadimos Chart.js para el gráfico radar -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -251,6 +253,34 @@
         <!-- Right Panel: Canvas Live Preview & Actions -->
         <section class="lg:col-span-7 sticky top-20 space-y-4">
             
+            <!-- NUEVO: Sección del Gráfico Radar -->
+            <div class="bg-slate-900/80 border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4 backdrop-blur-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-sm font-bold tracking-wider text-purple-300 uppercase flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                            Rendimiento Global
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Comparativa vs Comunidad (Max 10 juegos)</p>
+                    </div>
+                    <div id="radar-loading" class="hidden flex items-center gap-1.5 text-[11px] text-purple-400 font-medium bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
+                        Sincronizando...
+                    </div>
+                </div>
+                
+                <div class="relative w-full h-[280px] sm:h-[320px] flex items-center justify-center">
+                    <canvas id="radar-chart"></canvas>
+                    <!-- Overlay de estado vacío para el gráfico -->
+                    <div id="radar-empty-state" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center text-center p-4 rounded-xl border border-dashed border-slate-700 transition-opacity">
+                        <span class="text-2xl mb-2 opacity-60">🕸️</span>
+                        <h3 class="text-sm font-bold text-slate-300">No hay datos suficientes</h3>
+                        <p class="text-xs text-slate-500 mt-1 max-w-[200px]">Añade juegos a tu lista y escribe un alias para ver el gráfico.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vista Previa de Imagen -->
             <div class="bg-slate-900/80 border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4 backdrop-blur-sm">
                 <div class="flex items-center justify-between">
                     <div>
@@ -321,7 +351,7 @@
         // CONFIGURACIÓN DE CONEXIÓN CON GOOGLE SHEETS
         // Pega aquí la URL de la aplicación web que te dio Google Apps Script
         // =========================================================================
-        const GOOGLE_SCRIPT_URL = 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfWhBhjB5qtKDu7djSjD5FKzn5f8Rb65E3FxTS8MaKoNiIkLeQZ6zWRXVQFf04rRCvMQ/exec';
 
         const STORAGE_KEY = 'daily_game_hub_delaware_v2';
         const BG_IMAGE_URL = 'diariasbg.png';
@@ -462,6 +492,14 @@
         let avatarFileInput, avatarImgPreview, avatarInitialText, btnRemoveAvatar;
         let catalogModal, modalCatalogList, modalSearchInput;
 
+        // --- Variables Globales para el Radar ---
+        let radarChartInstance = null;
+        let radarFetchTimeout = null;
+        let fetchedStats = {
+            jugador: {},
+            comunidad: {}
+        };
+
         async function init() {
             canvas = document.getElementById('preview-canvas');
             ctx = canvas.getContext('2d');
@@ -496,6 +534,12 @@
             preloadBgImage();
             preloadAvatarAndUpdateCanvas();
 
+            // 3. Inicializar el gráfico radar vacío y pedir datos si hay nombre
+            initRadarChart();
+            if (state.userName && state.userName !== 'Usuario desconocido') {
+                fetchStatsFromGoogle(state.userName);
+            }
+
             if (document.fonts && document.fonts.ready) {
                 document.fonts.ready.then(() => updateCanvas());
             }
@@ -527,6 +571,7 @@
                 gamesEmptyState.classList.remove('hidden');
                 gamesContainer.classList.add('hidden');
                 updateCanvas();
+                updateRadarChart();
                 return;
             }
 
@@ -583,6 +628,7 @@
             });
 
             updateCanvas();
+            updateRadarChart(); // Refrescar gráfico al cambiar la lista
         }
 
         async function openCatalogModal() {
@@ -755,7 +801,7 @@
                 }
             }
 
-            // 2. Extracción de puntuación con soporte para reglas particulares del catálogo
+            // 2. Extracción de puntuación visual (score)
             if (gameDef.rules && typeof gameDef.rules.getScore === 'function') {
                 score = gameDef.rules.getScore(cleanedText);
             } else {
@@ -777,7 +823,7 @@
                 }
             }
 
-            // 3. Extracción de puntuación para Base de Datos (Google Sheets)
+            // 3. Extracción de puntuación pura para Sheets (exportScore)
             if (gameDef.rules && typeof gameDef.rules.getExportScore === 'function') {
                 exportScore = gameDef.rules.getExportScore(cleanedText);
             } else {
@@ -885,7 +931,7 @@
             }
 
             // Comprobación de URL configurada
-            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT' || !GOOGLE_SCRIPT_URL.startsWith('http')) {
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxfWhBhjB5qtKDu7djSjD5FKzn5f8Rb65E3FxTS8MaKoNiIkLeQZ6zWRXVQFf04rRCvMQ/exec' || !GOOGLE_SCRIPT_URL.startsWith('http')) {
                 if (!quiet) {
                     showToast('Falta pegar la URL de Google Apps Script en index.html', '⚠️');
                 }
@@ -909,7 +955,7 @@
                         name: r.name,
                         edition: r.edition,
                         score: r.exportScore !== undefined ? r.exportScore : r.score
-                        // Se omite rawText por completo del payload
+                        // rawText se ha eliminado para no enviarlo a Sheets
                     }))
                 };
 
@@ -924,6 +970,10 @@
                 });
 
                 showToast(`¡${activeResults.length} juego(s) guardados en Google Sheets!`, '📊');
+                
+                // Pedimos datos frescos para el gráfico radar tras el guardado
+                setTimeout(() => fetchStatsFromGoogle(state.userName), 1500);
+
                 return true;
 
             } catch (error) {
@@ -1015,6 +1065,14 @@
                 updateAvatarUI();
                 saveStateToStorage();
                 updateCanvas();
+
+                // Debounce para pedir datos del radar al escribir el nombre
+                clearTimeout(radarFetchTimeout);
+                if (state.userName && state.userName !== 'Usuario desconocido') {
+                    radarFetchTimeout = setTimeout(() => {
+                        fetchStatsFromGoogle(state.userName);
+                    }, 1000);
+                }
             });
 
             document.getElementById('btn-upload-avatar').addEventListener('click', () => avatarFileInput.click());
@@ -1145,6 +1203,178 @@
 
             document.getElementById('btn-share').addEventListener('click', shareCanvasImage);
         }
+
+        // =========================================================================
+        // LÓGICA DEL GRÁFICO RADAR (CHART.JS)
+        // =========================================================================
+        
+        function initRadarChart() {
+            const ctxRadar = document.getElementById('radar-chart').getContext('2d');
+            
+            Chart.defaults.color = '#94a3b8'; // text-slate-400
+            Chart.defaults.font.family = '"Plus Jakarta Sans", sans-serif';
+            
+            radarChartInstance = new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Comunidad',
+                            data: [],
+                            backgroundColor: 'rgba(168, 85, 247, 0.3)', // Morado translúcido
+                            borderColor: 'rgba(168, 85, 247, 0.8)',
+                            borderWidth: 1.5,
+                            pointBackgroundColor: '#a855f7',
+                            pointBorderColor: '#1e293b',
+                            pointRadius: 3,
+                            fill: true,
+                            order: 2 // Queda por detrás
+                        },
+                        {
+                            label: 'Tú',
+                            data: [],
+                            backgroundColor: 'transparent', // Sin relleno
+                            borderColor: '#fbbf24', // Dorado
+                            borderWidth: 2.5,
+                            pointBackgroundColor: '#1e293b',
+                            pointBorderColor: '#fbbf24',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            fill: false,
+                            order: 1 // Queda por delante
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 100,
+                            ticks: {
+                                display: false, // Ocultar los números (0, 20, 40...)
+                                stepSize: 20
+                            },
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.15)', // Líneas de la telaraña
+                                circular: true
+                            },
+                            angleLines: {
+                                color: 'rgba(148, 163, 184, 0.15)' // Radios
+                            },
+                            pointLabels: {
+                                color: '#cbd5e1', // Color nombres juegos
+                                font: {
+                                    size: 11,
+                                    weight: '600'
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                color: '#e2e8f0',
+                                font: { size: 12, weight: '600' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#cbd5e1',
+                            borderColor: 'rgba(168, 85, 247, 0.3)',
+                            borderWidth: 1,
+                            padding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.dataset.label}: ${context.raw || 0}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function fetchStatsFromGoogle(playerName) {
+            if (!GOOGLE_SCRIPT_URL || !GOOGLE_SCRIPT_URL.startsWith('http')) return;
+            
+            const loadingIndicator = document.getElementById('radar-loading');
+            loadingIndicator.classList.remove('hidden');
+
+            try {
+                const url = `${GOOGLE_SCRIPT_URL}?jugador=${encodeURIComponent(playerName)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data && data.statsJugador && data.statsComunidad) {
+                    fetchedStats = data;
+                    updateRadarChart();
+                }
+            } catch (error) {
+                console.error("Error al obtener estadísticas para el radar:", error);
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        function updateRadarChart() {
+            if (!radarChartInstance) return;
+
+            const emptyState = document.getElementById('radar-empty-state');
+            
+            // Cogemos máximo los 10 primeros juegos de la lista del usuario
+            const activeGamesToChart = state.userSelectedGameIds.slice(0, 10);
+
+            if (activeGamesToChart.length < 3) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+
+            const labels = [];
+            const dataComunidad = [];
+            const dataJugador = [];
+
+            activeGamesToChart.forEach(gameId => {
+                const gameDef = getCombinedGameDefinition(gameId);
+                labels.push(gameDef.name);
+
+                let pctJugador = 0;
+                let pctComunidad = 0;
+
+                if (fetchedStats.statsJugador) {
+                    const key = Object.keys(fetchedStats.statsJugador).find(k => k.toLowerCase() === gameId.toLowerCase() || k.toLowerCase() === gameDef.name.toLowerCase());
+                    if (key) pctJugador = parseFloat(fetchedStats.statsJugador[key]) || 0;
+                }
+
+                if (fetchedStats.statsComunidad) {
+                    const key = Object.keys(fetchedStats.statsComunidad).find(k => k.toLowerCase() === gameId.toLowerCase() || k.toLowerCase() === gameDef.name.toLowerCase());
+                    if (key) pctComunidad = parseFloat(fetchedStats.statsComunidad[key]) || 0;
+                }
+
+                dataJugador.push(pctJugador);
+                dataComunidad.push(pctComunidad);
+            });
+
+            radarChartInstance.data.labels = labels;
+            radarChartInstance.data.datasets[0].data = dataComunidad;
+            radarChartInstance.data.datasets[1].data = dataJugador;
+            
+            radarChartInstance.update();
+        }
+
+        // =========================================================================
+        // LÓGICA DE DIBUJO DEL CANVAS
+        // =========================================================================
 
         function wrapTextLines(ctx, text, maxWidth) {
             if (!text) return [''];
