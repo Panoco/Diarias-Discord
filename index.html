@@ -321,7 +321,7 @@
         // CONFIGURACIÓN DE CONEXIÓN CON GOOGLE SHEETS
         // Pega aquí la URL de la aplicación web que te dio Google Apps Script
         // =========================================================================
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzhJNhmtoAXaivcnX3x6HO8VKWeZd7N_s4avscU7DdgXCth4oJ-VE21TmlAVOM1N4RFjA/exec';
+        const GOOGLE_SCRIPT_URL = 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT';
 
         const STORAGE_KEY = 'daily_game_hub_delaware_v2';
         const BG_IMAGE_URL = 'diariasbg.png';
@@ -734,6 +734,7 @@
             const gameDef = getCombinedGameDefinition(gameId);
             let edition = '';
             let score = '';
+            let exportScore = '';
 
             // 1. Subtítulo con reglas particulares si existen
             if (gameDef.rules && typeof gameDef.rules.getSubtitle === 'function') {
@@ -776,6 +777,23 @@
                 }
             }
 
+            // 3. Extracción de puntuación para Base de Datos (Google Sheets)
+            if (gameDef.rules && typeof gameDef.rules.getExportScore === 'function') {
+                exportScore = gameDef.rules.getExportScore(cleanedText);
+            } else {
+                let cleanedScore = score.replace(/pts/gi, '').trim();
+                if (/^[\d.,]+$/.test(cleanedScore)) {
+                    // Si es un número puro con puntos/comas, quitar formato para que Sheets lo lea como número entero
+                    exportScore = cleanedScore.replace(/[,.]/g, '');
+                } else if (cleanedScore.match(/^([X\d])\/\d+$/i)) {
+                    // Formatos genéricos tipo 5/6 o X/6
+                    const val = cleanedScore.match(/^([X\d])\/\d+$/i)[1];
+                    exportScore = val.toUpperCase() === 'X' ? '0' : val;
+                } else {
+                    exportScore = cleanedScore;
+                }
+            }
+
             const lines = cleanedText.split('\n')
                 .map(line => line.trim())
                 .filter(line => {
@@ -797,6 +815,7 @@
                 badgeColor: gameDef.badgeColor || '#ffffff',
                 edition: edition || 'Diario',
                 score: score,
+                exportScore: exportScore,
                 rawText: cleanedText,
                 displayLines: lines.length > 0 ? lines : [cleanedText.substring(0, 40)]
             };
@@ -889,8 +908,8 @@
                         id: r.id,
                         name: r.name,
                         edition: r.edition,
-                        score: r.score,
-                        rawText: r.rawText
+                        score: r.exportScore !== undefined ? r.exportScore : r.score
+                        // Se omite rawText por completo del payload
                     }))
                 };
 

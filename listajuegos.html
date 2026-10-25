@@ -73,12 +73,20 @@
                 badgeColor: '#FA8072', // Salmón
                 pattern: /Crissle/i,
                 url: 'https://crissle.es/',
-                sample: `Crissle #42\n4/6 · 120 pts\n🟩🟩🟩🟩`,
+                sample: `Crissle #061\nTema: Picasso · 145 años de su nacimiento\n⏱ 00:37 · 1 fallo`,
                 description: 'Crucigrama diario con pistas por letras.',
                 rules: {
                     getScore: function(text) {
+                        const timeMatch = text.match(/⏱\s*(\d{2}:\d{2})/);
+                        if (timeMatch) return timeMatch[1];
                         const match = text.match(/(\d+)\s*pts/i);
-                        return match ? match[1] : 'Completado';
+                        return match ? `${match[1]} pts` : 'Completado';
+                    },
+                    getExportScore: function(text) {
+                        const timeMatch = text.match(/⏱\s*(\d{2}:\d{2})/);
+                        if (timeMatch) return timeMatch[1];
+                        const match = text.match(/(\d+)\s*pts/i);
+                        return match ? match[1] : '0';
                     }
                 }
             },
@@ -89,13 +97,7 @@
                 pattern: /GnarlyQ|gnarly/i,
                 url: 'https://gnarlyq.com/',
                 sample: `GnarlyQ #87\n60 PTS · 39\n\n60 — catch me if you can.`,
-                description: 'Adivinanza matemática y de lógica rápida.',
-                rules: {
-                    getScore: function(text) {
-                        const match = text.match(/(\d+)\s*PTS/i);
-                        return match ? match[1] : 'Completado';
-                    }
-                }
+                description: 'Adivinanza matemática y de lógica rápida.'
             },
             maptap: {
                 id: 'maptap',
@@ -104,13 +106,7 @@
                 pattern: /MapTap|maptap/i,
                 url: 'https://maptap.gg/',
                 sample: `MapTap October 8\n85 100 96 81 94\nFinal score: 902`,
-                description: 'Geografía y colocación de países en el mapa.',
-                rules: {
-                    getScore: function(text) {
-                        const match = text.match(/Final score:\s*([\d.,]+)/i);
-                        return match ? match[1] : 'Completado';
-                    }
-                }
+                description: 'Geografía y colocación de países en el mapa.'
             },
             ostra: {
                 id: 'ostra',
@@ -119,13 +115,7 @@
                 pattern: /Ostra/i,
                 url: 'https://playostra.com/',
                 sample: `Ostra #30\n✨ Racha: 5 días\nCompletado en 3 intentos`,
-                description: 'Juego diario de asociación y pistas.',
-                rules: {
-                    getScore: function(text) {
-                        const match = text.match(/(\d+)\s*intentos/i);
-                        return match ? match[1] : 'Completado';
-                    }
-                }
+                description: 'Juego diario de asociación y pistas.'
             },
             pinstinct: {
                 id: 'pinstinct',
@@ -138,7 +128,11 @@
                 rules: {
                     getScore: function(text) {
                         const match = text.match(/Score\s*\/\s*([\d.,]+)/i);
-                        return match ? match[1] : 'Completado';
+                        return match ? `${match[1]} pts` : 'Completado';
+                    },
+                    getExportScore: function(text) {
+                        const match = text.match(/Score\s*\/\s*([\d.,]+)/i);
+                        return match ? match[1].replace(/[,.]/g, '') : '0';
                     }
                 }
             },
@@ -152,8 +146,12 @@
                 description: 'Anagramas en español contrarreloj.',
                 rules: {
                     getScore: function(text) {
-                        const match = text.match(/Tiempo:\s*([\d:]+)/i) || text.match(/(\d{2}:\d{2})/);
+                        const match = text.match(/(?:Tiempo|Resuelto en)[:\s]*(\d{2}:\d{2})/i) || text.match(/(\d{2}:\d{2})/);
                         return match ? match[1] : 'Completado';
+                    },
+                    getExportScore: function(text) {
+                        const match = text.match(/(?:Tiempo|Resuelto en)[:\s]*(\d{2}:\d{2})/i) || text.match(/(\d{2}:\d{2})/);
+                        return match ? match[1] : '0';
                     }
                 }
             },
@@ -163,14 +161,8 @@
                 badgeColor: '#10B981', // Verde esmeralda
                 pattern: /Catfishing/i,
                 url: 'https://catfishing.net/',
-                sample: `Catfishing #15\n🎣 Capturado con éxito\n6.5/10 efectividad`,
-                description: 'Deducción y pesca de impostores.',
-                rules: {
-                    getScore: function(text) {
-                        const match = text.match(/([\d.,]+)\s*\/\s*10/i);
-                        return match ? match[1] : 'Completado';
-                    }
-                }
+                sample: `Catfishing #15\n🎣 Capturado con éxito\n100% de efectividad`,
+                description: 'Deducción y pesca de impostores.'
             },
             krillion: {
                 id: 'krillion',
@@ -183,7 +175,11 @@
                 rules: {
                     getScore: function(text) {
                         const match = text.match(/([\d.,]+)\s*pts/i);
-                        return match ? match[1] : 'Completado';
+                        return match ? `${match[1]} pts` : 'Completado';
+                    },
+                    getExportScore: function(text) {
+                        const match = text.match(/([\d.,]+)\s*pts/i);
+                        return match ? match[1].replace(/[,.]/g, '') : '0';
                     }
                 }
             },
@@ -203,13 +199,7 @@
                 pattern: /Size\s*It\s*Up|magnitudle/i,
                 url: 'https://magnitudle.com/size-it-up',
                 sample: `Size It Up\nOverall Score 336\n\n44\n54\n79\n73\n86`,
-                description: 'Compara y estima las escalas de tamaño.',
-                rules: {
-                    getScore: function(text) {
-                        const match = text.match(/Overall Score\s*([\d.,]+)/i);
-                        return match ? match[1] : 'Completado';
-                    }
-                }
+                description: 'Compara y estima las escalas de tamaño.'
             },
             wikitrivia: {
                 id: 'wikitrivia',
@@ -218,13 +208,7 @@
                 pattern: /wikitrivia/i,
                 url: 'https://wikitrivia.tomjwatson.com/',
                 sample: `#wikitrivia / Daily for Oct 7 2026\n\nScore / 22 / Gold`,
-                description: 'Ordena eventos y figuras en la línea temporal.',
-                rules: {
-                    getScore: function(text) {
-                        const match = text.match(/Score\s*\/\s*([\d.,]+)/i);
-                        return match ? match[1] : 'Completado';
-                    }
-                }
+                description: 'Ordena eventos y figuras en la línea temporal.'
             },
             geoguessr: {
                 id: 'geoguessr',
@@ -250,7 +234,11 @@
                     },
                     getScore: function(text) {
                         const match = text.match(/Total:\s*([\d.,]+)\s*pts/i);
-                        return match ? match[1] : 'Completado';
+                        return match ? `${match[1]} pts` : 'Completado';
+                    },
+                    getExportScore: function(text) {
+                        const match = text.match(/Total:\s*([\d.,]+)\s*pts/i);
+                        return match ? match[1].replace(/[,.]/g, '') : '0';
                     }
                 }
             },
@@ -270,6 +258,11 @@
                     getScore: function(text) {
                         const match = text.match(/([X\d]\/6)/i);
                         return match ? match[1] : 'Completado';
+                    },
+                    getExportScore: function(text) {
+                        const match = text.match(/([X\d])\/6/i);
+                        if (!match) return '0';
+                        return match[1].toUpperCase() === 'X' ? '0' : match[1];
                     }
                 }
             },
@@ -292,8 +285,12 @@
                         return dateMatch ? dateMatch[0] : 'Diario';
                     },
                     getScore: function(text) {
-                        const match = text.match(/(\d{1,3})\s*\n?\s*\/\s*1000/i);
-                        return match ? match[1] : 'Completado';
+                        const scoreRatioMatch = text.match(/(\d+)\s*\n?\s*\/\s*(\d+)/i);
+                        if (scoreRatioMatch) {
+                            return `${scoreRatioMatch[1]} / ${scoreRatioMatch[2]}`;
+                        }
+                        const numberOnlyMatch = text.match(/\b\d{2,4}\b/);
+                        return numberOnlyMatch ? `${numberOnlyMatch[0]} pts` : 'Completado';
                     }
                 }
             },
@@ -312,7 +309,7 @@
                     },
                     getScore: function(text) {
                         const scoreMatch = text.match(/Score:\s*(\d+)/i);
-                        return scoreMatch ? scoreMatch[1] : 'Completado';
+                        return scoreMatch ? `${scoreMatch[1]} pts` : 'Completado';
                     }
                 }
             },
@@ -331,7 +328,7 @@
                     },
                     getScore: function(text) {
                         const scoreMatch = text.match(/Score:\s*(\d+)/i);
-                        return scoreMatch ? scoreMatch[1] : 'Completado';
+                        return scoreMatch ? `${scoreMatch[1]} pts` : 'Completado';
                     }
                 }
             },
@@ -350,7 +347,7 @@
                     },
                     getScore: function(text) {
                         const scoreMatch = text.match(/Score:\s*(\d+)/i);
-                        return scoreMatch ? scoreMatch[1] : 'Completado';
+                        return scoreMatch ? `${scoreMatch[1]} pts` : 'Completado';
                     }
                 }
             },
@@ -369,7 +366,7 @@
                     },
                     getScore: function(text) {
                         const scoreMatch = text.match(/Score:\s*(\d+)/i);
-                        return scoreMatch ? scoreMatch[1] : 'Completado';
+                        return scoreMatch ? `${scoreMatch[1]} pts` : 'Completado';
                     }
                 }
             },
@@ -394,38 +391,43 @@
                     getScore: function(text) {
                         const match = text.match(/([X\d]\/\d+)/i);
                         return match ? match[1] : 'Completado';
+                    },
+                    getExportScore: function(text) {
+                        const match = text.match(/([X\d])\/\d+/i);
+                        if (!match) return '0';
+                        return match[1].toUpperCase() === 'X' ? '0' : match[1];
                     }
                 }
             },
             panigma: {
-                id: 'panigma',
-                name: 'Panigma',
-                badgeColor: '#EC4899', // Rosa frambuesa / Fucsia
-                pattern: /Panigma/i,
-                url: 'https://panigma.fr/',
-                sample: `Panigma — Oct 16, 2026 — Round #36\nScore: 254 — Correct answers: 4/8\n🟢🔴🟢🟢🔴🔴🔴🟢`,
-                description: 'Enigmas diarios de cultura general basados en artículos de Wikipedia.',
+            ostra: {
+                id: 'ostra',
+                name: 'Ostra',
+                badgeColor: '#004B49', // Verde botella
+                pattern: /Ostra/i,
+                url: 'https://playostra.com/',
+                sample: `Ostra #30\n✨ Racha: 5 días\nCompletado en 3 intentos`,
+                description: 'Juego diario de asociación y pistas.',
                 rules: {
-                    sanitize: function(text) {
-                        return text.replace(/https?:\/\/\S+/gi, '')
-                                   .replace(/panigma\.fr\S*/gi, '');
-                    },
-                    getSubtitle: function(text) {
-                        const match = text.match(/Round\s*#(\d+)|#(\d+)/i);
-                        if (match) return `#${match[1] || match[2]}`;
-                        const dateMatch = text.match(/([A-Z][a-z]+\s+\d{1,2}(?:,\s*\d{4})?)/i);
-                        return dateMatch ? dateMatch[1] : 'Diario';
-                    },
                     getScore: function(text) {
-                        const scoreMatch = text.match(/Score:\s*(\d+)/i);
-                        if (scoreMatch) return scoreMatch[1];
-                        const ratioMatch = text.match(/Correct answers:\s*(\d+\/\d+)/i) || text.match(/(\d+\/\d+)/);
-                        if (ratioMatch) return ratioMatch[1];
+                        const match = text.match(/(\d+)\s*intentos/i);
+                        if (match) return `${match[1]} intentos`;
+                        const failMatch = text.match(/([X\d])\/5/i);
+                        if (failMatch) return `${failMatch[1]}/5`;
                         return 'Completado';
+                    },
+                    getExportScore: function(text) {
+                        const match = text.match(/(\d+)\s*intentos/i);
+                        if (match) return match[1];
+                        const failMatch = text.match(/([X\d])\/5/i);
+                        if (failMatch) return failMatch[1].toUpperCase() === 'X' ? '0' : failMatch[1];
+                        return '0';
                     }
                 }
             }
         };
+
+        // Reordenación opcional alfabética si lo prefieres en tu código
     </script>
 
     <script>
