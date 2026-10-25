@@ -389,7 +389,7 @@
             avatarUrl: null,
             date: new Date().toISOString().split('T')[0],
             userSelectedGameIds: [],
-            radarSelectedIds: [], // IDs específicos seleccionados para el gráfico radar (máx 20)
+            radarSelectedIds: [],
             results: {},
             customGames: {},
             lifetimeGamesCount: 0,
@@ -542,7 +542,6 @@
             await fetchCatalogFromModule();
             loadStateFromStorage();
 
-            // Sincronizar radarSelectedIds iniciales si está vacío con los del usuario
             if (!state.radarSelectedIds || state.radarSelectedIds.length === 0) {
                 state.radarSelectedIds = [...state.userSelectedGameIds];
             }
@@ -858,7 +857,41 @@
                 else if (edDateMatch && edDateMatch[1]) edition = edDateMatch[1];
             }
 
-            if (gameDef.rules && typeof gameDef.rules.getScore === 'function') {
+            // Reglas específicas adaptadas para Crissle, Zanagramas, Krillion, etc.
+            if (gameId === 'crissle') {
+                const timeMatch = cleanedText.match(/(?:⏱|tiempo)?\s*(\d{2}):(\d{2})/i);
+                if (timeMatch) {
+                    const mins = parseInt(timeMatch[1], 10);
+                    const secs = parseInt(timeMatch[2], 10);
+                    const totalSecs = mins * 60 + secs;
+                    score = `${timeMatch[1]}:${timeMatch[2]}`;
+                    exportScore = totalSecs.toString();
+                } else {
+                    score = 'Completado';
+                    exportScore = '0';
+                }
+            } else if (gameId === 'zanagramas') {
+                const timeMatch = cleanedText.match(/(?:tiempo|resuelto en)[:\s]*(\d{2}):(\d{2})/i) || cleanedText.match(/(\d{2}):(\d{2})/);
+                if (timeMatch) {
+                    const mins = parseInt(timeMatch[1], 10);
+                    const secs = parseInt(timeMatch[2], 10);
+                    const totalSecs = mins * 60 + secs;
+                    score = `${timeMatch[1]}:${timeMatch[2]}`;
+                    exportScore = totalSecs.toString();
+                } else {
+                    score = 'Completado';
+                    exportScore = '0';
+                }
+            } else if (gameId === 'krillion') {
+                const ptsMatch = cleanedText.match(/([\d,.]+)\s*pts/i);
+                if (ptsMatch) {
+                    score = `${ptsMatch[1]} pts`;
+                    exportScore = ptsMatch[1].replace(/[,.]/g, '');
+                } else {
+                    score = 'Completado';
+                    exportScore = '0';
+                }
+            } else if (gameDef.rules && typeof gameDef.rules.getScore === 'function') {
                 score = gameDef.rules.getScore(cleanedText);
             } else {
                 const scoreMatch = cleanedText.match(/Total\s*:\s*([\d,.]+\s*pts)/i) ||
@@ -879,17 +912,19 @@
                 }
             }
 
-            if (gameDef.rules && typeof gameDef.rules.getExportScore === 'function') {
-                exportScore = gameDef.rules.getExportScore(cleanedText);
-            } else {
-                let cleanedScore = score.replace(/pts/gi, '').trim();
-                if (/^[\d.,]+$/.test(cleanedScore)) {
-                    exportScore = cleanedScore.replace(/[,.]/g, '');
-                } else if (cleanedScore.match(/^([X\d])\/\d+$/i)) {
-                    const val = cleanedScore.match(/^([X\d])\/\d+$/i)[1];
-                    exportScore = val.toUpperCase() === 'X' ? '0' : val;
+            if (!exportScore) {
+                if (gameDef.rules && typeof gameDef.rules.getExportScore === 'function') {
+                    exportScore = gameDef.rules.getExportScore(cleanedText);
                 } else {
-                    exportScore = cleanedScore;
+                    let cleanedScore = score.replace(/pts/gi, '').trim();
+                    if (/^[\d.,]+$/.test(cleanedScore)) {
+                        exportScore = cleanedScore.replace(/[,.]/g, '');
+                    } else if (cleanedScore.match(/^([X\d])\/\d+$/i)) {
+                        const val = cleanedScore.match(/^([X\d])\/\d+$/i)[1];
+                        exportScore = val.toUpperCase() === 'X' ? '0' : val;
+                    } else {
+                        exportScore = cleanedScore;
+                    }
                 }
             }
 
@@ -1162,7 +1197,6 @@
                 updateCanvas();
             });
 
-            // Modal Catálogo
             document.getElementById('btn-open-catalog-modal').addEventListener('click', openCatalogModal);
             document.getElementById('btn-empty-state-add').addEventListener('click', openCatalogModal);
             document.getElementById('btn-close-modal').addEventListener('click', closeCatalogModal);
@@ -1175,7 +1209,6 @@
                 if (btn) toggleGameInRoster(btn.dataset.game);
             });
 
-            // Modal Selector Radar
             document.getElementById('btn-open-radar-selector').addEventListener('click', openRadarModal);
             document.getElementById('btn-close-radar-modal').addEventListener('click', closeRadarModal);
             document.getElementById('btn-radar-modal-done').addEventListener('click', () => {
@@ -1202,7 +1235,6 @@
                 }
             });
 
-            // Inputs de juegos activos
             gamesContainer.addEventListener('input', (e) => {
                 if (e.target.classList.contains('custom-game-name-input')) {
                     const gameId = e.target.dataset.game;
