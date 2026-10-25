@@ -117,12 +117,6 @@
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     Reinicio diario: 05:00 AM
                 </span>
-                <button id="btn-load-sample" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800/60 text-purple-100 border border-purple-700/60 text-xs sm:text-sm font-semibold transition active:scale-95 shadow-sm">
-                    <svg class="w-4 h-4 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
-                    <span>Cargar Ejemplo</span>
-                </button>
                 <button id="btn-clear-all" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition" title="Limpiar resultados">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -332,7 +326,7 @@
                             🎮
                         </div>
                         <h3 class="text-sm font-bold text-slate-200">Aún no has añadido resultados hoy</h3>
-                        <p class="text-xs text-slate-400 mt-1 max-w-xs">Añade juegos a tu lista o pulsa en "Cargar Ejemplo" para probar la plantilla.</p>
+                        <p class="text-xs text-slate-400 mt-1 max-w-xs">Añade juegos a tu lista o pega resultados para probar la plantilla.</p>
                     </div>
                 </div>
 
@@ -857,9 +851,9 @@
                 else if (edDateMatch && edDateMatch[1]) edition = edDateMatch[1];
             }
 
-            // Reglas específicas adaptadas para Crissle, Zanagramas, Krillion, etc.
+            // Reglas específicas adaptadas para Crissle, Zanagramas, Krillion, Framed, etc.
             if (gameId === 'crissle') {
-                const timeMatch = cleanedText.match(/(?:⏱|tiempo)?\s*(\d{2}):(\d{2})/i);
+                const timeMatch = cleanedText.match(/(?:⏱|tiempo)?\s*(\d{2}):(\d{2})/i) || cleanedText.match(/(\d{2}):(\d{2})/);
                 if (timeMatch) {
                     const mins = parseInt(timeMatch[1], 10);
                     const secs = parseInt(timeMatch[2], 10);
@@ -891,6 +885,22 @@
                     score = 'Completado';
                     exportScore = '0';
                 }
+            } else if (gameId === 'framed') {
+                const gridMatch = cleanedText.match(/[🟩⬛🟥🟨⬜]/g);
+                if (gridMatch) {
+                    const greenIdx = gridMatch.indexOf('🟩');
+                    if (greenIdx !== -1) {
+                        const attemptNum = greenIdx + 1;
+                        score = `${attemptNum}/6`;
+                        exportScore = attemptNum.toString();
+                    } else {
+                        score = 'X/6';
+                        exportScore = '7';
+                    }
+                } else {
+                    score = 'Completado';
+                    exportScore = '7';
+                }
             } else if (gameDef.rules && typeof gameDef.rules.getScore === 'function') {
                 score = gameDef.rules.getScore(cleanedText);
             } else {
@@ -921,7 +931,7 @@
                         exportScore = cleanedScore.replace(/[,.]/g, '');
                     } else if (cleanedScore.match(/^([X\d])\/\d+$/i)) {
                         const val = cleanedScore.match(/^([X\d])\/\d+$/i)[1];
-                        exportScore = val.toUpperCase() === 'X' ? '0' : val;
+                        exportScore = val.toUpperCase() === 'X' ? '7' : val;
                     } else {
                         exportScore = cleanedScore;
                     }
@@ -1063,27 +1073,6 @@
                     btnText.textContent = 'Guardar en Google Sheets';
                 }
             }
-        }
-
-        function loadSampleData() {
-            const sampleIds = ['crissle', 'gnarlyq', 'maptap', 'geoguessr', 'nounsense', 'lapalabradeldia', 'octordle_normal', 'numble'];
-            sampleIds.forEach(id => {
-                if (!state.userSelectedGameIds.includes(id)) {
-                    state.userSelectedGameIds.push(id);
-                }
-                if (!state.radarSelectedIds.includes(id) && state.radarSelectedIds.length < 20) {
-                    state.radarSelectedIds.push(id);
-                }
-                const game = getCombinedGameDefinition(id);
-                if (game && game.sample) {
-                    const cleaned = sanitizeGameText(id, game.sample);
-                    parseAndSetGameResult(id, cleaned);
-                }
-            });
-            saveStateToStorage();
-            renderActiveGames();
-            updateCanvas();
-            showToast('¡Ejemplo cargado en tu plantilla!', '🚀');
         }
 
         function clearAll() {
@@ -1277,7 +1266,6 @@
             });
 
             document.getElementById('btn-process-smart').addEventListener('click', processSmartPaste);
-            document.getElementById('btn-load-sample').addEventListener('click', loadSampleData);
             document.getElementById('btn-clear-all').addEventListener('click', clearAll);
 
             document.getElementById('btn-download').addEventListener('click', () => {
