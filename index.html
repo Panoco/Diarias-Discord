@@ -851,36 +851,47 @@
                 else if (edDateMatch && edDateMatch[1]) edition = edDateMatch[1];
             }
 
-            // Reglas específicas adaptadas para Crissle, Zanagramas, Krillion, Framed, etc.
+            // Reglas específicas adaptadas para cada juego
             if (gameId === 'crissle') {
                 const timeMatch = cleanedText.match(/(?:⏱|tiempo)?\s*(\d{2}):(\d{2})/i) || cleanedText.match(/(\d{2}):(\d{2})/);
                 if (timeMatch) {
                     const mins = parseInt(timeMatch[1], 10);
                     const secs = parseInt(timeMatch[2], 10);
-                    const totalSecs = mins * 60 + secs;
+                    let totalSecs = mins * 60 + secs;
+                    if (totalSecs > 120) totalSecs = 120;
                     score = `${timeMatch[1]}:${timeMatch[2]}`;
                     exportScore = totalSecs.toString();
                 } else {
                     score = 'Completado';
-                    exportScore = '0';
+                    exportScore = '120';
                 }
             } else if (gameId === 'zanagramas') {
                 const timeMatch = cleanedText.match(/(?:tiempo|resuelto en)[:\s]*(\d{2}):(\d{2})/i) || cleanedText.match(/(\d{2}):(\d{2})/);
                 if (timeMatch) {
                     const mins = parseInt(timeMatch[1], 10);
                     const secs = parseInt(timeMatch[2], 10);
-                    const totalSecs = mins * 60 + secs;
+                    let totalSecs = mins * 60 + secs;
+                    if (totalSecs > 300) totalSecs = 300;
                     score = `${timeMatch[1]}:${timeMatch[2]}`;
                     exportScore = totalSecs.toString();
                 } else {
                     score = 'Completado';
-                    exportScore = '0';
+                    exportScore = '300';
                 }
             } else if (gameId === 'krillion') {
                 const ptsMatch = cleanedText.match(/([\d,.]+)\s*pts/i);
                 if (ptsMatch) {
                     score = `${ptsMatch[1]} pts`;
                     exportScore = ptsMatch[1].replace(/[,.]/g, '');
+                } else {
+                    score = 'Completado';
+                    exportScore = '0';
+                }
+            } else if (gameId === 'catfishing') {
+                const match = cleanedText.match(/([\d.,]+)\s*\/\s*10/i);
+                if (match) {
+                    score = `${match[1]}/10`;
+                    exportScore = match[1].replace('.', ',');
                 } else {
                     score = 'Completado';
                     exportScore = '0';
