@@ -73,7 +73,7 @@
                 pattern: /Crissle/i,
                 url: 'https://crissle.es/',
                 sample: `Crissle #061\nTema: Picasso · 145 años de su nacimiento\n⏱ 00:37 · 1 fallo`,
-                description: 'Crucigrama diario con pistas por letras (Se exportan los segundos totales).',
+                description: 'Crucigrama diario con pistas por letras (Se exportan los segundos totales, máx 120s).',
                 rules: {
                     getScore: function(text) {
                         const match = text.match(/⏱\s*(\d{2}:\d{2})/);
@@ -84,10 +84,12 @@
                     getExportScore: function(text) {
                         const match = text.match(/(\d{2}):(\d{2})/);
                         if (match) {
-                            return (parseInt(match[1], 10) * 60 + parseInt(match[2], 10)).toString();
+                            let totalSecs = parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+                            if (totalSecs > 120) totalSecs = 120;
+                            return totalSecs.toString();
                         }
                         const pts = text.match(/(\d+)\s*pts/i);
-                        return pts ? pts[1] : '0';
+                        return pts ? pts[1] : '120';
                     }
                 }
             },
@@ -180,7 +182,7 @@
                 pattern: /Zanagramas/i,
                 url: 'https://zanagrams.com/es/',
                 sample: `Zanagramas #78\n🔤 8/8 palabras encontradas\nTiempo: 01:45`,
-                description: 'Anagramas en español contrarreloj (Se exportan los segundos totales).',
+                description: 'Anagramas en español contrarreloj (Se exportan los segundos totales, máx 300s).',
                 rules: {
                     getScore: function(text) {
                         const match = text.match(/(?:Tiempo|Resuelto en)[:\s]*(\d{2}:\d{2})/i) || text.match(/(\d{2}:\d{2})/);
@@ -189,9 +191,11 @@
                     getExportScore: function(text) {
                         const match = text.match(/(?:Tiempo|Resuelto en)[:\s]*(\d{2}):(\d{2})/i) || text.match(/(\d{2}):(\d{2})/);
                         if (match) {
-                            return (parseInt(match[1], 10) * 60 + parseInt(match[2], 10)).toString();
+                            let totalSecs = parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+                            if (totalSecs > 300) totalSecs = 300;
+                            return totalSecs.toString();
                         }
-                        return '0';
+                        return '300';
                     }
                 }
             },
@@ -202,15 +206,28 @@
                 pattern: /Catfishing/i,
                 url: 'https://catfishing.net/',
                 sample: `Catfishing #15\n🎣 Capturado con éxito\n6.5/10 efectividad`,
-                description: 'Deducción y pesca de impostores (Puntos del 0 al 10).',
+                description: 'Deducción y pesca de impostores (Puntos con coma europea).',
                 rules: {
                     getScore: function(text) {
                         const match = text.match(/([\d.,]+)\s*\/\s*10/i);
-                        return match ? `${match[1]}/10` : 'Completado';
+                        if (match) {
+                            let valStr = match[1].replace('.', ',');
+                            return `${valStr}/10`;
+                        }
+                        return 'Completado';
                     },
                     getExportScore: function(text) {
                         const match = text.match(/([\d.,]+)\s*\/\s*10/i);
-                        return match ? match[1].replace(',', '.') : '0';
+                        if (match) {
+                            // Garantiza formato europeo estricto usando coma
+                            let cleanNum = match[1].replace(',', '.');
+                            let num = parseFloat(cleanNum);
+                            if (!isNaN(num)) {
+                                return num.toString().replace('.', ',');
+                            }
+                            return match[1].replace('.', ',');
+                        }
+                        return '0';
                     }
                 }
             },
@@ -240,7 +257,7 @@
                 pattern: /Framed/i,
                 url: 'https://framed.wtf/',
                 sample: `Framed #1671\n🎥 🟩 ⬛ ⬛ ⬛ ⬛ ⬛`,
-                description: 'Adivina la película (Intento del 1 al 6; X si falla).',
+                description: 'Adivina la película (Intento del 1 al 6; 7 si falla).',
                 rules: {
                     getScore: function(text) {
                         return 'Completado';
@@ -253,7 +270,7 @@
                                 return (greenIdx + 1).toString();
                             }
                         }
-                        return 'X';
+                        return '7';
                     }
                 }
             },
@@ -506,7 +523,7 @@
                 description: 'Enigmas diarios basados en Wikipedia.',
                 rules: {
                     sanitize: function(text) {
-                        return text.replace(/https?:\/\/\S+/gi, '').replace(/panigma\.fr\S*/gi, '');
+                        return text.replace(/https?:\/\/\S+/gi, '').replace(/panigma\.fr\s*/gi, '');
                     },
                     getSubtitle: function(text) {
                         const match = text.match(/Round\s*#(\d+)|#(\d+)/i);

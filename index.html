@@ -53,6 +53,16 @@
     <!-- Iframe invisible para cargar listajuegos.html de forma paralela con anticaché -->
     <iframe id="catalog-frame" style="display:none;" title="Catalog Module"></iframe>
 
+    <!-- Audio Element para el Huevo de Pascua -->
+    <audio id="easter-egg-audio" src="diarias.mp3" preload="auto"></audio>
+
+    <!-- Overlay Pantalla Completa Huevo de Pascua -->
+    <div id="easter-egg-overlay" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300 pointer-events-none">
+        <div class="relative max-w-3xl w-full flex items-center justify-center p-4">
+            <img src="diarias.png" alt="Easter Egg Diarias" class="max-h-[85vh] max-w-full object-contain rounded-2xl shadow-2xl ring-2 ring-purple-500/50 animate-pulse">
+        </div>
+    </div>
+
     <!-- Toast Notification Banner -->
     <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-out bg-slate-800 border border-slate-700 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
         <span id="toast-icon" class="text-xl">✨</span>
@@ -101,7 +111,7 @@
     <header class="border-b border-purple-900/50 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-700 to-indigo-500 flex items-center justify-center shadow-lg shadow-purple-900/30 ring-1 ring-white/20">
+                <div id="easter-egg-trigger" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-700 to-indigo-500 flex items-center justify-center shadow-lg shadow-purple-900/30 ring-1 ring-white/20 cursor-pointer hover:scale-105 transition active:scale-95" title="✨ Sorpresa">
                     <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 0010 20.945M11 3.055T11 20.945M11 3.055a9 9 0 019 8.945M11 20.945a9 9 0 01-9-8.945M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
@@ -392,6 +402,7 @@
 
         let loadedAvatarImage = null;
         let loadedBgImage = null;
+        let easterEggTimeout = null;
 
         function getGamingDateString() {
             const now = new Date();
@@ -547,6 +558,7 @@
             updateCountersUI();
             renderActiveGames();
             setupEventListeners();
+            setupEasterEgg();
             preloadBgImage();
             preloadAvatarAndUpdateCanvas();
             
@@ -558,6 +570,37 @@
             if (document.fonts && document.fonts.ready) {
                 document.fonts.ready.then(() => updateCanvas());
             }
+        }
+
+        function setupEasterEgg() {
+            const trigger = document.getElementById('easter-egg-trigger');
+            const overlay = document.getElementById('easter-egg-overlay');
+            const audio = document.getElementById('easter-egg-audio');
+
+            if (!trigger || !overlay || !audio) return;
+
+            trigger.addEventListener('click', () => {
+                // Reiniciar audio si ya estaba sonando
+                audio.currentTime = 0;
+                audio.play().catch(err => console.warn('Reproducción de audio bloqueada por navegador:', err));
+
+                // Mostrar overlay
+                overlay.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    overlay.classList.remove('opacity-0');
+                });
+
+                // Limpiar timeout previo si se hace clic varias veces seguidas
+                if (easterEggTimeout) clearTimeout(easterEggTimeout);
+
+                // Ocultar tras exactamente 3 segundos
+                easterEggTimeout = setTimeout(() => {
+                    overlay.classList.add('opacity-0');
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                    }, 300);
+                }, 3000);
+            });
         }
 
         function getCombinedGameDefinition(gameId) {
@@ -890,8 +933,14 @@
             } else if (gameId === 'catfishing') {
                 const match = cleanedText.match(/([\d.,]+)\s*\/\s*10/i);
                 if (match) {
-                    score = `${match[1]}/10`;
-                    exportScore = match[1].replace('.', ',');
+                    score = `${match[1].replace('.', ',')}/10`;
+                    let cleanNum = match[1].replace(',', '.');
+                    let num = parseFloat(cleanNum);
+                    if (!isNaN(num)) {
+                        exportScore = num.toString().replace('.', ',');
+                    } else {
+                        exportScore = match[1].replace('.', ',');
+                    }
                 } else {
                     score = 'Completado';
                     exportScore = '0';
