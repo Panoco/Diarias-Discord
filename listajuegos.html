@@ -66,6 +66,32 @@
     <!-- ESTE SCRIPT ES LEÍDO DIRECTAMENTE POR index.html -->
     <script id="delaware-catalog-script">
         window.DELAWARE_CATALOG = {
+            closecall: {
+                id: 'closecall',
+                name: 'Close Call',
+                badgeColor: '#F9C43B',
+                pattern: /Close\s*Call/i,
+                url: 'https://closecallgame.io/',
+                sample: `🚗💨 CLOSE CALL #1\n🏆 Sunday Driver · 243/500\n🟨80 🟧19 🟨76 🟧6 🟨62\n🎯 Closest stop: 25% from the edge\n\nhttps://closecallgame.io`,
+                description: 'Cálculo de paradas al borde de precisión (Se exporta la puntuación numérica).',
+                rules: {
+                    sanitize: function(text) {
+                        return text.replace(/https?:\/\/\S+/gi, '').trim();
+                    },
+                    getSubtitle: function(text) {
+                        const match = text.match(/#(\d+)/);
+                        return match ? `#${match[1]}` : '';
+                    },
+                    getScore: function(text) {
+                        const match = text.match(/·\s*(\d+\/\d+)/i) || text.match(/(\d+\/\d+)/);
+                        return match ? match[1] : 'Completado';
+                    },
+                    getExportScore: function(text) {
+                        const match = text.match(/·\s*(\d+)\/\d+/i) || text.match(/(\d+)\/\d+/);
+                        return match ? match[1] : '0';
+                    }
+                }
+            },
             crissle: {
                 id: 'crissle',
                 name: 'Crissle',
@@ -219,7 +245,6 @@
                     getExportScore: function(text) {
                         const match = text.match(/([\d.,]+)\s*\/\s*10/i);
                         if (match) {
-                            // Garantiza formato europeo estricto usando coma
                             let cleanNum = match[1].replace(',', '.');
                             let num = parseFloat(cleanNum);
                             if (!isNaN(num)) {
