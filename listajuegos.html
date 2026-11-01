@@ -6,12 +6,18 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Catálogo de Minijuegos - Amigos Delaware</title>
+    <title>Generador de Resultados - Amigos Delaware</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js para el Radar -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Catálogo de Minijuegos Externo -->
+    <script src="listajuegos.html"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -26,233 +32,650 @@
 </head>
 <body class="h-full bg-slate-950 text-slate-100 font-sans flex flex-col antialiased selection:bg-purple-500 selection:text-white">
 
+    <!-- Header -->
     <header class="border-b border-purple-900/40 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-700 to-indigo-500 flex items-center justify-center shadow-lg text-white font-bold text-lg">
-                    📚
+                <!-- Easter Egg Target: Logo superior izquierdo -->
+                <div id="easter-egg-btn" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-700 to-indigo-500 flex items-center justify-center shadow-lg text-white font-bold text-lg cursor-pointer transform hover:scale-105 transition" title="Pulsa para sorpresa">
+                    <img src="image_b7a27f.png" alt="Logo" class="w-8 h-8 rounded-lg object-cover pointer-events-none">
                 </div>
                 <div>
                     <h1 class="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent">
-                        Catálogo de Minijuegos Oficiales
+                        Amigos Delaware
                     </h1>
-                    <p class="text-xs text-purple-300/70">Módulo de Reglas y Juegos · Amigos Delaware</p>
+                    <p class="text-xs text-purple-300/70">Generador de Partidas Diarias</p>
                 </div>
             </div>
-            <a href="index.html" class="px-3.5 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800/60 text-purple-200 border border-purple-700/60 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 shadow-sm">
-                <span>Ir al Generador</span>
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-            </a>
+            
+            <div class="flex items-center gap-2.5">
+                <a href="listajuegos.html" class="px-3.5 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800/60 text-purple-200 border border-purple-700/60 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 shadow-sm">
+                    <span>Catálogo</span>
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                </a>
+                
+                <button id="config-btn" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-purple-900/50 transition shadow-sm" title="Configurar Perfil">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </button>
+            </div>
         </div>
     </header>
 
+    <!-- Main Content -->
     <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-        <div class="bg-slate-900/60 border border-purple-900/30 rounded-2xl p-5 backdrop-blur-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-                <h2 class="text-base font-bold text-white flex items-center gap-2">
-                    <span>Base de datos activa</span>
-                    <span id="catalog-count-badge" class="px-2 py-0.5 rounded-full text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30">Cargando...</span>
-                </h2>
-                <p class="text-xs text-slate-400 mt-1 max-w-xl">
-                    Este archivo suministra la lista y reglas particulares de procesamiento a <code>index.html</code>. Añadir un nuevo juego aquí lo pondrá disponible al instante para todos los miembros.
-                </p>
+
+        <!-- User Profile & Stats Bar -->
+        <div class="bg-slate-900/60 border border-purple-900/30 rounded-2xl p-4 sm:p-5 backdrop-blur-sm flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+            <div class="flex items-center gap-4 w-full sm:w-auto">
+                <div id="user-avatar-container" class="relative group cursor-pointer" title="Cambiar avatar">
+                    <div id="user-avatar-display" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-2xl shadow-md overflow-hidden border-2 border-purple-500/40">
+                        👤
+                    </div>
+                    <div class="absolute inset-0 bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-xs text-white font-bold">
+                        Editar
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 id="user-name-display" class="font-bold text-lg text-white">Jugador</h2>
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-medium">Activo</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-0.5">Plantilla de juegos diarios compartida</p>
+                </div>
             </div>
-            <input type="text" id="search-input" placeholder="Buscar juego por nombre o etiqueta..." class="bg-slate-950 border border-purple-900/50 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 w-full md:w-64 transition">
+
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                <div class="bg-slate-950/80 border border-purple-900/40 rounded-xl px-4 py-2.5 text-center flex-1 sm:flex-initial">
+                    <div class="text-[10px] uppercase tracking-wider text-purple-300 font-semibold">Total Acumulado</div>
+                    <div id="total-score-display" class="text-base sm:text-lg font-extrabold text-white mt-0.5">0</div>
+                </div>
+                <button id="sync-btn" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-purple-900/30 transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    <span>Enviar a Sheets</span>
+                </button>
+            </div>
         </div>
 
-        <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        <!-- Radar Chart & Dashboard Section -->
+        <div class="bg-slate-900/60 border border-purple-900/30 rounded-2xl p-5 backdrop-blur-sm shadow-xl space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-purple-900/30">
+                <div>
+                    <h3 class="font-bold text-base text-white flex items-center gap-2">
+                        <span>Radar de Rendimiento vs Comunidad</span>
+                        <span id="radar-count-badge" class="px-2 py-0.5 rounded-full text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">0/20 juegos</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Comparativa porcentual (0-100) entre tu rendimiento y la media global.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="select-radar-games-btn" class="px-3 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800/60 text-purple-200 border border-purple-700/60 text-xs font-semibold transition flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
+                        <span>Elegir juegos del gráfico (máx 20)</span>
+                    </button>
+                    <button id="refresh-radar-btn" class="p-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-slate-300 border border-purple-900/50 text-xs font-semibold transition" title="Actualizar Datos">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Contenedor del Gráfico -->
+            <div class="relative w-full h-72 sm:h-96 flex items-center justify-center bg-slate-950/40 rounded-xl border border-purple-900/20 p-2">
+                <canvas id="radarChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Toolbar de Gestión -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-900/40 p-3 rounded-2xl border border-purple-900/30">
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
+                <button id="add-game-btn" class="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-600 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5 whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>Añadir nuevo juego</span>
+                </button>
+                <button id="clear-results-btn" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition whitespace-nowrap">
+                    Limpiar resultados
+                </button>
+            </div>
+            
+            <div class="text-xs text-slate-400 text-right hidden sm:block">
+                <span>Rellena los resultados diarios abajo para generar el texto final.</span>
+            </div>
+        </div>
+
+        <!-- Grid de Tarjetas de Minijuegos Activos -->
+        <div id="games-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Las tarjetas se generan dinámicamente aquí -->
+        </div>
+
+        <!-- Sección de Resultado Generado -->
+        <div class="bg-slate-900/80 border border-purple-900/40 rounded-2xl p-5 backdrop-blur-xl shadow-2xl space-y-3">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                    <span>Resultado para copiar (Discord / WhatsApp)</span>
+                </h3>
+                <button id="copy-result-btn" class="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                    <span>Copiar Resultado</span>
+                </button>
+            </div>
+            <textarea id="final-output" readonly class="w-full h-36 bg-slate-950 border border-purple-900/50 rounded-xl p-3.5 text-xs text-purple-200 font-mono focus:outline-none resize-none shadow-inner" placeholder="Selecciona juegos e introduce resultados para generar el texto..."></textarea>
+        </div>
+
     </main>
 
-    <!-- ESTE SCRIPT ES LEÍDO DIRECTAMENTE POR index.html -->
-    <script id="delaware-catalog-script">
-        window.DELAWARE_CATALOG = {
-            crissle: {
-                id: 'crissle',
-                name: 'Crissle',
-                badgeColor: '#FA8072',
-                pattern: /Crissle/i,
-                url: 'https://crissle.es/',
-                sample: `Crissle #061\nTema: Picasso · 145 años de su nacimiento\n⏱ 00:37 · 1 fallo`,
-                description: 'Crucigrama diario con pistas por letras (Se exportan los segundos totales, máx 120s).',
-                rules: {
-                    getScore: function(text) {
-                        const match = text.match(/⏱\s*(\d{2}:\d{2})/);
-                        if (match) return match[1];
-                        const pts = text.match(/(\d+)\s*pts/i);
-                        return pts ? `${pts[1]} pts` : 'Completado';
-                    },
-                    getExportScore: function(text) {
-                        const match = text.match(/(\d{2}):(\d{2})/);
-                        if (match) {
-                            let totalSecs = parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
-                            if (totalSecs > 120) totalSecs = 120;
-                            return totalSecs.toString();
-                        }
-                        const pts = text.match(/(\d+)\s*pts/i);
-                        return pts ? pts[1] : '120';
-                    }
+    <!-- MODAL: Catálogo para Añadir Juegos -->
+    <div id="catalog-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-purple-900/50 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-purple-900/40 flex items-center justify-between bg-slate-950/50">
+                <h3 class="font-bold text-base text-white flex items-center gap-2">
+                    <span>Catálogo de Minijuegos Disponibles</span>
+                </h3>
+                <button id="close-catalog-modal" class="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-4 border-b border-purple-900/30">
+                <input type="text" id="catalog-search" placeholder="Filtrar juegos del catálogo..." class="w-full bg-slate-950 border border-purple-900/50 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
+            </div>
+            <div id="catalog-modal-list" class="p-4 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Selección de Juegos para el Radar -->
+    <div id="radar-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-purple-900/50 rounded-2xl max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-purple-900/40 flex items-center justify-between bg-slate-950/50">
+                <div>
+                    <h3 class="font-bold text-base text-white">Elegir juegos para el Gráfico Radar</h3>
+                    <p class="text-xs text-purple-300/70 mt-0.5">Selecciona hasta 20 juegos independientes de tu plantilla.</p>
+                </div>
+                <button id="close-radar-modal" class="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto space-y-2 flex-1" id="radar-modal-list">
+                <!-- Se llena dinámicamente -->
+            </div>
+            <div class="p-4 border-t border-purple-900/40 bg-slate-950/50 flex justify-end gap-2">
+                <button id="save-radar-selection" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition">
+                    Aplicar al Gráfico
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Configuración de Perfil -->
+    <div id="config-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-purple-900/50 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-purple-900/40 pb-3">
+                <h3 class="font-bold text-base text-white">Configuración del Perfil</h3>
+                <button id="close-config-modal" class="text-slate-400 hover:text-white">✕</button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs font-semibold text-purple-300">Nombre / Alias</label>
+                    <input type="text" id="config-name-input" class="w-full mt-1 bg-slate-950 border border-purple-900/50 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-purple-300">URL o Emoji de Avatar</label>
+                    <div class="flex gap-2 mt-1">
+                        <input type="text" id="config-avatar-input" placeholder="Ej: 🦊 o https://..." class="flex-1 bg-slate-950 border border-purple-900/50 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+                        <label class="px-3 py-2 bg-purple-900/40 hover:bg-purple-800 text-purple-200 text-xs font-semibold rounded-xl cursor-pointer border border-purple-700/50 flex items-center transition">
+                            <span>Subir</span>
+                            <input type="file" id="avatar-file-input" accept="image/*" class="hidden">
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button id="save-config-btn" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition">
+                    Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Easter Egg Overlays -->
+    <div id="easter-egg-overlay" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4 transition-opacity duration-300">
+        <img id="easter-egg-img" src="diarias.png" alt="Sorpresa Diaria" class="max-w-full max-h-[85vh] rounded-2xl shadow-2xl border-2 border-purple-500/50 animate-pulse">
+    </div>
+    <audio id="easter-egg-audio" src="diarias.mp3" preload="auto"></audio>
+
+    <!-- Main Logic Script -->
+    <script>
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzxxz8CwgxI_OpQ-UnbGeXIqXNq8IhlkyYhvG2SzXgaVmhFGmAR9viLX1m9MoqLyO5exQ/exec';
+
+        const CATALOG = window.DELAWARE_CATALOG || {};
+
+        let state = {
+            userName: 'Jugador',
+            avatar: '👤',
+            activeGames: ['geoguessr', 'crissle', 'zanagramas'],
+            radarGames: ['geoguessr', 'crissle', 'zanagramas'],
+            gameValues: {},
+            totalScore: 0
+        };
+
+        let radarChartInstance = null;
+
+        function loadState() {
+            const saved = localStorage.getItem('daily_game_hub_delaware_v3');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    state.userName = parsed.userName || state.userName;
+                    state.avatar = parsed.avatar || state.avatar;
+                    state.activeGames = parsed.activeGames || state.activeGames;
+                    state.radarGames = parsed.radarGames || state.radarGames;
+                    state.gameValues = parsed.gameValues || {};
+                } catch(e) {}
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem('daily_game_hub_delaware_v3', JSON.stringify({
+                userName: state.userName,
+                avatar: state.avatar,
+                activeGames: state.activeGames,
+                radarGames: state.radarGames,
+                gameValues: state.gameValues
+            }));
+        }
+
+        function updateHeaderUI() {
+            document.getElementById('user-name-display').textContent = state.userName;
+            const avatarDisplay = document.getElementById('user-avatar-display');
+            if (state.avatar.startsWith('data:') || state.avatar.startsWith('http')) {
+                avatarDisplay.innerHTML = `<img src="${state.avatar}" class="w-full h-full object-cover">`;
+            } else {
+                avatarDisplay.textContent = state.avatar;
+            }
+            document.getElementById('total-score-display').textContent = state.totalScore;
+        }
+
+        function renderActiveGames() {
+            const container = document.getElementById('games-container');
+            container.innerHTML = '';
+
+            if (state.activeGames.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-slate-500 text-sm bg-slate-900/30 rounded-2xl border border-purple-900/20">
+                        No hay minijuegos activos. Haz clic en "+ Añadir nuevo juego" para empezar.
+                    </div>
+                `;
+                document.getElementById('final-output').value = '';
+                return;
+            }
+
+            state.activeGames.forEach(gameId => {
+                const game = CATALOG[gameId];
+                if (!game) return;
+
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900/80 border border-purple-900/30 rounded-2xl p-4 shadow-lg space-y-3 relative group hover:border-purple-500/40 transition';
+                
+                const val = state.gameValues[gameId] || '';
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-3.5 h-3.5 rounded-full ring-1 ring-white/30" style="background-color: ${game.badgeColor}"></span>
+                            <span class="font-bold text-sm text-white">${game.name}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="${game.url}" target="_blank" rel="noopener noreferrer" class="text-xs text-purple-400 hover:text-purple-300 transition">Jugar ↗</a>
+                            <button onclick="removeGame('${gameId}')" class="text-slate-500 hover:text-red-400 p-1 transition" title="Quitar juego">✕</button>
+                        </div>
+                    </div>
+                    <div>
+                        <textarea placeholder="Pega aquí tu resultado..." class="game-textarea w-full h-20 bg-slate-950 border border-purple-900/50 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-purple-500 resize-none font-mono" data-game="${gameId}">${val}</textarea>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            document.querySelectorAll('.game-textarea').forEach(ta => {
+                ta.addEventListener('input', (e) => {
+                    const gId = e.target.getAttribute('data-game');
+                    state.gameValues[gId] = e.target.value;
+                    saveState();
+                    generateFinalOutput();
+                });
+            });
+
+            generateFinalOutput();
+        }
+
+        function removeGame(gameId) {
+            state.activeGames = state.activeGames.filter(id => id !== gameId);
+            state.radarGames = state.radarGames.filter(id => id !== gameId);
+            saveState();
+            renderActiveGames();
+            updateRadarChart();
+        }
+
+        function addGame(gameId) {
+            if (!state.activeGames.includes(gameId)) {
+                state.activeGames.push(gameId);
+            }
+            if (!state.radarGames.includes(gameId) && state.radarGames.length < 20) {
+                state.radarGames.push(gameId);
+            }
+            saveState();
+            renderActiveGames();
+            updateRadarChart();
+            document.getElementById('catalog-modal').classList.add('hidden');
+            document.getElementById('catalog-modal').classList.remove('flex');
+        }
+
+        function generateFinalOutput() {
+            let output = `🎮 RESUMEN DIARIO - ${state.userName.toUpperCase()} 🎮\n\n`;
+            let total = 0;
+            let count = 0;
+
+            state.activeGames.forEach(gameId => {
+                const game = CATALOG[gameId];
+                const rawText = state.gameValues[gameId];
+                if (!game || !rawText || !rawText.trim()) return;
+
+                let sanitized = rawText.trim();
+                if (game.rules && typeof game.rules.sanitize === 'function') {
+                    sanitized = game.rules.sanitize(sanitized);
                 }
-            },
-            gnarlyq: {
-                id: 'gnarlyq',
-                name: 'GnarlyQ',
-                badgeColor: '#1D3557',
-                pattern: /GnarlyQ|gnarly/i,
-                url: 'https://gnarlyq.com/',
-                sample: `GnarlyQ #87\n60 PTS · 39\n\n60 — catch me if you can.`,
-                description: 'Adivinanza matemática y de lógica rápida (Máx 100 pts).',
-                rules: {
-                    getScore: function(text) {
-                        const match = text.match(/(\d+)\s*PTS/i);
-                        return match ? `${match[1]} pts` : 'Completado';
-                    },
-                    getExportScore: function(text) {
-                        const match = text.match(/(\d+)\s*PTS/i);
-                        return match ? match[1] : '0';
-                    }
+
+                // Limpiar URLs de la imagen residual
+                sanitized = sanitized.replace(/https?:\/\/\S+/gi, '').trim();
+
+                let sub = '';
+                if (game.rules && typeof game.rules.getSubtitle === 'function') {
+                    sub = game.rules.getSubtitle(rawText);
                 }
-            },
-            maptap: {
-                id: 'maptap',
-                name: 'MapTap',
-                badgeColor: '#2D6A4F',
-                pattern: /MapTap|maptap/i,
-                url: 'https://maptap.gg/',
-                sample: `MapTap October 8\n85 100 96 81 94\nFinal score: 902`,
-                description: 'Geografía y colocación de países en el mapa (Máx 1000 pts).',
-                rules: {
-                    getScore: function(text) {
-                        const match = text.match(/Final score:\s*([\d.,]+)/i);
-                        return match ? `${match[1]} pts` : 'Completado';
-                    },
-                    getExportScore: function(text) {
-                        const match = text.match(/Final score:\s*([\d.,]+)/i);
-                        return match ? match[1].replace(/[,.]/g, '') : '0';
-                    }
+
+                let scoreStr = '';
+                if (game.rules && typeof game.rules.getScore === 'function') {
+                    scoreStr = game.rules.getScore(rawText);
                 }
-            },
-            ostra: {
-                id: 'ostra',
-                name: 'Ostra',
-                badgeColor: '#004B49',
-                pattern: /Ostra/i,
-                url: 'https://playostra.com/',
-                sample: `Ostra #30\n✨ Racha: 5 días\nCompletado en 3 intentos`,
-                description: 'Juego diario de asociación (Intentos sobre 5; si falla, 0).',
-                rules: {
-                    getScore: function(text) {
-                        const match = text.match(/(\d+)\s*intentos/i);
-                        if (match) return `${match[1]} intentos`;
-                        const fail = text.match(/([X\d])\/5/i);
-                        if (fail) return `${fail[1]}/5`;
-                        return 'Completado';
-                    },
-                    getExportScore: function(text) {
-                        const match = text.match(/(\d+)\s*intentos/i);
-                        if (match) return match[1];
-                        const fail = text.match(/([X\d])\/5/i);
-                        if (fail) return fail[1].toUpperCase() === 'X' ? '0' : fail[1];
-                        return '0';
-                    }
+
+                output += `${game.name} ${sub ? '· ' + sub : ''}\n`;
+                if (scoreStr) {
+                    output += `Puntuación: ${scoreStr}\n`;
                 }
-            },
-            pinstinct: {
-                id: 'pinstinct',
-                name: 'Pinstinct',
-                badgeColor: '#F97316',
-                pattern: /Pinstinct/i,
-                url: 'https://pinstinct.tomjwatson.com/',
-                sample: `Pinstinct / 59\n\n4,068 / 4,531 / 5,000 / 3,505 / 3,480\n\nScore / 20,584 / Gold`,
-                description: 'Localización por instinto en mapas (Máx 25000, sin comas).',
-                rules: {
-                    getScore: function(text) {
-                        const match = text.match(/Score\s*\/\s*([\d.,]+)/i);
-                        return match ? `${match[1]} pts` : 'Completado';
-                    },
-                    getExportScore: function(text) {
-                        const match = text.match(/Score\s*\/\s*([\d.,]+)/i);
-                        return match ? match[1].replace(/[,.]/g, '') : '0';
-                    }
+                output += `${sanitized}\n\n`;
+
+                count++;
+            });
+
+            document.getElementById('final-output').value = output.trim();
+        }
+
+        async function updateRadarChart() {
+            try {
+                const res = await fetch(`${GOOGLE_SCRIPT_URL}?jugador=${encodeURIComponent(state.userName)}`);
+                const data = await res.json();
+
+                const statsJugador = data.statsJugador || {};
+                const statsComunidad = data.statsComunidad || {};
+
+                const labels = [];
+                const playerScores = [];
+                const communityScores = [];
+
+                const gamesToRender = state.radarGames.length > 0 ? state.radarGames : state.activeGames;
+                document.getElementById('radar-count-badge').textContent = `${gamesToRender.length}/20 juegos`;
+
+                gamesToRender.forEach(gId => {
+                    const game = CATALOG[gId];
+                    if (!game) return;
+
+                    labels.push(game.name);
+                    
+                    const pVal = statsJugador[game.name] !== undefined ? parseFloat(statsJugador[game.name]) : 0;
+                    const cVal = statsComunidad[game.name] !== undefined ? parseFloat(statsComunidad[game.name]) : 0;
+
+                    playerScores.push(isNaN(pVal) ? 0 : pVal);
+                    communityScores.push(isNaN(cVal) ? 0 : cVal);
+                });
+
+                const ctx = document.getElementById('radarChart').getContext('2d');
+                if (radarChartInstance) {
+                    radarChartInstance.destroy();
                 }
-            },
-            zanagramas: {
-                id: 'zanagramas',
-                name: 'Zanagramas',
-                badgeColor: '#6B7280',
-                pattern: /Zanagramas/i,
-                url: 'https://zanagrams.com/es/',
-                sample: `Zanagramas #78\n🔤 8/8 palabras encontradas\nTiempo: 01:45`,
-                description: 'Anagramas en español contrarreloj (Se exportan los segundos totales, máx 300s).',
-                rules: {
-                    getScore: function(text) {
-                        const match = text.match(/(?:Tiempo|Resuelto en)[:\s]*(\d{2}:\d{2})/i) || text.match(/(\d{2}:\d{2})/);
-                        return match ? match[1] : 'Completado';
-                    },
-                    getExportScore: function(text) {
-                        const match = text.match(/(?:Tiempo|Resuelto en)[:\s]*(\d{2}):(\d{2})/i) || text.match(/(\d{2}):(\d{2})/);
-                        if (match) {
-                            let totalSecs = parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
-                            if (totalSecs > 300) totalSecs = 300;
-                            return totalSecs.toString();
-                        }
-                        return '300';
-                    }
-                }
-            },
-            catfishing: {
-                id: 'catfishing',
-                name: 'Catfishing',
-                badgeColor: '#10B981',
-                pattern: /Catfishing/i,
-                url: 'https://catfishing.net/',
-                sample: `Catfishing #15\n🎣 Capturado con éxito\n6.5/10 efectividad`,
-                description: 'Deducción y pesca de impostores (Puntos con coma europea).',
-                rules: {
-                    getScore: function(text) {
-                        const match = text.match(/([\d.,]+)\s*\/\s*10/i);
-                        if (match) {
-                            let valStr = match[1].replace('.', ',');
-                            return `${valStr}/10`;
-                        }
-                        return 'Completado';
-                    },
-                    getExportScore: function(text) {
-                        const match = text.match(/([\d.,]+)\s*\/\s*10/i);
-                        if (match) {
-                            let cleanNum = match[1].replace(',', '.');
-                            let num = parseFloat(cleanNum);
-                            if (!isNaN(num)) {
-                                return num.toString().replace('.', ',');
+
+                radarChartInstance = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Comunidad',
+                                data: communityScores,
+                                backgroundColor: 'rgba(147, 51, 234, 0.2)',
+                                borderColor: 'rgba(147, 51, 234, 0.8)',
+                                pointBackgroundColor: 'rgba(147, 51, 234, 1)',
+                                borderWidth: 2
+                            },
+                            {
+                                label: state.userName,
+                                data: playerScores,
+                                backgroundColor: 'rgba(234, 179, 8, 0.1)',
+                                borderColor: 'rgba(234, 179, 8, 0.9)',
+                                pointBackgroundColor: 'rgba(234, 179, 8, 1)',
+                                borderWidth: 2.5
                             }
-                            return match[1].replace('.', ',');
-                        }
-                        return '0';
-                    }
-                }
-            },
-            krillion: {
-                id: 'krillion',
-                name: 'Krillion',
-                badgeColor: '#38BDF8',
-                pattern: /Krillion/i,
-                url: 'https://krillion.io/',
-                sample: `Krillion #99\n💎 1,250,000 pts\nNivel Máximo alcanzado`,
-                description: 'Juego incremental diario de récords (Máx 6000 pts).',
-                rules: {
-                    getScore: function(text) {
-                        const match = text.match(/([\d.,]+)\s*pts/i);
-                        return match ? `${match[1]} pts` : 'Completado';
+                        ]
                     },
-                    getExportScore: function(text) {
-                        const match = text.match(/([\d.,]+)\s*pts/i);
-                        return match ? match[1].replace(/[,.]/g, '') : '0';
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                pointLabels: {
+                                    font: { family: '"Plus Jakarta Sans"', size: 11, weight: 'bold' },
+                                    color: '#cbd5e1'
+                                },
+                                ticks: {
+                                    backdropColor: 'transparent',
+                                    color: '#94a3b8',
+                                    font: { size: 9 },
+                                    max: 100,
+                                    min: 0
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: { color: '#f8fafc', font: { family: '"Plus Jakarta Sans"', size: 12 } }
+                            }
+                        }
                     }
+                });
+
+            } catch (err) {
+                console.error("Error cargando datos del radar:", err);
+            }
+        }
+
+        async function syncToSheets() {
+            const payload = {
+                jugador: state.userName,
+                avatar: state.avatar,
+                juegos: {}
+            };
+
+            state.activeGames.forEach(gId => {
+                const game = CATALOG[gId];
+                const rawText = state.gameValues[gId];
+                if (game && game.rules && typeof game.rules.getExportScore === 'function' && rawText && rawText.trim()) {
+                    payload.juegos[game.name] = game.rules.getExportScore(rawText);
+                } else {
+                    payload.juegos[game.name] = 0;
                 }
-            },
-            closecall: {
-                id: 'closecall',
-                name: 'Close Call',
-                badgeColor: '#F9C43B',
-                pattern: /close\s*call/i,
-                url: 'https://closecallgame.io/',
-<!-- ... existing code -->
+            });
+
+            try {
+                const btn = document.getElementById('sync-btn');
+                btn.textContent = 'Enviando...';
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                btn.textContent = '✓ Enviado';
+                setTimeout(() => { btn.innerHTML = `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg><span>Enviar a Sheets</span>`; }, 2500);
+                updateRadarChart();
+            } catch(e) {
+                alert('Error al sincronizar con Google Sheets.');
+                document.getElementById('sync-btn').textContent = 'Error';
+            }
+        }
+
+        // Eventos y Modales
+        document.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            updateHeaderUI();
+            renderActiveGames();
+            updateRadarChart();
+
+            // Easter Egg Logic
+            const easterBtn = document.getElementById('easter-egg-btn');
+            const easterOverlay = document.getElementById('easter-egg-overlay');
+            const easterAudio = document.getElementById('easter-egg-audio');
+
+            easterBtn.addEventListener('click', () => {
+                easterOverlay.classList.remove('hidden');
+                easterOverlay.classList.add('flex');
+                easterAudio.currentTime = 0;
+                easterAudio.play().catch(e => console.log("Audio play blocked", e));
+
+                setTimeout(() => {
+                    easterOverlay.classList.add('hidden');
+                    easterOverlay.classList.remove('flex');
+                    easterAudio.pause();
+                }, 3000);
+            });
+
+            // Config Modal
+            document.getElementById('config-btn').addEventListener('click', () => {
+                document.getElementById('config-name-input').value = state.userName;
+                document.getElementById('config-avatar-input').value = state.avatar.startsWith('data:') ? '' : state.avatar;
+                document.getElementById('config-modal').classList.remove('hidden');
+                document.getElementById('config-modal').classList.add('flex');
+            });
+            document.getElementById('close-config-modal').addEventListener('click', () => {
+                document.getElementById('config-modal').classList.add('hidden');
+                document.getElementById('config-modal').classList.remove('flex');
+            });
+            document.getElementById('save-config-btn').addEventListener('click', () => {
+                const name = document.getElementById('config-name-input').value.trim();
+                const av = document.getElementById('config-avatar-input').value.trim();
+                if (name) state.userName = name;
+                if (av) state.avatar = av;
+                saveState();
+                updateHeaderUI();
+                document.getElementById('config-modal').classList.add('hidden');
+                document.getElementById('config-modal').classList.remove('flex');
+                updateRadarChart();
+            });
+
+            document.getElementById('avatar-file-input').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        state.avatar = evt.target.result;
+                        saveState();
+                        updateHeaderUI();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Add Game Modal
+            document.getElementById('add-game-btn').addEventListener('click', () => {
+                const list = document.getElementById('catalog-modal-list');
+                list.innerHTML = '';
+                Object.values(CATALOG).forEach(game => {
+                    const isAdded = state.activeGames.includes(game.id);
+                    const div = document.createElement('div');
+                    div.className = 'bg-slate-950/60 border border-purple-900/40 rounded-xl p-3 flex items-center justify-between gap-3 hover:border-purple-500/50 transition';
+                    div.innerHTML = `
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-3 h-3 rounded-full" style="background-color: ${game.badgeColor}"></span>
+                            <span class="font-bold text-xs text-white">${game.name}</span>
+                        </div>
+                        <button onclick="addGame('${game.id}')" class="px-3 py-1 rounded-lg ${isAdded ? 'bg-slate-800 text-slate-400' : 'bg-purple-600 hover:bg-purple-500 text-white'} text-xs font-semibold transition">
+                            ${isAdded ? 'Añadido' : '+ Añadir'}
+                        </button>
+                    `;
+                    list.appendChild(div);
+                });
+                document.getElementById('catalog-modal').classList.remove('hidden');
+                document.getElementById('catalog-modal').classList.add('flex');
+            });
+            document.getElementById('close-catalog-modal').addEventListener('click', () => {
+                document.getElementById('catalog-modal').classList.add('hidden');
+                document.getElementById('catalog-modal').classList.remove('flex');
+            });
+
+            // Radar Games Modal
+            document.getElementById('select-radar-games-btn').addEventListener('click', () => {
+                const list = document.getElementById('radar-modal-list');
+                list.innerHTML = '';
+                Object.values(CATALOG).forEach(game => {
+                    const isChecked = state.radarGames.includes(game.id);
+                    const div = document.createElement('label');
+                    div.className = 'flex items-center justify-between p-2.5 rounded-xl bg-slate-950/60 border border-purple-900/40 hover:border-purple-500/50 cursor-pointer transition';
+                    div.innerHTML = `
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-3 h-3 rounded-full" style="background-color: ${game.badgeColor}"></span>
+                            <span class="font-bold text-xs text-white">${game.name}</span>
+                        </div>
+                        <input type="checkbox" value="${game.id}" class="radar-checkbox w-4 h-4 accent-purple-600 rounded" ${isChecked ? 'checked' : ''}>
+                    `;
+                    list.appendChild(div);
+                });
+                document.getElementById('radar-modal').classList.remove('hidden');
+                document.getElementById('radar-modal').classList.add('flex');
+            });
+            document.getElementById('close-radar-modal').addEventListener('click', () => {
+                document.getElementById('radar-modal').classList.add('hidden');
+                document.getElementById('radar-modal').classList.remove('flex');
+            });
+            document.getElementById('save-radar-selection').addEventListener('click', () => {
+                const checkboxes = document.querySelectorAll('.radar-checkbox:checked');
+                if (checkboxes.length > 20) {
+                    alert('Puedes seleccionar un máximo de 20 juegos para el gráfico radar.');
+                    return;
+                }
+                state.radarGames = Array.from(checkboxes).map(cb => cb.value);
+                saveState();
+                updateRadarChart();
+                document.getElementById('radar-modal').classList.add('hidden');
+                document.getElementById('radar-modal').classList.remove('flex');
+            });
+
+            document.getElementById('refresh-radar-btn').addEventListener('click', updateRadarChart);
+            document.getElementById('sync-btn').addEventListener('click', syncToSheets);
+            document.getElementById('clear-results-btn').addEventListener('click', () => {
+                if (confirm('¿Estás seguro de limpiar todos los resultados actuales?')) {
+                    state.gameValues = {};
+                    saveState();
+                    renderActiveGames();
+                }
+            });
+
+            document.getElementById('copy-result-btn').addEventListener('click', () => {
+                const ta = document.getElementById('final-output');
+                ta.select();
+                navigator.clipboard.writeText(ta.value);
+                const btn = document.getElementById('copy-result-btn');
+                btn.textContent = '✓ ¡Copiado!';
+                setTimeout(() => { btn.innerHTML = `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg><span>Copiar Resultado</span>`; }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
