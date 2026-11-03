@@ -92,6 +92,58 @@
                     }
                 }
             },
+            rarillon: {
+                id: 'rarillon',
+                name: 'Rarillón',
+                badgeColor: '#991B1B',
+                pattern: /Rarill[oó]n/i,
+                url: 'https://www.qmed.com.ar/rarillon',
+                sample: `Rarillón 79\n8830 m · Morgue, piso 6 de 6 · caída libre de 6\nqmed.com.ar/rarillon?c=79`,
+                description: 'Ascenso hospitalario y caída libre (Puntuación en metros).',
+                rules: {
+                    sanitize: function(text) {
+                        return text.replace(/https?:\/\/\S+/gi, '').replace(/qmed\.com\.ar\S*/gi, '').trim();
+                    },
+                    getSubtitle: function(text) {
+                        const match = text.match(/Rarill[oó]n\s+(\d+)/i);
+                        return match ? `#${match[1]}` : '';
+                    },
+                    getScore: function(text) {
+                        const match = text.match(/(\d+)\s*m/i);
+                        return match ? `${match[1]} m` : 'Completado';
+                    },
+                    getExportScore: function(text) {
+                        const match = text.match(/(\d+)\s*m/i);
+                        return match ? match[1] : '0';
+                    }
+                }
+            },
+            nationguessr: {
+                id: 'nationguessr',
+                name: 'Nationguessr',
+                badgeColor: '#3B82F6',
+                pattern: /Nationguessr/i,
+                url: 'https://nationguessr.com/',
+                sample: `Nationguessr Nov 3: 600/5,000\n\n🟥🟥🟥🟥🟩⬜\n\nhttps://nationguessr.com`,
+                description: 'Adivina el país (Puntuación sobre 5000).',
+                rules: {
+                    sanitize: function(text) {
+                        return text.replace(/https?:\/\/\S+/gi, '').trim();
+                    },
+                    getSubtitle: function(text) {
+                        const match = text.match(/Nationguessr\s+(.*?):/i);
+                        return match ? match[1] : '';
+                    },
+                    getScore: function(text) {
+                        const match = text.match(/:\s*([\d.,]+)\s*\//);
+                        return match ? `${match[1]} pts` : 'Completado';
+                    },
+                    getExportScore: function(text) {
+                        const match = text.match(/:\s*([\d.,]+)\s*\//);
+                        return match ? match[1].replace(/[,.]/g, '') : '0';
+                    }
+                }
+            },
             crissle: {
                 id: 'crissle',
                 name: 'Crissle',
