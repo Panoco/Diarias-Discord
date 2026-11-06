@@ -3,628 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>Generador de Resultados - Amigos Delaware</title>
+    <title>Diarias Discord - Amigos Delaware</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js para el Radar -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js para el gráfico radar -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
                         sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                        }
                     }
                 }
             }
         }
     </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
 </head>
-<body class="h-full bg-slate-950 text-slate-100 font-sans flex flex-col antialiased selection:bg-purple-500 selection:text-white">
+<body class="h-full bg-slate-950 text-slate-100 font-sans flex flex-col antialiased selection:bg-brand-500 selection:text-white">
 
-    <!-- Header -->
-    <header class="border-b border-purple-900/40 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-20">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <!-- Iframe invisible para cargar listajuegos.html de forma paralela con anticaché -->
+    <iframe id="catalog-frame" style="display:none;" title="Catalog Module"></iframe>
+
+    <!-- Easter Egg Overlay & Audio -->
+    <audio id="easter-egg-audio" src="diarias.mp3" preload="auto"></audio>
+    <div id="easter-egg-overlay" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300 pointer-events-none">
+        <img id="easter-egg-img" src="diarias.png" alt="Easter Egg" class="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl scale-95 transition-transform duration-300">
+    </div>
+
+    <!-- Toast Notification Banner -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-out bg-slate-800 border border-slate-700 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+        <span id="toast-icon" class="text-xl">✨</span>
+        <span id="toast-message" class="font-medium text-sm">Notificación</span>
+    </div>
+
+    <!-- Modal: Catálogo de Juegos para Añadir -->
+    <div id="catalog-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
+        <div class="bg-slate-900 border border-purple-900/60 rounded-3xl max-w-2xl w-full p-6 shadow-2xl flex flex-col max-h-[88vh] space-y-4">
+            <div class="flex items-center justify-between border-b border-purple-900/40 pb-4">
+                <div>
+                    <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+                        <span>📚 Catálogo de Minijuegos</span>
+                        <span id="catalog-badge-total" class="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">Cargando...</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Elige los minijuegos que juegas habitualmente para incorporarlos a tu plantilla.</p>
+                </div>
+                <button id="btn-close-modal" type="button" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition">
+                    ✕
+                </button>
+            </div>
+
             <div class="flex items-center gap-3">
-                <div id="easter-egg-btn" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-700 to-indigo-500 flex items-center justify-center shadow-lg text-white font-bold text-lg cursor-pointer transform hover:scale-105 transition" title="Pulsa para sorpresa">
-                    <img src="image_b7a27f.png" alt="Logo" class="w-8 h-8 rounded-lg object-cover pointer-events-none">
+                <input type="text" id="modal-search-input" placeholder="Buscar juego en el catálogo..." class="flex-1 bg-slate-950 border border-purple-900/60 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500 transition">
+                <button id="btn-create-custom-inside-modal" class="px-3.5 py-2 rounded-xl bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 text-xs font-semibold transition flex items-center gap-1.5 whitespace-nowrap">
+                    <span>+ Juego Personalizado</span>
+                </button>
+            </div>
+
+            <!-- Listado dinámico del catálogo -->
+            <div id="modal-catalog-list" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
+
+            <div class="flex items-center justify-between border-t border-purple-900/40 pt-4">
+                <a href="listajuegos.html" target="_blank" class="text-xs text-purple-400 hover:text-purple-300 transition flex items-center gap-1">
+                    <span>Ver módulo listajuegos.html</span>
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+                <button id="btn-modal-done" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow-md">
+                    Guardar Selección
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="border-b border-purple-900/50 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div id="easter-egg-logo" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-700 to-indigo-500 flex items-center justify-center shadow-lg shadow-purple-900/30 ring-1 ring-white/20 cursor-pointer transform hover:scale-105 active:scale-95 transition" title="🐣">
+                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 0010 20.945M11 3.055T11 20.945M11 3.055a9 9 0 019 8.945M11 20.945a9 9 0 01-9-8.945M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
                 </div>
                 <div>
-                    <h1 class="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent">
-                        Amigos Delaware
-                    </h1>
-                    <p class="text-xs text-purple-300/70">Generador de Partidas Diarias</p>
+                    <h1 class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent">Diarias Discord</h1>
+                    <p class="text-xs text-purple-300/70 hidden sm:block">Amigos Delaware · Compilador de Minijuegos</p>
                 </div>
             </div>
-            
-            <div class="flex items-center gap-2.5">
-                <a href="listajuegos.html" class="px-3.5 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800/60 text-purple-200 border border-purple-700/60 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 shadow-sm">
-                    <span>Catálogo</span>
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                </a>
-                
-                <button id="config-btn" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-purple-900/50 transition shadow-sm" title="Configurar Perfil">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+
+            <div class="flex items-center gap-2">
+                <span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-950/80 border border-purple-800/60 text-[11px] text-purple-200 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Reinicio diario: 05:00 AM
+                </span>
+                <button id="btn-clear-all" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition" title="Limpiar resultados">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-        <!-- User Profile & Stats Bar -->
-        <div class="bg-slate-900/60 border border-purple-900/30 rounded-2xl p-4 sm:p-5 backdrop-blur-sm flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
-            <div class="flex items-center gap-4 w-full sm:w-auto">
-                <div id="user-avatar-container" class="relative group cursor-pointer" title="Cambiar avatar">
-                    <div id="user-avatar-display" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-2xl shadow-md overflow-hidden border-2 border-purple-500/40">
-                        👤
-                    </div>
-                    <div class="absolute inset-0 bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-xs text-white font-bold">
-                        Editar
-                    </div>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h2 id="user-name-display" class="font-bold text-lg text-white">Jugador</h2>
-                        <span class="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-medium">Activo</span>
-                    </div>
-                    <p class="text-xs text-slate-400 mt-0.5">Plantilla de juegos diarios compartida</p>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
-                <div class="bg-slate-950/80 border border-purple-900/40 rounded-xl px-4 py-2.5 text-center flex-1 sm:flex-initial">
-                    <div class="text-[10px] uppercase tracking-wider text-purple-300 font-semibold">Total Acumulado</div>
-                    <div id="total-score-display" class="text-base sm:text-lg font-extrabold text-white mt-0.5">0</div>
-                </div>
-                <button id="process-btn" class="px-5 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-purple-900/30 transition flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                    <span>Procesar Todo</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Radar Chart -->
-        <div class="bg-slate-900/60 border border-purple-900/30 rounded-2xl p-5 backdrop-blur-sm shadow-xl space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-purple-900/30">
-                <div>
-                    <h3 class="font-bold text-base text-white flex items-center gap-2">
-                        <span>Radar de Rendimiento vs Comunidad</span>
-                        <span id="radar-count-badge" class="px-2 py-0.5 rounded-full text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Cargando...</span>
-                    </h3>
-                    <p class="text-xs text-slate-400 mt-0.5">Comparativa porcentual (0-100) entre tu rendimiento y la media global.</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button id="select-radar-games-btn" class="px-3 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800/60 text-purple-200 border border-purple-700/60 text-xs font-semibold transition flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
-                        <span>Elegir juegos del gráfico (máx 20)</span>
-                    </button>
-                    <button id="refresh-radar-btn" class="p-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-slate-300 border border-purple-900/50 text-xs font-semibold transition" title="Actualizar Datos">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    </button>
-                </div>
-            </div>
-            <div class="relative w-full h-72 sm:h-96 flex items-center justify-center bg-slate-950/40 rounded-xl border border-purple-900/20 p-2">
-                <canvas id="radarChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Toolbar de Gestión -->
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-900/40 p-3 rounded-2xl border border-purple-900/30">
-            <div class="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
-                <button id="add-game-btn" class="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-600 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5 whitespace-nowrap">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    <span>Añadir nuevo juego</span>
-                </button>
-                <button id="clear-results-btn" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition whitespace-nowrap">
-                    Limpiar resultados
-                </button>
-            </div>
-            <div class="text-xs text-slate-400 text-right hidden sm:block">
-                <span>Rellena los resultados diarios abajo para generar el texto final.</span>
-            </div>
-        </div>
-
-        <!-- Grid Tarjetas -->
-        <div id="games-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-
-        <!-- Resultado Final -->
-        <div class="bg-slate-900/80 border border-purple-900/40 rounded-2xl p-5 backdrop-blur-xl shadow-2xl space-y-3">
-            <div class="flex items-center justify-between">
-                <h3 class="font-bold text-sm text-white flex items-center gap-2">
-                    <span>Resultado para copiar (Discord / WhatsApp)</span>
-                </h3>
-                <button id="copy-result-btn" class="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-                    <span>Copiar Resultado</span>
-                </button>
-            </div>
-            <textarea id="final-output" readonly class="w-full h-36 bg-slate-950 border border-purple-900/50 rounded-xl p-3.5 text-xs text-purple-200 font-mono focus:outline-none resize-none shadow-inner" placeholder="Selecciona juegos e introduce resultados para generar el texto..."></textarea>
-        </div>
-    </main>
-
-    <!-- MODAL: Catálogo -->
-    <div id="catalog-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-slate-900 border border-purple-900/50 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-            <div class="p-4 border-b border-purple-900/40 flex items-center justify-between bg-slate-950/50">
-                <h3 class="font-bold text-base text-white">Catálogo de Minijuegos Disponibles</h3>
-                <button id="close-catalog-modal" class="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            <div id="catalog-modal-list" class="p-4 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1"></div>
-        </div>
-    </div>
-
-    <!-- MODAL: Radar -->
-    <div id="radar-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-slate-900 border border-purple-900/50 rounded-2xl max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-            <div class="p-4 border-b border-purple-900/40 flex items-center justify-between bg-slate-950/50">
-                <div>
-                    <h3 class="font-bold text-base text-white">Elegir juegos para el Gráfico</h3>
-                    <p class="text-xs text-purple-300/70 mt-0.5">Selecciona hasta 20 juegos.</p>
-                </div>
-                <button id="close-radar-modal" class="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            <div class="p-4 overflow-y-auto space-y-2 flex-1" id="radar-modal-list"></div>
-            <div class="p-4 border-t border-purple-900/40 bg-slate-950/50 flex justify-end">
-                <button id="save-radar-selection" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition">Aplicar al Gráfico</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: Config -->
-    <div id="config-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-slate-900 border border-purple-900/50 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b border-purple-900/40 pb-3">
-                <h3 class="font-bold text-base text-white">Configuración del Perfil</h3>
-                <button id="close-config-modal" class="text-slate-400 hover:text-white">✕</button>
-            </div>
-            <div class="space-y-3">
-                <div>
-                    <label class="text-xs font-semibold text-purple-300">Nombre / Alias</label>
-                    <input type="text" id="config-name-input" class="w-full mt-1 bg-slate-950 border border-purple-900/50 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
-                </div>
-                <div>
-                    <label class="text-xs font-semibold text-purple-300">Avatar</label>
-                    <div class="flex gap-2 mt-1">
-                        <input type="text" id="config-avatar-input" placeholder="Ej: 🦊 o enlace" class="flex-1 bg-slate-950 border border-purple-900/50 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
-                        <label class="px-3 py-2 bg-purple-900/40 hover:bg-purple-800 text-purple-200 text-xs font-semibold rounded-xl cursor-pointer border border-purple-700/50 transition">
-                            <span>Subir</span>
-                            <input type="file" id="avatar-file-input" accept="image/*" class="hidden">
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button id="save-config-btn" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition">Guardar Cambios</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Easter Egg -->
-    <div id="easter-egg-overlay" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4 transition-opacity duration-300">
-        <img id="easter-egg-img" src="diarias.png" alt="Sorpresa" class="max-w-full max-h-[85vh] rounded-2xl shadow-2xl border-2 border-purple-500/50 animate-pulse">
-    </div>
-    <audio id="easter-egg-audio" src="diarias.mp3" preload="auto"></audio>
-
-    <script>
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzxxz8CwgxI_OpQ-UnbGeXIqXNq8IhlkyYhvG2SzXgaVmhFGmAR9viLX1m9MoqLyO5exQ/exec';
-        let CATALOG = {};
-        const REACTION_EMOJIS = ['🥳', '😎', '😋', '😗', '🫤', '🙄', '🥲', '🫣', '🤐', '😭', '😒', '🥵', '😡', '🤪'];
-
-        let state = {
-            userName: 'Jugador',
-            avatar: '👤',
-            activeGames: ['geoguessr', 'crissle', 'zanagramas'],
-            radarGames: ['geoguessr', 'crissle', 'zanagramas'],
-            gameValues: {},
-            gameEmojis: {},
-            totalScore: 0
-        };
-
-        let radarChartInstance = null;
-
-        function loadState() {
-            // Buscamos en todas las versiones de almacenamiento histórico para no perder datos
-            const keys = ['daily_game_hub_delaware_v4', 'daily_game_hub_delaware_v3', 'daily_game_hub_delaware_v2', 'daily_game_hub_delaware'];
-            for (let k of keys) {
-                const saved = localStorage.getItem(k);
-                if (saved) {
-                    try {
-                        const parsed = JSON.parse(saved);
-                        if(parsed.userName) state.userName = parsed.userName;
-                        if(parsed.avatar) state.avatar = parsed.avatar;
-                        if(parsed.activeGames) state.activeGames = parsed.activeGames;
-                        if(parsed.radarGames) state.radarGames = parsed.radarGames;
-                        if(parsed.gameValues) state.gameValues = parsed.gameValues;
-                        if(parsed.gameEmojis) state.gameEmojis = parsed.gameEmojis;
-                        break;
-                    } catch(e) {}
-                }
-            }
-        }
-
-        function saveState() {
-            localStorage.setItem('daily_game_hub_delaware_v4', JSON.stringify(state));
-        }
-
-        function updateHeaderUI() {
-            document.getElementById('user-name-display').textContent = state.userName;
-            const avatarDisplay = document.getElementById('user-avatar-display');
-            if (state.avatar.startsWith('data:') || state.avatar.startsWith('http')) {
-                avatarDisplay.innerHTML = `<img src="${state.avatar}" class="w-full h-full object-cover">`;
-            } else {
-                avatarDisplay.textContent = state.avatar;
-            }
-            document.getElementById('total-score-display').textContent = state.totalScore;
-        }
-
-        function renderActiveGames() {
-            const container = document.getElementById('games-container');
-            container.innerHTML = '';
-
-            // Si el catálogo está vacío (error de carga), mostramos un aviso.
-            if (Object.keys(CATALOG).length === 0) {
-                container.innerHTML = `<div class="col-span-full py-12 text-center text-red-400 text-sm bg-red-900/20 rounded-2xl border border-red-900/30">Error conectando con listajuegos.html. Asegúrate de estar online.</div>`;
-                return;
-            }
-
-            if (state.activeGames.length === 0) {
-                container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 text-sm bg-slate-900/30 rounded-2xl border border-purple-900/20">No hay minijuegos activos. Haz clic en "+ Añadir nuevo juego" para empezar.</div>`;
-                document.getElementById('final-output').value = '';
-                return;
-            }
-
-            state.activeGames.forEach(gameId => {
-                const game = CATALOG[gameId];
-                if (!game) return;
-
-                const card = document.createElement('div');
-                card.className = 'bg-slate-900/80 border border-purple-900/30 rounded-2xl p-4 shadow-lg space-y-3 relative group hover:border-purple-500/40 transition';
-                
-                const val = state.gameValues[gameId] || '';
-                const emj = state.gameEmojis[gameId] || '';
-
-                let optionsHtml = `<option value="">💬</option>`;
-                REACTION_EMOJIS.forEach(e => {
-                    optionsHtml += `<option value="${e}" ${emj === e ? 'selected' : ''}>${e}</option>`;
-                });
-
-                card.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-3.5 h-3.5 rounded-full ring-1 ring-white/30" style="background-color: ${game.badgeColor}"></span>
-                            <span id="header-emoji-${gameId}" class="font-bold text-2xl" style="${!emj ? 'display:none;' : ''}">${emj}</span>
-                            <span class="font-bold text-sm text-white">${game.name}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <a href="${game.url}" target="_blank" rel="noopener noreferrer" class="text-xs text-purple-400 hover:text-purple-300 transition">Jugar ↗</a>
-                            <button onclick="removeGame('${gameId}')" class="text-slate-500 hover:text-red-400 p-1 transition" title="Quitar juego">✕</button>
-                        </div>
-                    </div>
-                    <div class="flex items-stretch gap-2">
-                        <select class="emoji-selector w-16 sm:w-20 bg-slate-950 border border-purple-900/50 rounded-xl text-center text-3xl sm:text-4xl cursor-pointer appearance-none outline-none focus:border-purple-500 transition shadow-inner" data-game="${gameId}" title="Añadir reacción">
-                            ${optionsHtml}
-                        </select>
-                        <textarea placeholder="Pega aquí tu resultado..." class="game-textarea flex-1 h-20 bg-slate-950 border border-purple-900/50 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-purple-500 resize-none font-mono shadow-inner" data-game="${gameId}">${val}</textarea>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-
-            document.querySelectorAll('.game-textarea').forEach(ta => {
-                ta.addEventListener('input', (e) => {
-                    state.gameValues[e.target.getAttribute('data-game')] = e.target.value;
-                    saveState();
-                    generateFinalOutput();
-                });
-            });
-
-            document.querySelectorAll('.emoji-selector').forEach(sel => {
-                sel.addEventListener('change', (e) => {
-                    const gId = e.target.getAttribute('data-game');
-                    const selectedEmoji = e.target.value;
-                    state.gameEmojis[gId] = selectedEmoji;
-                    
-                    const headerSpan = document.getElementById(`header-emoji-${gId}`);
-                    if (headerSpan) {
-                        headerSpan.textContent = selectedEmoji;
-                        headerSpan.style.display = selectedEmoji ? 'inline' : 'none';
-                    }
-                    saveState();
-                    generateFinalOutput();
-                });
-            });
-
-            generateFinalOutput();
-        }
-
-        function removeGame(gameId) {
-            state.activeGames = state.activeGames.filter(id => id !== gameId);
-            state.radarGames = state.radarGames.filter(id => id !== gameId);
-            saveState();
-            renderActiveGames();
-            updateRadarChart();
-        }
-
-        function addGame(gameId) {
-            if (!state.activeGames.includes(gameId)) state.activeGames.push(gameId);
-            if (!state.radarGames.includes(gameId) && state.radarGames.length < 20) state.radarGames.push(gameId);
-            saveState();
-            renderActiveGames();
-            updateRadarChart();
-            document.getElementById('catalog-modal').classList.add('hidden');
-            document.getElementById('catalog-modal').classList.remove('flex');
-        }
-
-        function generateFinalOutput() {
-            let output = `🎮 RESUMEN DIARIO - ${state.userName.toUpperCase()} 🎮\n\n`;
-            state.activeGames.forEach(gameId => {
-                const game = CATALOG[gameId];
-                const rawText = state.gameValues[gameId];
-                const emj = state.gameEmojis[gameId] || '';
-                
-                if (!game || !rawText || !rawText.trim()) return;
-
-                let sanitized = rawText.trim();
-                if (game.rules && typeof game.rules.sanitize === 'function') sanitized = game.rules.sanitize(sanitized);
-                sanitized = sanitized.replace(/https?:\/\/\S+/gi, '').trim();
-
-                let sub = '';
-                if (game.rules && typeof game.rules.getSubtitle === 'function') sub = game.rules.getSubtitle(rawText);
-
-                let scoreStr = '';
-                if (game.rules && typeof game.rules.getScore === 'function') scoreStr = game.rules.getScore(rawText);
-
-                output += `${emj ? emj + ' ' : ''}${game.name} ${sub ? '· ' + sub : ''}\n`;
-                if (scoreStr) output += `Puntuación: ${scoreStr}\n`;
-                output += `${sanitized}\n\n`;
-            });
-            document.getElementById('final-output').value = output.trim();
-        }
-
-        async function updateRadarChart() {
-            if (Object.keys(CATALOG).length === 0) return;
-
-            try {
-                const res = await fetch(`${GOOGLE_SCRIPT_URL}?jugador=${encodeURIComponent(state.userName)}`);
-                const data = await res.json();
-                const statsJugador = data.statsJugador || {};
-                const statsComunidad = data.statsComunidad || {};
-                const labels = [];
-                const playerScores = [];
-                const communityScores = [];
-
-                const gamesToRender = state.radarGames.length > 0 ? state.radarGames : state.activeGames;
-                document.getElementById('radar-count-badge').textContent = `${gamesToRender.length}/20 juegos`;
-
-                gamesToRender.forEach(gId => {
-                    const game = CATALOG[gId];
-                    if (!game) return;
-                    labels.push(game.name);
-                    const pVal = statsJugador[game.name] !== undefined ? parseFloat(statsJugador[game.name]) : 0;
-                    const cVal = statsComunidad[game.name] !== undefined ? parseFloat(statsComunidad[game.name]) : 0;
-                    playerScores.push(isNaN(pVal) ? 0 : pVal);
-                    communityScores.push(isNaN(cVal) ? 0 : cVal);
-                });
-
-                const ctx = document.getElementById('radarChart').getContext('2d');
-                if (radarChartInstance) radarChartInstance.destroy();
-
-                radarChartInstance = new Chart(ctx, {
-                    type: 'radar',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            { label: 'Comunidad', data: communityScores, backgroundColor: 'rgba(147, 51, 234, 0.2)', borderColor: 'rgba(147, 51, 234, 0.8)', pointBackgroundColor: 'rgba(147, 51, 234, 1)', borderWidth: 2 },
-                            { label: state.userName, data: playerScores, backgroundColor: 'rgba(234, 179, 8, 0.1)', borderColor: 'rgba(234, 179, 8, 0.9)', pointBackgroundColor: 'rgba(234, 179, 8, 1)', borderWidth: 2.5 }
-                        ]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        scales: { r: { angleLines: { color: 'rgba(255, 255, 255, 0.1)' }, grid: { color: 'rgba(255, 255, 255, 0.1)' }, pointLabels: { font: { family: '"Plus Jakarta Sans"', size: 11, weight: 'bold' }, color: '#cbd5e1' }, ticks: { backdropColor: 'transparent', color: '#94a3b8', font: { size: 9 }, max: 100, min: 0 } } },
-                        plugins: { legend: { labels: { color: '#f8fafc', font: { family: '"Plus Jakarta Sans"', size: 12 } } } }
-                    }
-                });
-            } catch (err) {
-                console.error("Error cargando datos del radar:", err);
-            }
-        }
-
-        async function syncToSheets() {
-            const payload = { jugador: state.userName, avatar: state.avatar, juegos: {} };
-            state.activeGames.forEach(gId => {
-                const game = CATALOG[gId];
-                const rawText = state.gameValues[gId];
-                if (game && game.rules && typeof game.rules.getExportScore === 'function' && rawText && rawText.trim()) {
-                    payload.juegos[game.name] = game.rules.getExportScore(rawText);
-                } else if(game) {
-                    payload.juegos[game.name] = 0;
-                }
-            });
-
-            try {
-                const btn = document.getElementById('process-btn');
-                btn.textContent = 'Enviando...';
-                await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                
-                state.gameValues = {};
-                state.gameEmojis = {};
-                saveState();
-                renderActiveGames();
-
-                btn.textContent = '✓ Procesado';
-                setTimeout(() => { btn.innerHTML = `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg><span>Procesar Todo</span>`; }, 2500);
-                updateRadarChart();
-            } catch(e) {
-                alert('Error al sincronizar con Google Sheets.');
-                document.getElementById('process-btn').textContent = 'Error';
-            }
-        }
-
-        // MOTOR DE ARRANQUE ROBUSTO
-        async function initApp() {
-            try {
-                // Fetch del HTML externo esquivando la caché
-                const res = await fetch('listajuegos.html?t=' + new Date().getTime());
-                const htmlText = await res.text();
-                
-                // Extraer el script interno de ese HTML
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(htmlText, 'text/html');
-                const scriptNode = doc.getElementById('delaware-catalog-script');
-                
-                if (scriptNode) {
-                    const newScript = document.createElement('script');
-                    newScript.textContent = scriptNode.textContent;
-                    document.head.appendChild(newScript);
-                    CATALOG = window.DELAWARE_CATALOG || {};
-                }
-            } catch (e) {
-                console.error("Error al cargar el catálogo de juegos remotamente:", e);
-            }
-
-            loadState();
-            updateHeaderUI();
-            renderActiveGames();
-            updateRadarChart();
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initApp();
-
-            // Config Modal
-            document.getElementById('config-btn').addEventListener('click', () => {
-                document.getElementById('config-name-input').value = state.userName;
-                document.getElementById('config-avatar-input').value = state.avatar.startsWith('data:') ? '' : state.avatar;
-                document.getElementById('config-modal').classList.remove('hidden');
-                document.getElementById('config-modal').classList.add('flex');
-            });
-            document.getElementById('close-config-modal').addEventListener('click', () => {
-                document.getElementById('config-modal').classList.add('hidden');
-                document.getElementById('config-modal').classList.remove('flex');
-            });
-            document.getElementById('save-config-btn').addEventListener('click', () => {
-                if (document.getElementById('config-name-input').value.trim()) state.userName = document.getElementById('config-name-input').value.trim();
-                if (document.getElementById('config-avatar-input').value.trim()) state.avatar = document.getElementById('config-avatar-input').value.trim();
-                saveState();
-                updateHeaderUI();
-                document.getElementById('config-modal').classList.add('hidden');
-                document.getElementById('config-modal').classList.remove('flex');
-                updateRadarChart();
-            });
-
-            document.getElementById('avatar-file-input').addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(evt) { state.avatar = evt.target.result; saveState(); updateHeaderUI(); };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // Modales Catálogo y Radar
-            document.getElementById('add-game-btn').addEventListener('click', () => {
-                const list = document.getElementById('catalog-modal-list');
-                list.innerHTML = '';
-                Object.values(CATALOG).forEach(game => {
-                    const isAdded = state.activeGames.includes(game.id);
-                    const div = document.createElement('div');
-                    div.className = 'bg-slate-950/60 border border-purple-900/40 rounded-xl p-3 flex items-center justify-between gap-3 hover:border-purple-500/50 transition';
-                    div.innerHTML = `
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-3 h-3 rounded-full" style="background-color: ${game.badgeColor}"></span>
-                            <span class="font-bold text-xs text-white">${game.name}</span>
-                        </div>
-                        <button onclick="addGame('${game.id}')" class="px-3 py-1 rounded-lg ${isAdded ? 'bg-slate-800 text-slate-400' : 'bg-purple-600 hover:bg-purple-500 text-white'} text-xs font-semibold transition">
-                            ${isAdded ? 'Añadido' : '+ Añadir'}
-                        </button>
-                    `;
-                    list.appendChild(div);
-                });
-                document.getElementById('catalog-modal').classList.remove('hidden');
-                document.getElementById('catalog-modal').classList.add('flex');
-            });
-            document.getElementById('close-catalog-modal').addEventListener('click', () => {
-                document.getElementById('catalog-modal').classList.add('hidden');
-                document.getElementById('catalog-modal').classList.remove('flex');
-            });
-
-            document.getElementById('select-radar-games-btn').addEventListener('click', () => {
-                const list = document.getElementById('radar-modal-list');
-                list.innerHTML = '';
-                Object.values(CATALOG).forEach(game => {
-                    const isChecked = state.radarGames.includes(game.id);
-                    const div = document.createElement('label');
-                    div.className = 'flex items-center justify-between p-2.5 rounded-xl bg-slate-950/60 border border-purple-900/40 hover:border-purple-500/50 cursor-pointer transition';
-                    div.innerHTML = `
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-3 h-3 rounded-full" style="background-color: ${game.badgeColor}"></span>
-                            <span class="font-bold text-xs text-white">${game.name}</span>
-                        </div>
-                        <input type="checkbox" value="${game.id}" class="radar-checkbox w-4 h-4 accent-purple-600 rounded" ${isChecked ? 'checked' : ''}>
-                    `;
-                    list.appendChild(div);
-                });
-                document.getElementById('radar-modal').classList.remove('hidden');
-                document.getElementById('radar-modal').classList.add('flex');
-            });
-            document.getElementById('close-radar-modal').addEventListener('click', () => {
-                document.getElementById('radar-modal').classList.add('hidden');
-                document.getElementById('radar-modal').classList.remove('flex');
-            });
-            document.getElementById('save-radar-selection').addEventListener('click', () => {
-                const checkboxes = document.querySelectorAll('.radar-checkbox:checked');
-                if (checkboxes.length > 20) return alert('Puedes seleccionar un máximo de 20 juegos para el gráfico radar.');
-                state.radarGames = Array.from(checkboxes).map(cb => cb.value);
-                saveState();
-                updateRadarChart();
-                document.getElementById('radar-modal').classList.add('hidden');
-                document.getElementById('radar-modal').classList.remove('flex');
-            });
-
-            // Resto de botones
-            document.getElementById('refresh-radar-btn').addEventListener('click', updateRadarChart);
-            document.getElementById('process-btn').addEventListener('click', syncToSheets);
-            document.getElementById('clear-results-btn').addEventListener('click', () => {
-                if (confirm('¿Estás seguro de limpiar todos los resultados actuales?')) {
-                    state.gameValues = {};
-                    state.gameEmojis = {};
-                    saveState();
-                    renderActiveGames();
-                }
-            });
-            document.getElementById('copy-result-btn').addEventListener('click', () => {
-                const ta = document.getElementById('final-output');
-                ta.select();
-                navigator.clipboard.writeText(ta.value);
-                const btn = document.getElementById('copy-result-btn');
-                btn.textContent = '✓ ¡Copiado!';
-                setTimeout(() => { btn.innerHTML = `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg><span>Copiar Resultado</span>`; }, 2000);
-            });
+    <!-- Main Grid Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left Panel: Input & Profile Form -->
+        <section class="lg:col-span-5 space-y-6">
             
-            // Easter Egg
-            const easterBtn = document.getElementById('easter-egg-btn');
-            const easterOverlay = document.getElementById('easter-egg-overlay');
-            const easterAudio = document.getElementById('easter-egg-audio');
-            easterBtn.addEventListener('click', () => {
-                easterOverlay.classList.remove('hidden');
-                easterOverlay.classList.add('flex');
-                easterAudio.currentTime = 0;
-                easterAudio.play().catch(e => console.log("Audio play blocked", e));
-                setTimeout(() => { easterOverlay.classList.add('hidden'); easterOverlay.classList.remove('flex'); easterAudio.pause(); }, 3000);
-            });
-        });
-    </script>
-</body>
-</html>
+            <!-- User Info Card & Counters -->
+            <div class="bg-slate-900/80 border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4 backdrop-blur-sm">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-bold tracking-wider text-purple-300 uppercase flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                        PERFIL DE JUGADOR
+                    </h2>
+                </div>
+
+                <!-- Game Counters Banner -->
+                <div class="grid grid-cols-2 gap-3 p-3 bg-purple-950/40 border border-purple-800/40 rounded-xl text-center">
+                    <div class="space-y-0.5">
+                        <span class="text-[11px] font-semibold text-purple-300 block uppercase tracking-wider">En esta imagen</span>
+                        <div class="text-xl font-extrabold text-white flex items-center justify-center gap-1">
+                            <span id="counter-today">0</span>
+                            <span class="text-xs font-normal text-purple-300">juegos</span>
+                        </div>
+                    </div>
+                    <div class="space-y-0.5 border-l border-purple-800/40">
+                        <span class="text-[11px] font-semibold text-amber-300 block uppercase tracking-wider">Total Acumulado</span>
+                        <div class="text-xl font-extrabold text-amber-300 flex items-center justify-center gap-1">
+                            <span id="counter-lifetime">0</span>
+                            <span class="text-xs font-normal text-amber-200/80">juegos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Avatar Upload Section -->
+                <div class="flex items-center gap-4 p-3 bg-slate-950/60 rounded-xl border border-purple-900/30">
+                    <div class="relative group flex-shrink-0">
+                        <div id="avatar-preview-box" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-700 to-indigo-500 flex items-center justify-center text-white text-xl font-extrabold shadow-lg overflow-hidden border border-white/20">
+                            <span id="avatar-initial-text">U</span>
+                            <img id="avatar-img-preview" src="" class="w-full h-full object-cover hidden" alt="Avatar">
+                        </div>
+                    </div>
+
+                    <div class="flex-1 space-y-2">
+                        <span class="block text-xs font-semibold text-slate-300">Avatar / Foto de Perfil</span>
+                        <div class="flex flex-wrap gap-2">
+                            <input type="file" id="avatar-file-input" accept="image/*" class="hidden">
+                            <button id="btn-upload-avatar" type="button" class="px-2.5 py-1.5 bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span>Subir Imagen</span>
+                            </button>
+                            <button id="btn-remove-avatar" type="button" class="px-2 py-1.5 text-slate-400 hover:text-rose-400 text-xs transition hidden" title="Quitar foto">
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Nombre / Alias</label>
+                        <input type="text" id="user-name" placeholder="Ej: Alex, Gamer123..." class="w-full bg-slate-950 border border-purple-900/60 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Fecha del Resumen</label>
+                        <input type="date" id="summary-date" class="w-full bg-slate-950 border border-purple-900/60 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Games Selection & Paste Boxes -->
+            <div class="bg-slate-900/80 border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4 backdrop-blur-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-sm font-bold tracking-wider text-purple-300 uppercase flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            MIS MINIJUEGOS
+                        </h2>
+                        <span id="active-games-count-badge" class="text-[11px] text-slate-400">0 juegos en tu plantilla</span>
+                    </div>
+                    <button id="btn-open-catalog-modal" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-md">
+                        <span>+ Añadir nuevo juego</span>
+                    </button>
+                </div>
+
+                <!-- Smart Auto Paste Input -->
+                <div class="relative">
+                    <textarea id="smart-paste-box" rows="3" placeholder="💡 ¡Pega aquí múltiples resultados de una vez y se procesarán automáticamente!" class="w-full bg-slate-950/80 border border-purple-500/40 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition resize-none placeholder
