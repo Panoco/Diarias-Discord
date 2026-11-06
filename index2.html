@@ -16,8 +16,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Catálogo de Minijuegos Externo -->
-    <script src="listajuegos.html"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -36,7 +34,6 @@
     <header class="border-b border-purple-900/40 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <!-- Easter Egg Target: Logo superior izquierdo -->
                 <div id="easter-egg-btn" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-700 to-indigo-500 flex items-center justify-center shadow-lg text-white font-bold text-lg cursor-pointer transform hover:scale-105 transition" title="Pulsa para sorpresa">
                     <img src="image_b7a27f.png" alt="Logo" class="w-8 h-8 rounded-lg object-cover pointer-events-none">
                 </div>
@@ -61,9 +58,7 @@
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-
         <!-- User Profile & Stats Bar -->
         <div class="bg-slate-900/60 border border-purple-900/30 rounded-2xl p-4 sm:p-5 backdrop-blur-sm flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
             <div class="flex items-center gap-4 w-full sm:w-auto">
@@ -96,13 +91,13 @@
             </div>
         </div>
 
-        <!-- Radar Chart & Dashboard Section -->
+        <!-- Radar Chart -->
         <div class="bg-slate-900/60 border border-purple-900/30 rounded-2xl p-5 backdrop-blur-sm shadow-xl space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-purple-900/30">
                 <div>
                     <h3 class="font-bold text-base text-white flex items-center gap-2">
                         <span>Radar de Rendimiento vs Comunidad</span>
-                        <span id="radar-count-badge" class="px-2 py-0.5 rounded-full text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">0/20 juegos</span>
+                        <span id="radar-count-badge" class="px-2 py-0.5 rounded-full text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Cargando...</span>
                     </h3>
                     <p class="text-xs text-slate-400 mt-0.5">Comparativa porcentual (0-100) entre tu rendimiento y la media global.</p>
                 </div>
@@ -116,8 +111,6 @@
                     </button>
                 </div>
             </div>
-
-            <!-- Contenedor del Gráfico -->
             <div class="relative w-full h-72 sm:h-96 flex items-center justify-center bg-slate-950/40 rounded-xl border border-purple-900/20 p-2">
                 <canvas id="radarChart"></canvas>
             </div>
@@ -134,18 +127,15 @@
                     Limpiar resultados
                 </button>
             </div>
-            
             <div class="text-xs text-slate-400 text-right hidden sm:block">
                 <span>Rellena los resultados diarios abajo para generar el texto final.</span>
             </div>
         </div>
 
-        <!-- Grid de Tarjetas de Minijuegos Activos -->
-        <div id="games-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Las tarjetas se generan dinámicamente aquí -->
-        </div>
+        <!-- Grid Tarjetas -->
+        <div id="games-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
-        <!-- Sección de Resultado Generado -->
+        <!-- Resultado Final -->
         <div class="bg-slate-900/80 border border-purple-900/40 rounded-2xl p-5 backdrop-blur-xl shadow-2xl space-y-3">
             <div class="flex items-center justify-between">
                 <h3 class="font-bold text-sm text-white flex items-center gap-2">
@@ -158,53 +148,41 @@
             </div>
             <textarea id="final-output" readonly class="w-full h-36 bg-slate-950 border border-purple-900/50 rounded-xl p-3.5 text-xs text-purple-200 font-mono focus:outline-none resize-none shadow-inner" placeholder="Selecciona juegos e introduce resultados para generar el texto..."></textarea>
         </div>
-
     </main>
 
-    <!-- MODAL: Catálogo para Añadir Juegos -->
+    <!-- MODAL: Catálogo -->
     <div id="catalog-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-slate-900 border border-purple-900/50 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
             <div class="p-4 border-b border-purple-900/40 flex items-center justify-between bg-slate-950/50">
-                <h3 class="font-bold text-base text-white flex items-center gap-2">
-                    <span>Catálogo de Minijuegos Disponibles</span>
-                </h3>
+                <h3 class="font-bold text-base text-white">Catálogo de Minijuegos Disponibles</h3>
                 <button id="close-catalog-modal" class="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            <div class="p-4 border-b border-purple-900/30">
-                <input type="text" id="catalog-search" placeholder="Filtrar juegos del catálogo..." class="w-full bg-slate-950 border border-purple-900/50 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
-            </div>
-            <div id="catalog-modal-list" class="p-4 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
-                <!-- Se llena dinámicamente -->
-            </div>
+            <div id="catalog-modal-list" class="p-4 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1"></div>
         </div>
     </div>
 
-    <!-- MODAL: Selección de Juegos para el Radar -->
+    <!-- MODAL: Radar -->
     <div id="radar-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-slate-900 border border-purple-900/50 rounded-2xl max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
             <div class="p-4 border-b border-purple-900/40 flex items-center justify-between bg-slate-950/50">
                 <div>
-                    <h3 class="font-bold text-base text-white">Elegir juegos para el Gráfico Radar</h3>
-                    <p class="text-xs text-purple-300/70 mt-0.5">Selecciona hasta 20 juegos independientes de tu plantilla.</p>
+                    <h3 class="font-bold text-base text-white">Elegir juegos para el Gráfico</h3>
+                    <p class="text-xs text-purple-300/70 mt-0.5">Selecciona hasta 20 juegos.</p>
                 </div>
                 <button id="close-radar-modal" class="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            <div class="p-4 overflow-y-auto space-y-2 flex-1" id="radar-modal-list">
-                <!-- Se llena dinámicamente -->
-            </div>
-            <div class="p-4 border-t border-purple-900/40 bg-slate-950/50 flex justify-end gap-2">
-                <button id="save-radar-selection" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition">
-                    Aplicar al Gráfico
-                </button>
+            <div class="p-4 overflow-y-auto space-y-2 flex-1" id="radar-modal-list"></div>
+            <div class="p-4 border-t border-purple-900/40 bg-slate-950/50 flex justify-end">
+                <button id="save-radar-selection" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition">Aplicar al Gráfico</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: Configuración de Perfil -->
+    <!-- MODAL: Config -->
     <div id="config-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-slate-900 border border-purple-900/50 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-purple-900/40 pb-3">
@@ -217,10 +195,10 @@
                     <input type="text" id="config-name-input" class="w-full mt-1 bg-slate-950 border border-purple-900/50 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
                 </div>
                 <div>
-                    <label class="text-xs font-semibold text-purple-300">URL o Emoji de Avatar</label>
+                    <label class="text-xs font-semibold text-purple-300">Avatar</label>
                     <div class="flex gap-2 mt-1">
-                        <input type="text" id="config-avatar-input" placeholder="Ej: 🦊 o https://..." class="flex-1 bg-slate-950 border border-purple-900/50 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
-                        <label class="px-3 py-2 bg-purple-900/40 hover:bg-purple-800 text-purple-200 text-xs font-semibold rounded-xl cursor-pointer border border-purple-700/50 flex items-center transition">
+                        <input type="text" id="config-avatar-input" placeholder="Ej: 🦊 o enlace" class="flex-1 bg-slate-950 border border-purple-900/50 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+                        <label class="px-3 py-2 bg-purple-900/40 hover:bg-purple-800 text-purple-200 text-xs font-semibold rounded-xl cursor-pointer border border-purple-700/50 transition">
                             <span>Subir</span>
                             <input type="file" id="avatar-file-input" accept="image/*" class="hidden">
                         </label>
@@ -228,25 +206,20 @@
                 </div>
             </div>
             <div class="flex justify-end gap-2 pt-2">
-                <button id="save-config-btn" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition">
-                    Guardar Cambios
-                </button>
+                <button id="save-config-btn" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition">Guardar Cambios</button>
             </div>
         </div>
     </div>
 
-    <!-- Easter Egg Overlays -->
-    <div id="easter-egg-overlay" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4 transition-opacity duration-300">
-        <img id="easter-egg-img" src="diarias.png" alt="Sorpresa Diaria" class="max-w-full max-h-[85vh] rounded-2xl shadow-2xl border-2 border-purple-500/50 animate-pulse">
+    <!-- Easter Egg -->
+    <div id="easter-egg-overlay" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4 transition-opacity duration-300">
+        <img id="easter-egg-img" src="diarias.png" alt="Sorpresa" class="max-w-full max-h-[85vh] rounded-2xl shadow-2xl border-2 border-purple-500/50 animate-pulse">
     </div>
     <audio id="easter-egg-audio" src="diarias.mp3" preload="auto"></audio>
 
-    <!-- Main Logic Script -->
     <script>
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzxxz8CwgxI_OpQ-UnbGeXIqXNq8IhlkyYhvG2SzXgaVmhFGmAR9viLX1m9MoqLyO5exQ/exec';
-        const CATALOG = window.DELAWARE_CATALOG || {};
-        
-        // Emojis permitidos
+        let CATALOG = {};
         const REACTION_EMOJIS = ['🥳', '😎', '😋', '😗', '🫤', '🙄', '🥲', '🫣', '🤐', '😭', '😒', '🥵', '😡', '🤪'];
 
         let state = {
@@ -262,31 +235,27 @@
         let radarChartInstance = null;
 
         function loadState() {
-            // VOLVEMOS A V3 para rescatar los datos intactos del usuario
-            const saved = localStorage.getItem('daily_game_hub_delaware_v3') || localStorage.getItem('daily_game_hub_delaware_v4');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    state.userName = parsed.userName || state.userName;
-                    state.avatar = parsed.avatar || state.avatar;
-                    state.activeGames = parsed.activeGames || state.activeGames;
-                    state.radarGames = parsed.radarGames || state.radarGames;
-                    state.gameValues = parsed.gameValues || {};
-                    state.gameEmojis = parsed.gameEmojis || {};
-                } catch(e) {}
+            // Buscamos en todas las versiones de almacenamiento histórico para no perder datos
+            const keys = ['daily_game_hub_delaware_v4', 'daily_game_hub_delaware_v3', 'daily_game_hub_delaware_v2', 'daily_game_hub_delaware'];
+            for (let k of keys) {
+                const saved = localStorage.getItem(k);
+                if (saved) {
+                    try {
+                        const parsed = JSON.parse(saved);
+                        if(parsed.userName) state.userName = parsed.userName;
+                        if(parsed.avatar) state.avatar = parsed.avatar;
+                        if(parsed.activeGames) state.activeGames = parsed.activeGames;
+                        if(parsed.radarGames) state.radarGames = parsed.radarGames;
+                        if(parsed.gameValues) state.gameValues = parsed.gameValues;
+                        if(parsed.gameEmojis) state.gameEmojis = parsed.gameEmojis;
+                        break;
+                    } catch(e) {}
+                }
             }
         }
 
         function saveState() {
-            // SE GUARDAN EN V3 para mantener la compatibilidad original
-            localStorage.setItem('daily_game_hub_delaware_v3', JSON.stringify({
-                userName: state.userName,
-                avatar: state.avatar,
-                activeGames: state.activeGames,
-                radarGames: state.radarGames,
-                gameValues: state.gameValues,
-                gameEmojis: state.gameEmojis
-            }));
+            localStorage.setItem('daily_game_hub_delaware_v4', JSON.stringify(state));
         }
 
         function updateHeaderUI() {
@@ -304,12 +273,14 @@
             const container = document.getElementById('games-container');
             container.innerHTML = '';
 
+            // Si el catálogo está vacío (error de carga), mostramos un aviso.
+            if (Object.keys(CATALOG).length === 0) {
+                container.innerHTML = `<div class="col-span-full py-12 text-center text-red-400 text-sm bg-red-900/20 rounded-2xl border border-red-900/30">Error conectando con listajuegos.html. Asegúrate de estar online.</div>`;
+                return;
+            }
+
             if (state.activeGames.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full py-12 text-center text-slate-500 text-sm bg-slate-900/30 rounded-2xl border border-purple-900/20">
-                        No hay minijuegos activos. Haz clic en "+ Añadir nuevo juego" para empezar.
-                    </div>
-                `;
+                container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 text-sm bg-slate-900/30 rounded-2xl border border-purple-900/20">No hay minijuegos activos. Haz clic en "+ Añadir nuevo juego" para empezar.</div>`;
                 document.getElementById('final-output').value = '';
                 return;
             }
@@ -324,7 +295,6 @@
                 const val = state.gameValues[gameId] || '';
                 const emj = state.gameEmojis[gameId] || '';
 
-                // Crear opciones del select (blanco + emojis)
                 let optionsHtml = `<option value="">💬</option>`;
                 REACTION_EMOJIS.forEach(e => {
                     optionsHtml += `<option value="${e}" ${emj === e ? 'selected' : ''}>${e}</option>`;
@@ -352,30 +322,25 @@
                 container.appendChild(card);
             });
 
-            // Listeners de los Textareas
             document.querySelectorAll('.game-textarea').forEach(ta => {
                 ta.addEventListener('input', (e) => {
-                    const gId = e.target.getAttribute('data-game');
-                    state.gameValues[gId] = e.target.value;
+                    state.gameValues[e.target.getAttribute('data-game')] = e.target.value;
                     saveState();
                     generateFinalOutput();
                 });
             });
 
-            // Listeners de los Selectores de Emoji
             document.querySelectorAll('.emoji-selector').forEach(sel => {
                 sel.addEventListener('change', (e) => {
                     const gId = e.target.getAttribute('data-game');
                     const selectedEmoji = e.target.value;
                     state.gameEmojis[gId] = selectedEmoji;
                     
-                    // Actualizar el emoji de la cabecera en tiempo real
                     const headerSpan = document.getElementById(`header-emoji-${gId}`);
                     if (headerSpan) {
                         headerSpan.textContent = selectedEmoji;
                         headerSpan.style.display = selectedEmoji ? 'inline' : 'none';
                     }
-                    
                     saveState();
                     generateFinalOutput();
                 });
@@ -393,12 +358,8 @@
         }
 
         function addGame(gameId) {
-            if (!state.activeGames.includes(gameId)) {
-                state.activeGames.push(gameId);
-            }
-            if (!state.radarGames.includes(gameId) && state.radarGames.length < 20) {
-                state.radarGames.push(gameId);
-            }
+            if (!state.activeGames.includes(gameId)) state.activeGames.push(gameId);
+            if (!state.radarGames.includes(gameId) && state.radarGames.length < 20) state.radarGames.push(gameId);
             saveState();
             renderActiveGames();
             updateRadarChart();
@@ -408,7 +369,6 @@
 
         function generateFinalOutput() {
             let output = `🎮 RESUMEN DIARIO - ${state.userName.toUpperCase()} 🎮\n\n`;
-
             state.activeGames.forEach(gameId => {
                 const game = CATALOG[gameId];
                 const rawText = state.gameValues[gameId];
@@ -417,42 +377,30 @@
                 if (!game || !rawText || !rawText.trim()) return;
 
                 let sanitized = rawText.trim();
-                if (game.rules && typeof game.rules.sanitize === 'function') {
-                    sanitized = game.rules.sanitize(sanitized);
-                }
-
-                // Limpiar URLs de la imagen residual
+                if (game.rules && typeof game.rules.sanitize === 'function') sanitized = game.rules.sanitize(sanitized);
                 sanitized = sanitized.replace(/https?:\/\/\S+/gi, '').trim();
 
                 let sub = '';
-                if (game.rules && typeof game.rules.getSubtitle === 'function') {
-                    sub = game.rules.getSubtitle(rawText);
-                }
+                if (game.rules && typeof game.rules.getSubtitle === 'function') sub = game.rules.getSubtitle(rawText);
 
                 let scoreStr = '';
-                if (game.rules && typeof game.rules.getScore === 'function') {
-                    scoreStr = game.rules.getScore(rawText);
-                }
+                if (game.rules && typeof game.rules.getScore === 'function') scoreStr = game.rules.getScore(rawText);
 
-                // Aquí inyectamos el Emoji para el resumen
                 output += `${emj ? emj + ' ' : ''}${game.name} ${sub ? '· ' + sub : ''}\n`;
-                if (scoreStr) {
-                    output += `Puntuación: ${scoreStr}\n`;
-                }
+                if (scoreStr) output += `Puntuación: ${scoreStr}\n`;
                 output += `${sanitized}\n\n`;
             });
-
             document.getElementById('final-output').value = output.trim();
         }
 
         async function updateRadarChart() {
+            if (Object.keys(CATALOG).length === 0) return;
+
             try {
                 const res = await fetch(`${GOOGLE_SCRIPT_URL}?jugador=${encodeURIComponent(state.userName)}`);
                 const data = await res.json();
-
                 const statsJugador = data.statsJugador || {};
                 const statsComunidad = data.statsComunidad || {};
-
                 const labels = [];
                 const playerScores = [];
                 const communityScores = [];
@@ -463,91 +411,44 @@
                 gamesToRender.forEach(gId => {
                     const game = CATALOG[gId];
                     if (!game) return;
-
                     labels.push(game.name);
-                    
                     const pVal = statsJugador[game.name] !== undefined ? parseFloat(statsJugador[game.name]) : 0;
                     const cVal = statsComunidad[game.name] !== undefined ? parseFloat(statsComunidad[game.name]) : 0;
-
                     playerScores.push(isNaN(pVal) ? 0 : pVal);
                     communityScores.push(isNaN(cVal) ? 0 : cVal);
                 });
 
                 const ctx = document.getElementById('radarChart').getContext('2d');
-                if (radarChartInstance) {
-                    radarChartInstance.destroy();
-                }
+                if (radarChartInstance) radarChartInstance.destroy();
 
                 radarChartInstance = new Chart(ctx, {
                     type: 'radar',
                     data: {
                         labels: labels,
                         datasets: [
-                            {
-                                label: 'Comunidad',
-                                data: communityScores,
-                                backgroundColor: 'rgba(147, 51, 234, 0.2)',
-                                borderColor: 'rgba(147, 51, 234, 0.8)',
-                                pointBackgroundColor: 'rgba(147, 51, 234, 1)',
-                                borderWidth: 2
-                            },
-                            {
-                                label: state.userName,
-                                data: playerScores,
-                                backgroundColor: 'rgba(234, 179, 8, 0.1)',
-                                borderColor: 'rgba(234, 179, 8, 0.9)',
-                                pointBackgroundColor: 'rgba(234, 179, 8, 1)',
-                                borderWidth: 2.5
-                            }
+                            { label: 'Comunidad', data: communityScores, backgroundColor: 'rgba(147, 51, 234, 0.2)', borderColor: 'rgba(147, 51, 234, 0.8)', pointBackgroundColor: 'rgba(147, 51, 234, 1)', borderWidth: 2 },
+                            { label: state.userName, data: playerScores, backgroundColor: 'rgba(234, 179, 8, 0.1)', borderColor: 'rgba(234, 179, 8, 0.9)', pointBackgroundColor: 'rgba(234, 179, 8, 1)', borderWidth: 2.5 }
                         ]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            r: {
-                                angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                                pointLabels: {
-                                    font: { family: '"Plus Jakarta Sans"', size: 11, weight: 'bold' },
-                                    color: '#cbd5e1'
-                                },
-                                ticks: {
-                                    backdropColor: 'transparent',
-                                    color: '#94a3b8',
-                                    font: { size: 9 },
-                                    max: 100,
-                                    min: 0
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                labels: { color: '#f8fafc', font: { family: '"Plus Jakarta Sans"', size: 12 } }
-                            }
-                        }
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { r: { angleLines: { color: 'rgba(255, 255, 255, 0.1)' }, grid: { color: 'rgba(255, 255, 255, 0.1)' }, pointLabels: { font: { family: '"Plus Jakarta Sans"', size: 11, weight: 'bold' }, color: '#cbd5e1' }, ticks: { backdropColor: 'transparent', color: '#94a3b8', font: { size: 9 }, max: 100, min: 0 } } },
+                        plugins: { legend: { labels: { color: '#f8fafc', font: { family: '"Plus Jakarta Sans"', size: 12 } } } }
                     }
                 });
-
             } catch (err) {
                 console.error("Error cargando datos del radar:", err);
             }
         }
 
         async function syncToSheets() {
-            const payload = {
-                jugador: state.userName,
-                avatar: state.avatar,
-                juegos: {}
-            };
-
-            // Solo enviamos al excel puntuaciones puras, los emojis quedan en el texto
+            const payload = { jugador: state.userName, avatar: state.avatar, juegos: {} };
             state.activeGames.forEach(gId => {
                 const game = CATALOG[gId];
                 const rawText = state.gameValues[gId];
                 if (game && game.rules && typeof game.rules.getExportScore === 'function' && rawText && rawText.trim()) {
                     payload.juegos[game.name] = game.rules.getExportScore(rawText);
-                } else {
+                } else if(game) {
                     payload.juegos[game.name] = 0;
                 }
             });
@@ -555,14 +456,8 @@
             try {
                 const btn = document.getElementById('process-btn');
                 btn.textContent = 'Enviando...';
-                await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 
-                // Si todo va bien, borramos los datos para el día siguiente
                 state.gameValues = {};
                 state.gameEmojis = {};
                 saveState();
@@ -577,30 +472,36 @@
             }
         }
 
-        // Eventos y Modales
-        document.addEventListener('DOMContentLoaded', () => {
+        // MOTOR DE ARRANQUE ROBUSTO
+        async function initApp() {
+            try {
+                // Fetch del HTML externo esquivando la caché
+                const res = await fetch('listajuegos.html?t=' + new Date().getTime());
+                const htmlText = await res.text();
+                
+                // Extraer el script interno de ese HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+                const scriptNode = doc.getElementById('delaware-catalog-script');
+                
+                if (scriptNode) {
+                    const newScript = document.createElement('script');
+                    newScript.textContent = scriptNode.textContent;
+                    document.head.appendChild(newScript);
+                    CATALOG = window.DELAWARE_CATALOG || {};
+                }
+            } catch (e) {
+                console.error("Error al cargar el catálogo de juegos remotamente:", e);
+            }
+
             loadState();
             updateHeaderUI();
             renderActiveGames();
             updateRadarChart();
+        }
 
-            // Easter Egg Logic
-            const easterBtn = document.getElementById('easter-egg-btn');
-            const easterOverlay = document.getElementById('easter-egg-overlay');
-            const easterAudio = document.getElementById('easter-egg-audio');
-
-            easterBtn.addEventListener('click', () => {
-                easterOverlay.classList.remove('hidden');
-                easterOverlay.classList.add('flex');
-                easterAudio.currentTime = 0;
-                easterAudio.play().catch(e => console.log("Audio play blocked", e));
-
-                setTimeout(() => {
-                    easterOverlay.classList.add('hidden');
-                    easterOverlay.classList.remove('flex');
-                    easterAudio.pause();
-                }, 3000);
-            });
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
 
             // Config Modal
             document.getElementById('config-btn').addEventListener('click', () => {
@@ -614,10 +515,8 @@
                 document.getElementById('config-modal').classList.remove('flex');
             });
             document.getElementById('save-config-btn').addEventListener('click', () => {
-                const name = document.getElementById('config-name-input').value.trim();
-                const av = document.getElementById('config-avatar-input').value.trim();
-                if (name) state.userName = name;
-                if (av) state.avatar = av;
+                if (document.getElementById('config-name-input').value.trim()) state.userName = document.getElementById('config-name-input').value.trim();
+                if (document.getElementById('config-avatar-input').value.trim()) state.avatar = document.getElementById('config-avatar-input').value.trim();
                 saveState();
                 updateHeaderUI();
                 document.getElementById('config-modal').classList.add('hidden');
@@ -629,16 +528,12 @@
                 const file = e.target.files[0];
                 if (file) {
                     const reader = new FileReader();
-                    reader.onload = function(evt) {
-                        state.avatar = evt.target.result;
-                        saveState();
-                        updateHeaderUI();
-                    };
+                    reader.onload = function(evt) { state.avatar = evt.target.result; saveState(); updateHeaderUI(); };
                     reader.readAsDataURL(file);
                 }
             });
 
-            // Add Game Modal
+            // Modales Catálogo y Radar
             document.getElementById('add-game-btn').addEventListener('click', () => {
                 const list = document.getElementById('catalog-modal-list');
                 list.innerHTML = '';
@@ -665,7 +560,6 @@
                 document.getElementById('catalog-modal').classList.remove('flex');
             });
 
-            // Radar Games Modal
             document.getElementById('select-radar-games-btn').addEventListener('click', () => {
                 const list = document.getElementById('radar-modal-list');
                 list.innerHTML = '';
@@ -691,10 +585,7 @@
             });
             document.getElementById('save-radar-selection').addEventListener('click', () => {
                 const checkboxes = document.querySelectorAll('.radar-checkbox:checked');
-                if (checkboxes.length > 20) {
-                    alert('Puedes seleccionar un máximo de 20 juegos para el gráfico radar.');
-                    return;
-                }
+                if (checkboxes.length > 20) return alert('Puedes seleccionar un máximo de 20 juegos para el gráfico radar.');
                 state.radarGames = Array.from(checkboxes).map(cb => cb.value);
                 saveState();
                 updateRadarChart();
@@ -702,11 +593,9 @@
                 document.getElementById('radar-modal').classList.remove('flex');
             });
 
+            // Resto de botones
             document.getElementById('refresh-radar-btn').addEventListener('click', updateRadarChart);
-            
-            // Botón de procesar ahora se enlaza aquí
             document.getElementById('process-btn').addEventListener('click', syncToSheets);
-            
             document.getElementById('clear-results-btn').addEventListener('click', () => {
                 if (confirm('¿Estás seguro de limpiar todos los resultados actuales?')) {
                     state.gameValues = {};
@@ -715,7 +604,6 @@
                     renderActiveGames();
                 }
             });
-
             document.getElementById('copy-result-btn').addEventListener('click', () => {
                 const ta = document.getElementById('final-output');
                 ta.select();
@@ -723,6 +611,18 @@
                 const btn = document.getElementById('copy-result-btn');
                 btn.textContent = '✓ ¡Copiado!';
                 setTimeout(() => { btn.innerHTML = `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg><span>Copiar Resultado</span>`; }, 2000);
+            });
+            
+            // Easter Egg
+            const easterBtn = document.getElementById('easter-egg-btn');
+            const easterOverlay = document.getElementById('easter-egg-overlay');
+            const easterAudio = document.getElementById('easter-egg-audio');
+            easterBtn.addEventListener('click', () => {
+                easterOverlay.classList.remove('hidden');
+                easterOverlay.classList.add('flex');
+                easterAudio.currentTime = 0;
+                easterAudio.play().catch(e => console.log("Audio play blocked", e));
+                setTimeout(() => { easterOverlay.classList.add('hidden'); easterOverlay.classList.remove('flex'); easterAudio.pause(); }, 3000);
             });
         });
     </script>
