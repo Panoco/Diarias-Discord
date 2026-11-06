@@ -669,25 +669,21 @@
                 const game = getCombinedGameDefinition(id);
                 const card = document.createElement('div');
                 card.className = 'bg-slate-950/80 border border-purple-900/40 rounded-xl p-3 space-y-2';
-                
-                const emj = state.gameEmojis[id] || '';
-                const titleEmoji = `<span id="header-emoji-${id}" class="text-xl mr-1" style="${emj ? '' : 'display:none;'}">${emj}</span>`;
 
                 let titleMarkup = '';
                 if (game.isCustom || id.startsWith('custom_')) {
                     titleMarkup = `
-                        ${titleEmoji}
                         <input type="text" id="name-input-${id}" data-game="${id}" value="${game.name}" placeholder="Nombre del juego..." class="custom-game-name-input bg-slate-900/90 border border-purple-800/60 focus:border-purple-400 rounded-lg px-2.5 py-1 text-xs font-bold text-white focus:outline-none w-48 transition" title="Haz clic para editar el nombre">
                     `;
                 } else if (game.url) {
                     titleMarkup = `
                         <a href="${game.url}" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-slate-200 hover:text-purple-300 no-underline transition flex items-center gap-1">
-                            ${titleEmoji}<span>${game.name}</span>
+                            <span>${game.name}</span>
                             <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                         </a>
                     `;
                 } else {
-                    titleMarkup = `${titleEmoji}<span class="text-xs font-bold text-slate-200">${game.name}</span>`;
+                    titleMarkup = `<span class="text-xs font-bold text-slate-200">${game.name}</span>`;
                 }
 
                 const savedResultText = (state.results[id] && state.results[id].rawText) ? state.results[id].rawText : '';
@@ -1293,7 +1289,6 @@
                 updateCanvas();
             });
 
-            // Botones de modales y acciones principales enlazados con total seguridad
             document.getElementById('btn-open-catalog-modal').addEventListener('click', openCatalogModal);
             document.getElementById('btn-empty-state-add').addEventListener('click', openCatalogModal);
             document.getElementById('btn-close-modal').addEventListener('click', closeCatalogModal);
@@ -1752,10 +1747,7 @@
                 ctx.textBaseline = 'top';
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 22px "Plus Jakarta Sans", "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
-                
-                const emj = state.gameEmojis[result.id] || '';
-                const titleText = emj ? `${emj} ${result.name}` : result.name;
-                ctx.fillText(titleText, x + 40, y + 20);
+                ctx.fillText(result.name, x + 40, y + 20);
 
                 ctx.fillStyle = '#cbd5e1';
                 ctx.font = '500 16px "Plus Jakarta Sans", sans-serif';
@@ -1791,6 +1783,18 @@
                     ctx.fillText(line, x + 24, lineY);
                     lineY += lineHeight;
                 });
+
+                // NUEVO: Dibujar el emoji grande flotando sobresaliendo de la esquina superior izquierda
+                const emj = state.gameEmojis[result.id];
+                if (emj) {
+                    ctx.save();
+                    ctx.font = '40px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    // Posicionado exactamente en la esquina superior izquierda del recuadro
+                    ctx.fillText(emj, x, y);
+                    ctx.restore();
+                }
             });
 
             const footerY = height - 45;
