@@ -83,7 +83,7 @@
 
             <div class="flex items-center gap-3">
                 <input type="text" id="modal-search-input" placeholder="Buscar juego en el catálogo..." class="flex-1 bg-slate-950 border border-purple-900/60 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500 transition">
-                <button id="btn-create-custom-inside-modal" class="px-3.5 py-2 rounded-xl bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 text-xs font-semibold transition flex items-center gap-1.5 whitespace-nowrap">
+                <button id="btn-create-custom-inside-modal" type="button" class="px-3.5 py-2 rounded-xl bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 text-xs font-semibold transition flex items-center gap-1.5 whitespace-nowrap">
                     <span>+ Juego Personalizado</span>
                 </button>
             </div>
@@ -96,7 +96,7 @@
                     <span>Ver módulo listajuegos.html</span>
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                 </a>
-                <button id="btn-modal-done" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow-md">
+                <button id="btn-modal-done" type="button" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow-md">
                     Guardar Selección
                 </button>
             </div>
@@ -123,7 +123,7 @@
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     Reinicio diario: 05:00 AM
                 </span>
-                <button id="btn-clear-all" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition" title="Limpiar resultados">
+                <button id="btn-clear-all" type="button" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition" title="Limpiar resultados">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
@@ -213,7 +213,7 @@
                         </h2>
                         <span id="active-games-count-badge" class="text-[11px] text-slate-400">0 juegos en tu plantilla</span>
                     </div>
-                    <button id="btn-open-catalog-modal" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-md">
+                    <button id="btn-open-catalog-modal" type="button" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-md">
                         <span>+ Añadir nuevo juego</span>
                     </button>
                 </div>
@@ -227,7 +227,7 @@
                         <textarea id="smart-paste-box" rows="3" placeholder="💡 ¡Pega aquí múltiples resultados de una vez y se procesarán automáticamente!" class="flex-1 bg-slate-950/80 border border-purple-500/40 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition resize-none placeholder-slate-500 font-mono"></textarea>
                     </div>
                     <div class="flex justify-end">
-                        <button id="btn-process-smart" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center gap-1.5">
+                        <button id="btn-process-smart" type="button" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center gap-1.5">
                             <span>Procesar Todo</span>
                         </button>
                     </div>
@@ -246,7 +246,7 @@
                             Personaliza tu plantilla eligiendo únicamente los juegos que juegas habitualmente desde nuestro catálogo.
                         </p>
                     </div>
-                    <button id="btn-empty-state-add" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition shadow-lg inline-flex items-center gap-1.5">
+                    <button id="btn-empty-state-add" type="button" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition shadow-lg inline-flex items-center gap-1.5">
                         <span>Seleccionar minijuegos del catálogo</span>
                     </button>
                 </div>
@@ -271,7 +271,7 @@
                         <p class="text-xs text-slate-400 mt-0.5">Comparativa vs Comunidad (Elige hasta 20 juegos)</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button id="btn-open-radar-selector" class="px-3 py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 text-xs font-semibold transition flex items-center gap-1.5">
+                        <button id="btn-open-radar-selector" type="button" class="px-3 py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 text-xs font-semibold transition flex items-center gap-1.5">
                             <span>⚙️ Elegir juegos del gráfico</span>
                         </button>
                         <div id="radar-loading" class="hidden flex items-center gap-1.5 text-[11px] text-purple-400 font-medium bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/20">
@@ -309,7 +309,7 @@
 
                     <div class="flex items-center justify-between border-t border-purple-900/40 pt-4">
                         <span id="radar-selection-counter" class="text-xs text-purple-300 font-semibold">0 / 20 seleccionados</span>
-                        <button id="btn-radar-modal-done" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow-md">
+                        <button id="btn-radar-modal-done" type="button" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow-md">
                             Aplicar al Gráfico
                         </button>
                     </div>
@@ -345,28 +345,28 @@
 
                 <!-- Export Action Buttons -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                    <button id="btn-download" class="w-full py-2.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20 transition active:scale-[0.98]">
+                    <button id="btn-download" type="button" class="w-full py-2.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20 transition active:scale-[0.98]">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                         <span>Descargar PNG</span>
                     </button>
 
-                    <button id="btn-copy" class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
+                    <button id="btn-copy" type="button" class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
                         <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002 0h2a2 2 0 002 0m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                         </svg>
                         <span>Copiar Imagen</span>
                     </button>
 
-                    <button id="btn-sync-sheets" class="w-full py-2.5 px-4 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-700/25 border border-emerald-600/60 transition active:scale-[0.98]">
+                    <button id="btn-sync-sheets" type="button" class="w-full py-2.5 px-4 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-700/25 border border-emerald-600/60 transition active:scale-[0.98]">
                         <svg class="w-4 h-4 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         <span id="btn-sync-sheets-text">Guardar en Google Sheets</span>
                     </button>
 
-                    <button id="btn-share" class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
+                    <button id="btn-share" type="button" class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
                         <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 11-6 0 3 3 0 016 0l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.368 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                         </svg>
@@ -581,7 +581,6 @@
             smartPasteBox = document.getElementById('smart-paste-box');
             smartReactionSelector = document.getElementById('smart-reaction-selector');
 
-            // Poblar las opciones del selector unificado de reacciones
             let optionsHtml = '<option value="">💬</option>';
             REACTION_EMOJIS.forEach(e => {
                 optionsHtml += `<option value="${e}">${e}</option>`;
@@ -1087,7 +1086,6 @@
 
             matches.sort((a, b) => a.index - b.index);
 
-            // Capturar la reacción seleccionada actualmente en el panel superior
             const currentSelectedEmoji = smartReactionSelector.value;
 
             let matchedCount = 0;
@@ -1108,7 +1106,6 @@
                 if (cleaned) {
                     parseAndSetGameResult(gameId, cleaned);
                     
-                    // Asignar el emoji seleccionado al juego procesado si hay alguno elegido
                     if (currentSelectedEmoji) {
                         state.gameEmojis[gameId] = currentSelectedEmoji;
                     }
@@ -1118,7 +1115,6 @@
             }
 
             if (matchedCount > 0) {
-                // Limpiar la caja de texto y resetear el selector de emoji para la siguiente tanda
                 smartPasteBox.value = '';
                 smartReactionSelector.value = '';
                 
@@ -1254,4 +1250,647 @@
                 }
             });
 
-            document.getElementById('btn-upload-avatar').addEventListener('click', ()
+            document.getElementById('btn-upload-avatar').addEventListener('click', () => avatarFileInput.click());
+            avatarFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const tempImg = new Image();
+                    tempImg.onload = () => {
+                        const offCanvas = document.createElement('canvas');
+                        offCanvas.width = 180;
+                        offCanvas.height = 180;
+                        const offCtx = offCanvas.getContext('2d');
+                        const minDim = Math.min(tempImg.width, tempImg.height);
+                        const sx = (tempImg.width - minDim) / 2;
+                        const sy = (tempImg.height - minDim) / 2;
+                        offCtx.drawImage(tempImg, sx, sy, minDim, minDim, 0, 0, 180, 180);
+
+                        state.avatarUrl = offCanvas.toDataURL('image/jpeg', 0.85);
+                        updateAvatarUI();
+                        saveStateToStorage();
+                        preloadAvatarAndUpdateCanvas();
+                        showToast('¡Avatar actualizado!', '🖼️');
+                    };
+                    tempImg.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            btnRemoveAvatar.addEventListener('click', () => {
+                state.avatarUrl = null;
+                loadedAvatarImage = null;
+                updateAvatarUI();
+                saveStateToStorage();
+                updateCanvas();
+                showToast('Avatar restablecido', '🗑️');
+            });
+
+            dateInput.addEventListener('change', (e) => {
+                state.date = e.target.value;
+                saveStateToStorage();
+                updateCanvas();
+            });
+
+            // Botones de modales y acciones principales enlazados con total seguridad
+            document.getElementById('btn-open-catalog-modal').addEventListener('click', openCatalogModal);
+            document.getElementById('btn-empty-state-add').addEventListener('click', openCatalogModal);
+            document.getElementById('btn-close-modal').addEventListener('click', closeCatalogModal);
+            document.getElementById('btn-modal-done').addEventListener('click', closeCatalogModal);
+            document.getElementById('btn-create-custom-inside-modal').addEventListener('click', createCustomGame);
+
+            modalSearchInput.addEventListener('input', (e) => { renderModalCatalogList(e.target.value); });
+            modalCatalogList.addEventListener('click', (e) => {
+                const btn = e.target.closest('.btn-toggle-modal-game');
+                if (btn) toggleGameInRoster(btn.dataset.game);
+            });
+
+            document.getElementById('btn-open-radar-selector').addEventListener('click', openRadarModal);
+            document.getElementById('btn-close-radar-modal').addEventListener('click', closeRadarModal);
+            document.getElementById('btn-radar-modal-done').addEventListener('click', () => {
+                const checkboxes = radarCheckboxesContainer.querySelectorAll('.radar-game-checkbox');
+                const selected = [];
+                checkboxes.forEach(cb => {
+                    if (cb.checked) selected.push(cb.value);
+                });
+                state.radarSelectedIds = selected;
+                saveStateToStorage();
+                closeRadarModal();
+                updateRadarChart();
+                showToast('Gráfico radar actualizado', '📊');
+            });
+
+            radarCheckboxesContainer.addEventListener('change', (e) => {
+                if (e.target.classList.contains('radar-game-checkbox')) {
+                    const checkedCount = radarCheckboxesContainer.querySelectorAll('.radar-game-checkbox:checked').length;
+                    if (checkedCount > 20) {
+                        e.target.checked = false;
+                        showToast('Máximo 20 juegos permitidos en el radar', '⚠️');
+                    }
+                    updateRadarModalCounter();
+                }
+            });
+
+            gamesContainer.addEventListener('input', (e) => {
+                if (e.target.classList.contains('custom-game-name-input')) {
+                    const gameId = e.target.dataset.game;
+                    const newName = e.target.value.trim() || 'Juego';
+                    if (state.customGames[gameId]) {
+                        state.customGames[gameId].name = newName;
+                        state.customGames[gameId].pattern = new RegExp(newName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+                    }
+                    if (state.results[gameId]) state.results[gameId].name = newName;
+                    saveStateToStorage();
+                    updateCanvas();
+                } else if (e.target.classList.contains('game-textarea')) {
+                    const gameId = e.target.dataset.game;
+                    parseAndSetGameResult(gameId, e.target.value);
+                    saveStateToStorage();
+                    updateCanvas();
+                }
+            });
+
+            gamesContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('btn-clear-game')) {
+                    const gameId = e.target.dataset.game;
+                    const textarea = document.getElementById(`input-${gameId}`);
+                    if (textarea) textarea.value = '';
+                    delete state.results[gameId];
+                    delete state.gameEmojis[gameId];
+                    saveStateToStorage();
+                    updateCountersUI();
+                    updateCanvas();
+                } else if (e.target.classList.contains('btn-remove-from-roster')) {
+                    const gameId = e.target.dataset.game;
+                    state.userSelectedGameIds = state.userSelectedGameIds.filter(id => id !== gameId);
+                    delete state.results[gameId];
+                    delete state.gameEmojis[gameId];
+                    state.radarSelectedIds = state.radarSelectedIds.filter(id => id !== gameId);
+                    if (state.customGames[gameId]) delete state.customGames[gameId];
+                    saveStateToStorage();
+                    renderActiveGames();
+                    updateCountersUI();
+                    showToast('Juego quitado de tu plantilla', '🗑️');
+                }
+            });
+
+            document.getElementById('btn-process-smart').addEventListener('click', processSmartPaste);
+            document.getElementById('btn-clear-all').addEventListener('click', clearAll);
+
+            document.getElementById('btn-download').addEventListener('click', () => {
+                downloadCanvasImage();
+                sendResultsToGoogleSheet(true);
+            });
+            document.getElementById('btn-copy').addEventListener('click', () => {
+                copyCanvasImage();
+                sendResultsToGoogleSheet(true);
+            });
+            document.getElementById('btn-sync-sheets').addEventListener('click', () => {
+                sendResultsToGoogleSheet(false);
+            });
+            document.getElementById('btn-share').addEventListener('click', shareCanvasImage);
+        }
+
+        // =========================================================================
+        // LÓGICA DEL GRÁFICO RADAR (CHART.JS - MÁX 20 JUEGOS)
+        // =========================================================================
+        
+        function initRadarChart() {
+            const ctxRadar = document.getElementById('radar-chart').getContext('2d');
+            
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.font.family = '"Plus Jakarta Sans", sans-serif';
+            
+            radarChartInstance = new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Comunidad',
+                            data: [],
+                            backgroundColor: 'rgba(168, 85, 247, 0.3)',
+                            borderColor: 'rgba(168, 85, 247, 0.8)',
+                            borderWidth: 1.5,
+                            pointBackgroundColor: '#a855f7',
+                            pointBorderColor: '#1e293b',
+                            pointRadius: 3,
+                            fill: true,
+                            order: 2
+                        },
+                        {
+                            label: 'Tú',
+                            data: [],
+                            backgroundColor: 'transparent',
+                            borderColor: '#fbbf24',
+                            borderWidth: 2.5,
+                            pointBackgroundColor: '#1e293b',
+                            pointBorderColor: '#fbbf24',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            fill: false,
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 100,
+                            ticks: { display: false, stepSize: 20 },
+                            grid: { color: 'rgba(148, 163, 184, 0.15)', circular: true },
+                            angleLines: { color: 'rgba(148, 163, 184, 0.15)' },
+                            pointLabels: {
+                                color: '#cbd5e1',
+                                font: { size: 10, weight: '600' }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                color: '#e2e8f0',
+                                font: { size: 11, weight: '600' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#cbd5e1',
+                            borderColor: 'rgba(168, 85, 247, 0.3)',
+                            borderWidth: 1,
+                            padding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.dataset.label}: ${context.raw || 0}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function fetchStatsFromGoogle(playerName) {
+            if (!GOOGLE_SCRIPT_URL || !GOOGLE_SCRIPT_URL.startsWith('http')) return;
+            
+            const loadingIndicator = document.getElementById('radar-loading');
+            loadingIndicator.classList.remove('hidden');
+
+            try {
+                const url = `${GOOGLE_SCRIPT_URL}?jugador=${encodeURIComponent(playerName)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data && data.statsJugador && data.statsComunidad) {
+                    fetchedStats = data;
+                    updateRadarChart();
+                }
+            } catch (error) {
+                console.error("Error al obtener estadísticas para el radar:", error);
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        function updateRadarChart() {
+            if (!radarChartInstance) return;
+
+            const emptyState = document.getElementById('radar-empty-state');
+            const radarIds = (state.radarSelectedIds && state.radarSelectedIds.length > 0) 
+                ? state.radarSelectedIds.slice(0, 20) 
+                : state.userSelectedGameIds.slice(0, 20);
+
+            if (radarIds.length < 3) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+
+            const labels = [];
+            const dataComunidad = [];
+            const dataJugador = [];
+
+            radarIds.forEach(gameId => {
+                const gameDef = getCombinedGameDefinition(gameId);
+                labels.push(gameDef.name);
+
+                let pctJugador = 0;
+                let pctComunidad = 0;
+
+                if (fetchedStats.statsJugador) {
+                    const key = Object.keys(fetchedStats.statsJugador).find(k => k.toLowerCase() === gameId.toLowerCase() || k.toLowerCase() === gameDef.name.toLowerCase());
+                    if (key && !isNaN(parseFloat(fetchedStats.statsJugador[key]))) {
+                        pctJugador = parseFloat(fetchedStats.statsJugador[key]);
+                    }
+                }
+
+                if (fetchedStats.statsComunidad) {
+                    const key = Object.keys(fetchedStats.statsComunidad).find(k => k.toLowerCase() === gameId.toLowerCase() || k.toLowerCase() === gameDef.name.toLowerCase());
+                    if (key && !isNaN(parseFloat(fetchedStats.statsComunidad[key]))) {
+                        pctComunidad = parseFloat(fetchedStats.statsComunidad[key]);
+                    }
+                }
+
+                dataJugador.push(pctJugador);
+                dataComunidad.push(pctComunidad);
+            });
+
+            radarChartInstance.data.labels = labels;
+            radarChartInstance.data.datasets[0].data = dataComunidad;
+            radarChartInstance.data.datasets[1].data = dataJugador;
+            
+            radarChartInstance.update();
+        }
+
+        function wrapTextLines(ctx, text, maxWidth) {
+            if (!text) return [''];
+            if (ctx.measureText(text).width <= maxWidth) return [text];
+
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = '';
+
+            for (let word of words) {
+                const testLine = currentLine ? currentLine + ' ' + word : word;
+                if (ctx.measureText(testLine).width <= maxWidth) {
+                    currentLine = testLine;
+                } else {
+                    if (currentLine) {
+                        lines.push(currentLine);
+                        currentLine = '';
+                    }
+                    if (ctx.measureText(word).width <= maxWidth) {
+                        currentLine = word;
+                    } else {
+                        let segment = '';
+                        const characters = Array.from(word);
+                        for (let ch of characters) {
+                            if (ctx.measureText(segment + ch).width <= maxWidth) {
+                                segment += ch;
+                            } else {
+                                if (segment) lines.push(segment);
+                                segment = ch;
+                            }
+                        }
+                        currentLine = segment;
+                    }
+                }
+            }
+            if (currentLine) lines.push(currentLine);
+            return lines;
+        }
+
+        function updateCanvas() {
+            if (!canvas) return;
+            const activeResults = Object.values(state.results);
+            const emptyState = document.getElementById('canvas-empty-state');
+
+            if (activeResults.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            const width = 1080;
+            const padding = 60;
+            const columnGap = 30;
+            const colWidth = (width - (padding * 2) - columnGap) / 2;
+            const cardInnerPadding = 24;
+            const maxTextWidth = colWidth - (cardInnerPadding * 2);
+            const lineHeight = 30;
+            const headerHeight = 85;
+
+            const measuredCards = activeResults.map(result => {
+                const wrappedLines = [];
+                result.displayLines.forEach(rawLine => {
+                    const hasEmojis = /(\p{Extended_Pictographic}|[🟩🟨⬛⬜🟪🟦🟫🟡🔴🟥🟧⚪⚫📍])/u.test(rawLine);
+                    ctx.save();
+                    if (hasEmojis) {
+                        ctx.font = '22px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+                    } else {
+                        ctx.font = '600 16px "Plus Jakarta Sans", sans-serif';
+                    }
+                    const wrapped = wrapTextLines(ctx, rawLine, maxTextWidth);
+                    wrappedLines.push(...wrapped);
+                    ctx.restore();
+                });
+
+                const contentHeight = Math.max(wrappedLines.length * lineHeight, lineHeight);
+                const cardHeight = headerHeight + contentHeight + 28;
+
+                return {
+                    result,
+                    wrappedLines,
+                    height: cardHeight
+                };
+            });
+
+            const avatarSize = 90;
+            const startY = padding + avatarSize + 40;
+            const colY = [startY, startY];
+
+            const cardPlacements = measuredCards.map(item => {
+                const col = colY[0] <= colY[1] ? 0 : 1;
+                const x = padding + (col * (colWidth + columnGap));
+                const y = colY[col];
+                colY[col] += item.height + 24;
+
+                return {
+                    ...item,
+                    x,
+                    y,
+                    width: colWidth
+                };
+            });
+
+            const cardsMaxY = activeResults.length === 0 ? startY + 200 : Math.max(...colY);
+            const height = Math.max(1400, cardsMaxY + 95);
+
+            canvas.width = width;
+            canvas.height = height;
+
+            if (loadedBgImage) {
+                ctx.fillStyle = '#18191c';
+                ctx.fillRect(0, 0, width, height);
+                const bgSourceHeight = loadedBgImage.naturalHeight || 1920;
+                const cropHeight = Math.min(height, bgSourceHeight);
+                ctx.drawImage(loadedBgImage, 0, 0, width, cropHeight, 0, 0, width, cropHeight);
+            } else {
+                const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
+                bgGradient.addColorStop(0, '#32353b');
+                bgGradient.addColorStop(0.3, '#2a2c32');
+                bgGradient.addColorStop(0.7, '#212328');
+                bgGradient.addColorStop(1, '#18191c');
+                ctx.fillStyle = bgGradient;
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            const avatarX = padding;
+            const avatarY = padding;
+            
+            if (loadedAvatarImage) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.drawImage(loadedAvatarImage, avatarX, avatarY, avatarSize, avatarSize);
+                ctx.restore();
+
+                ctx.save();
+                ctx.strokeStyle = '#a855f7';
+                ctx.lineWidth = 3.5;
+                ctx.beginPath();
+                ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+            } else {
+                drawRoundedRect(ctx, avatarX, avatarY, avatarSize, avatarSize, 26, '#7c3aed', true);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '800 40px "Plus Jakarta Sans", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const initial = (state.userName || 'U').charAt(0).toUpperCase();
+                ctx.fillText(initial, avatarX + avatarSize/2, avatarY + avatarSize/2);
+            }
+
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '800 44px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText(state.userName || 'Usuario desconocido', avatarX + avatarSize + 24, avatarY + 8);
+
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = '600 20px "Plus Jakarta Sans", sans-serif';
+            const formattedDate = new Date(state.date).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            ctx.fillText(formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1), avatarX + avatarSize + 24, avatarY + 56);
+
+            const todayCount = Object.keys(state.results).length;
+            const lifetimeCount = state.lifetimeGamesCount || 0;
+            const badgeY = avatarY + 48;
+            const badgeHeight = 34;
+
+            const lifetimeText = `🏆 Total: ${lifetimeCount}`;
+            ctx.font = 'bold 15px "Plus Jakarta Sans", sans-serif';
+            const lifetimeWidth = ctx.measureText(lifetimeText).width + 24;
+            const lifetimeX = width - padding - lifetimeWidth;
+
+            drawRoundedRect(ctx, lifetimeX, badgeY, lifetimeWidth, badgeHeight, 10, 'rgba(245, 158, 11, 0.16)', true, 'rgba(245, 158, 11, 0.50)');
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#fde68a';
+            ctx.fillText(lifetimeText, lifetimeX + (lifetimeWidth / 2), badgeY + (badgeHeight / 2));
+
+            const todayText = `⚡ Hoy: ${todayCount}`;
+            const todayWidth = ctx.measureText(todayText).width + 24;
+            const todayX = lifetimeX - todayWidth - 12;
+
+            drawRoundedRect(ctx, todayX, badgeY, todayWidth, badgeHeight, 10, 'rgba(168, 85, 247, 0.18)', true, 'rgba(168, 85, 247, 0.50)');
+            ctx.fillStyle = '#e9d5ff';
+            ctx.fillText(todayText, todayX + (todayWidth / 2), badgeY + (badgeHeight / 2));
+
+            const cardBg = 'rgba(28, 30, 36, 0.88)';
+            const cardBorder = 'rgba(168, 85, 247, 0.30)';
+
+            cardPlacements.forEach(item => {
+                const { result, wrappedLines, x, y, width: cWidth, height: cHeight } = item;
+
+                drawRoundedRect(ctx, x, y, cWidth, cHeight, 20, cardBg, true, cardBorder);
+                drawRoundedRect(ctx, x + 20, y + 20, 10, 34, 5, result.badgeColor, true);
+
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 22px "Plus Jakarta Sans", "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+                
+                const emj = state.gameEmojis[result.id] || '';
+                const titleText = emj ? `${emj} ${result.name}` : result.name;
+                ctx.fillText(titleText, x + 40, y + 20);
+
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '500 16px "Plus Jakarta Sans", sans-serif';
+                ctx.fillText(result.edition, x + 40, y + 46);
+
+                const scoreText = result.score;
+                ctx.font = 'bold 18px "Plus Jakarta Sans", sans-serif';
+                const scoreWidth = ctx.measureText(scoreText).width + 30;
+                drawRoundedRect(ctx, x + cWidth - scoreWidth - 20, y + 20, scoreWidth, 36, 12, 'rgba(255,255,255,0.12)', true);
+                
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(scoreText, x + cWidth - (scoreWidth/2) - 20, y + 26);
+
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+                ctx.beginPath();
+                ctx.moveTo(x + 20, y + 78);
+                ctx.lineTo(x + cWidth - 20, y + 78);
+                ctx.stroke();
+
+                ctx.textAlign = 'left';
+                let lineY = y + 98;
+
+                wrappedLines.forEach(line => {
+                    const hasEmojis = /(\p{Extended_Pictographic}|[🟩🟨⬛⬜🟪🟦🟫🟡🔴🟥🟧⚪⚫📍])/u.test(line);
+                    if (hasEmojis) {
+                        ctx.font = '22px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+                        ctx.fillStyle = '#ffffff';
+                    } else {
+                        ctx.font = '600 16px "Plus Jakarta Sans", sans-serif';
+                        ctx.fillStyle = '#f1f5f9';
+                    }
+                    ctx.fillText(line, x + 24, lineY);
+                    lineY += lineHeight;
+                });
+            });
+
+            const footerY = height - 45;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#cbd5e1';
+            ctx.font = '600 16px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('Generado con Diarias Discord · Amigos Delaware', width / 2, footerY);
+        }
+
+        function drawRoundedRect(ctx, x, y, width, height, radius, fillStyle, fill = true, strokeStyle = null) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.arcTo(x + width, y, x + width, y + height, radius);
+            ctx.arcTo(x + width, y + height, x, y + height, radius);
+            ctx.arcTo(x, y + height, x, y, radius);
+            ctx.arcTo(x, y, x + width, y, radius);
+            ctx.closePath();
+
+            if (fill && fillStyle) {
+                ctx.fillStyle = fillStyle;
+                ctx.fill();
+            }
+
+            if (strokeStyle) {
+                ctx.strokeStyle = strokeStyle;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function downloadCanvasImage() {
+            if (Object.keys(state.results).length === 0) {
+                showToast('Añade al menos un resultado antes de descargar', '⚠️');
+                return;
+            }
+            const link = document.createElement('a');
+            link.download = `diarias-discord-${state.date}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            showToast('¡Imagen descargada!', '💾');
+        }
+
+        async function copyCanvasImage() {
+            if (Object.keys(state.results).length === 0) {
+                showToast('Añade al menos un resultado antes de copiar', '⚠️');
+                return;
+            }
+            try {
+                canvas.toBlob(async (blob) => {
+                    const item = new ClipboardItem({ 'image/png': blob });
+                    await navigator.clipboard.write([item]);
+                    showToast('¡Imagen copiada al portapapeles!', '📋');
+                });
+            } catch (err) {
+                showToast('Error al copiar. Intenta descargarla.', '❌');
+            }
+        }
+
+        async function shareCanvasImage() {
+            if (Object.keys(state.results).length === 0) {
+                showToast('Añade al menos un resultado antes de compartir', '⚠️');
+                return;
+            }
+            try {
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], `diarias-${state.date}.png`, { type: 'image/png' });
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            title: 'Diarias Discord - Amigos Delaware',
+                            text: '¡Mis resultados de minijuegos de hoy!',
+                            files: [file]
+                        });
+                        showToast('Compartido con éxito', '🚀');
+                    } else {
+                        copyCanvasImage();
+                    }
+                });
+            } catch (err) {
+                showToast('No se pudo abrir el menú nativo de compartir', '⚠️');
+            }
+        }
+
+        function showToast(message, icon = '✨') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            document.getElementById('toast-icon').textContent = icon;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
