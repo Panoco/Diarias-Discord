@@ -83,7 +83,7 @@
 
             <div class="flex items-center gap-3">
                 <input type="text" id="modal-search-input" placeholder="Buscar juego en el catálogo..." class="flex-1 bg-slate-950 border border-purple-900/60 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500 transition">
-                <button id="btn-create-custom-inside-modal" class="px-3.5 py-2 rounded-xl bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 text-xs font-semibold transition flex items-center gap-1.5 whitespace-nowrap">
+                <button id="btn-create-custom-inside-modal" type="button" class="px-3.5 py-2 rounded-xl bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 text-xs font-semibold transition flex items-center gap-1.5 whitespace-nowrap">
                     <span>+ Juego Personalizado</span>
                 </button>
             </div>
@@ -96,7 +96,7 @@
                     <span>Ver módulo listajuegos.html</span>
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                 </a>
-                <button id="btn-modal-done" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow-md">
+                <button id="btn-modal-done" type="button" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow-md">
                     Guardar Selección
                 </button>
             </div>
@@ -123,7 +123,7 @@
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     Reinicio diario: 05:00 AM
                 </span>
-                <button id="btn-clear-all" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition" title="Limpiar resultados">
+                <button id="btn-clear-all" type="button" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition" title="Limpiar resultados">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
@@ -213,17 +213,24 @@
                         </h2>
                         <span id="active-games-count-badge" class="text-[11px] text-slate-400">0 juegos en tu plantilla</span>
                     </div>
-                    <button id="btn-open-catalog-modal" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-md">
+                    <button id="btn-open-catalog-modal" type="button" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-md">
                         <span>+ Añadir nuevo juego</span>
                     </button>
                 </div>
 
-                <!-- Smart Auto Paste Input -->
-                <div class="relative">
-                    <textarea id="smart-paste-box" rows="3" placeholder="💡 ¡Pega aquí múltiples resultados de una vez y se procesarán automáticamente!" class="w-full bg-slate-950/80 border border-purple-500/40 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition resize-none placeholder-slate-500"></textarea>
-                    <button id="btn-process-smart" class="absolute bottom-3 right-3 px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-medium transition shadow-md">
-                        Procesar Todo
-                    </button>
+                <!-- Smart Auto Paste Input with Integrated Reaction Emoji Selector -->
+                <div class="space-y-2">
+                    <div class="relative flex items-stretch gap-2">
+                        <select id="smart-reaction-selector" class="w-16 bg-slate-950 border border-purple-500/40 rounded-xl text-center text-3xl cursor-pointer appearance-none outline-none focus:border-purple-500 transition shadow-inner" title="Elige reacción para el siguiente juego a procesar">
+                            <option value="">💬</option>
+                        </select>
+                        <textarea id="smart-paste-box" rows="3" placeholder="💡 ¡Pega aquí múltiples resultados de una vez y se procesarán automáticamente!" class="flex-1 bg-slate-950/80 border border-purple-500/40 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition resize-none placeholder-slate-500 font-mono"></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                        <button id="btn-process-smart" type="button" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center gap-1.5">
+                            <span>Procesar Todo</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="border-t border-purple-900/40 my-3"></div>
@@ -239,7 +246,7 @@
                             Personaliza tu plantilla eligiendo únicamente los juegos que juegas habitualmente desde nuestro catálogo.
                         </p>
                     </div>
-                    <button id="btn-empty-state-add" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition shadow-lg inline-flex items-center gap-1.5">
+                    <button id="btn-empty-state-add" type="button" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition shadow-lg inline-flex items-center gap-1.5">
                         <span>Seleccionar minijuegos del catálogo</span>
                     </button>
                 </div>
@@ -264,7 +271,7 @@
                         <p class="text-xs text-slate-400 mt-0.5">Comparativa vs Comunidad (Elige hasta 20 juegos)</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button id="btn-open-radar-selector" class="px-3 py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 text-xs font-semibold transition flex items-center gap-1.5">
+                        <button id="btn-open-radar-selector" type="button" class="px-3 py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 text-xs font-semibold transition flex items-center gap-1.5">
                             <span>⚙️ Elegir juegos del gráfico</span>
                         </button>
                         <div id="radar-loading" class="hidden flex items-center gap-1.5 text-[11px] text-purple-400 font-medium bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/20">
@@ -302,7 +309,7 @@
 
                     <div class="flex items-center justify-between border-t border-purple-900/40 pt-4">
                         <span id="radar-selection-counter" class="text-xs text-purple-300 font-semibold">0 / 20 seleccionados</span>
-                        <button id="btn-radar-modal-done" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow-md">
+                        <button id="btn-radar-modal-done" type="button" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow-md">
                             Aplicar al Gráfico
                         </button>
                     </div>
@@ -338,28 +345,28 @@
 
                 <!-- Export Action Buttons -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                    <button id="btn-download" class="w-full py-2.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20 transition active:scale-[0.98]">
+                    <button id="btn-download" type="button" class="w-full py-2.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20 transition active:scale-[0.98]">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                         <span>Descargar PNG</span>
                     </button>
 
-                    <button id="btn-copy" class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
+                    <button id="btn-copy" type="button" class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
                         <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002 0h2a2 2 0 002 0m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                         </svg>
                         <span>Copiar Imagen</span>
                     </button>
 
-                    <button id="btn-sync-sheets" class="w-full py-2.5 px-4 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-700/25 border border-emerald-600/60 transition active:scale-[0.98]">
+                    <button id="btn-sync-sheets" type="button" class="w-full py-2.5 px-4 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-700/25 border border-emerald-600/60 transition active:scale-[0.98]">
                         <svg class="w-4 h-4 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         <span id="btn-sync-sheets-text">Guardar en Google Sheets</span>
                     </button>
 
-                    <button id="btn-share" class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
+                    <button id="btn-share" type="button" class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
                         <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 11-6 0 3 3 0 016 0l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.368 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                         </svg>
@@ -381,6 +388,7 @@
 
         const STORAGE_KEY = 'daily_game_hub_delaware_v3';
         const BG_IMAGE_URL = 'diariasbg.png';
+        const REACTION_EMOJIS = ['🥳', '😎', '😋', '😗', '🫤', '🙄', '🥲', '🫣', '🤐', '😭', '😒', '🥵', '😡', '🤪'];
 
         let CATALOG = {};
 
@@ -391,6 +399,7 @@
             userSelectedGameIds: [],
             radarSelectedIds: [],
             results: {},
+            gameEmojis: {},
             customGames: {},
             lifetimeGamesCount: 0,
             recordedGameKeys: {}
@@ -456,6 +465,7 @@
                     userSelectedGameIds: state.userSelectedGameIds,
                     radarSelectedIds: state.radarSelectedIds,
                     results: state.results,
+                    gameEmojis: state.gameEmojis,
                     customGames: state.customGames,
                     lifetimeGamesCount: state.lifetimeGamesCount,
                     recordedGameKeys: state.recordedGameKeys
@@ -467,35 +477,42 @@
         }
 
         function loadStateFromStorage() {
-            try {
-                const savedRaw = localStorage.getItem(STORAGE_KEY);
-                if (!savedRaw) return;
-
-                const saved = JSON.parse(savedRaw);
-                const currentGamingDate = getGamingDateString();
-
-                state.userName = saved.userName || 'Usuario desconocido';
-                state.avatarUrl = saved.avatarUrl || null;
-                state.userSelectedGameIds = Array.isArray(saved.userSelectedGameIds) ? saved.userSelectedGameIds : [];
-                state.radarSelectedIds = Array.isArray(saved.radarSelectedIds) ? saved.radarSelectedIds : [...state.userSelectedGameIds];
-                state.customGames = saved.customGames || {};
-                state.lifetimeGamesCount = saved.lifetimeGamesCount || 0;
-                state.recordedGameKeys = saved.recordedGameKeys || {};
-
-                Object.keys(state.customGames).forEach(id => {
-                    state.customGames[id].isCustom = true;
-                    state.customGames[id].badgeColor = '#ffffff';
-                });
-
-                if (saved.gamingDate !== currentGamingDate) {
-                    state.results = {};
-                    saveStateToStorage();
-                } else {
-                    state.results = saved.results || {};
+            const keysToTry = [STORAGE_KEY, 'daily_game_hub_delaware_v2', 'daily_game_hub_delaware'];
+            let saved = null;
+            
+            for (const k of keysToTry) {
+                const raw = localStorage.getItem(k);
+                if (raw) {
+                    try {
+                        saved = JSON.parse(raw);
+                        break;
+                    } catch(err) {}
                 }
-            } catch (e) {
-                console.warn('No se pudo cargar desde localStorage', e);
             }
+
+            if (!saved) return;
+
+            state.userName = saved.userName || 'Usuario desconocido';
+            state.avatarUrl = saved.avatarUrl || null;
+            state.userSelectedGameIds = Array.isArray(saved.userSelectedGameIds) ? saved.userSelectedGameIds : [];
+            state.radarSelectedIds = Array.isArray(saved.radarSelectedIds) ? saved.radarSelectedIds : [...state.userSelectedGameIds];
+            state.customGames = saved.customGames || {};
+            state.gameEmojis = saved.gameEmojis || {};
+            state.lifetimeGamesCount = saved.lifetimeGamesCount || 0;
+            state.recordedGameKeys = saved.recordedGameKeys || {};
+
+            Object.keys(state.customGames).forEach(id => {
+                state.customGames[id].isCustom = true;
+                state.customGames[id].badgeColor = '#ffffff';
+            });
+
+            if (saved.date) {
+                state.date = saved.date;
+            } else {
+                state.date = getGamingDateString();
+            }
+
+            state.results = saved.results || {};
         }
 
         function preloadBgImage() {
@@ -506,7 +523,7 @@
             img.src = BG_IMAGE_URL;
         }
 
-        let canvas, ctx, userNameInput, dateInput, gamesContainer, gamesEmptyState, smartPasteBox;
+        let canvas, ctx, userNameInput, dateInput, gamesContainer, gamesEmptyState, smartPasteBox, smartReactionSelector;
         let avatarFileInput, avatarImgPreview, avatarInitialText, btnRemoveAvatar;
         let catalogModal, modalCatalogList, modalSearchInput;
         let radarModal, radarCheckboxesContainer;
@@ -562,6 +579,13 @@
             gamesContainer = document.getElementById('games-inputs-container');
             gamesEmptyState = document.getElementById('games-empty-state');
             smartPasteBox = document.getElementById('smart-paste-box');
+            smartReactionSelector = document.getElementById('smart-reaction-selector');
+
+            let optionsHtml = '<option value="">💬</option>';
+            REACTION_EMOJIS.forEach(e => {
+                optionsHtml += `<option value="${e}">${e}</option>`;
+            });
+            smartReactionSelector.innerHTML = optionsHtml;
 
             avatarFileInput = document.getElementById('avatar-file-input');
             avatarImgPreview = document.getElementById('avatar-img-preview');
@@ -575,7 +599,6 @@
             radarModal = document.getElementById('radar-modal');
             radarCheckboxesContainer = document.getElementById('radar-checkboxes-container');
 
-            // Vincular evento Easter Egg al logo superior izquierdo
             const easterEggLogo = document.getElementById('easter-egg-logo');
             if (easterEggLogo) {
                 easterEggLogo.addEventListener('click', triggerEasterEgg);
@@ -606,6 +629,7 @@
             if (document.fonts && document.fonts.ready) {
                 document.fonts.ready.then(() => updateCanvas());
             }
+            updateCanvas();
         }
 
         function getCombinedGameDefinition(gameId) {
@@ -679,7 +703,9 @@
                             </button>
                         </div>
                     </div>
-                    <textarea id="input-${id}" data-game="${id}" rows="2" placeholder="Pega aquí el resultado..." class="game-textarea w-full bg-slate-900 border border-purple-900/40 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-purple-500 transition resize-none placeholder-slate-600 font-mono">${savedResultText}</textarea>
+                    <div class="mt-2">
+                        <textarea id="input-${id}" data-game="${id}" rows="2" placeholder="Pega aquí el resultado..." class="game-textarea w-full bg-slate-900 border border-purple-900/40 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-purple-500 transition resize-none placeholder-slate-600 font-mono">${savedResultText}</textarea>
+                    </div>
                 `;
                 gamesContainer.appendChild(card);
             });
@@ -752,6 +778,7 @@
             if (idx > -1) {
                 state.userSelectedGameIds.splice(idx, 1);
                 delete state.results[gameId];
+                delete state.gameEmojis[gameId];
                 state.radarSelectedIds = state.radarSelectedIds.filter(id => id !== gameId);
             } else {
                 state.userSelectedGameIds.push(gameId);
@@ -799,7 +826,6 @@
             showToast('Nuevo juego añadido. Escribe su nombre.', '✨');
         }
 
-        // --- GESTIÓN MODAL SELECCIÓN RADAR (MÁX 20) ---
         function openRadarModal() {
             renderRadarCheckboxes();
             radarModal.classList.remove('hidden');
@@ -899,7 +925,6 @@
                 else if (edDateMatch && edDateMatch[1]) edition = edDateMatch[1];
             }
 
-            // Reglas específicas adaptadas para cada juego
             if (gameId === 'crissle') {
                 const timeMatch = cleanedText.match(/(?:⏱|tiempo)?\s*(\d{2}):(\d{2})/i) || cleanedText.match(/(\d{2}):(\d{2})/);
                 if (timeMatch) {
@@ -1057,6 +1082,8 @@
 
             matches.sort((a, b) => a.index - b.index);
 
+            const currentSelectedEmoji = smartReactionSelector.value;
+
             let matchedCount = 0;
             for (let i = 0; i < matches.length; i++) {
                 const gameId = matches[i].id;
@@ -1074,16 +1101,23 @@
                 const cleaned = sanitizeGameText(gameId, segment);
                 if (cleaned) {
                     parseAndSetGameResult(gameId, cleaned);
+                    
+                    if (currentSelectedEmoji) {
+                        state.gameEmojis[gameId] = currentSelectedEmoji;
+                    }
+                    
                     matchedCount++;
                 }
             }
 
             if (matchedCount > 0) {
                 smartPasteBox.value = '';
+                smartReactionSelector.value = '';
+                
                 saveStateToStorage();
                 renderActiveGames();
                 updateCanvas();
-                showToast(`Se han procesado ${matchedCount} juego(s) sin URLs`, '🎉');
+                showToast(`Se han procesado ${matchedCount} juego(s) con éxito`, '🎉');
             }
         }
 
@@ -1094,7 +1128,7 @@
                 return false;
             }
 
-            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT' || !GOOGLE_SCRIPT_URL.startsWith('http')) {
+            if (!GOOGLE_SCRIPT_URL || !GOOGLE_SCRIPT_URL.startsWith('http')) {
                 if (!quiet) showToast('Falta configurar la URL de Apps Script', '⚠️');
                 return false;
             }
@@ -1147,8 +1181,11 @@
                 const textarea = document.getElementById(`input-${id}`);
                 if (textarea) textarea.value = '';
             });
+            state.gameEmojis = {};
             smartPasteBox.value = '';
+            smartReactionSelector.value = '';
             saveStateToStorage();
+            renderActiveGames();
             updateCountersUI();
             updateCanvas();
             showToast('Resultados del día limpiados', '🗑️');
@@ -1315,6 +1352,7 @@
                     const textarea = document.getElementById(`input-${gameId}`);
                     if (textarea) textarea.value = '';
                     delete state.results[gameId];
+                    delete state.gameEmojis[gameId];
                     saveStateToStorage();
                     updateCountersUI();
                     updateCanvas();
@@ -1322,6 +1360,7 @@
                     const gameId = e.target.dataset.game;
                     state.userSelectedGameIds = state.userSelectedGameIds.filter(id => id !== gameId);
                     delete state.results[gameId];
+                    delete state.gameEmojis[gameId];
                     state.radarSelectedIds = state.radarSelectedIds.filter(id => id !== gameId);
                     if (state.customGames[gameId]) delete state.customGames[gameId];
                     saveStateToStorage();
@@ -1696,18 +1735,23 @@
             ctx.fillText(todayText, todayX + (todayWidth / 2), badgeY + (badgeHeight / 2));
 
             const cardBg = 'rgba(28, 30, 36, 0.88)';
-            const cardBorder = 'rgba(168, 85, 247, 0.30)';
+            const defaultCardBorder = 'rgba(168, 85, 247, 0.30)';
+            const goldenCardBorder = 'rgba(251, 191, 36, 0.85)'; // Borde dorado más visible
 
             cardPlacements.forEach(item => {
                 const { result, wrappedLines, x, y, width: cWidth, height: cHeight } = item;
 
-                drawRoundedRect(ctx, x, y, cWidth, cHeight, 20, cardBg, true, cardBorder);
+                // Comprobar si tiene emoji asignado para cambiar el color del borde
+                const hasEmoji = Boolean(state.gameEmojis[result.id]);
+                const currentBorder = hasEmoji ? goldenCardBorder : defaultCardBorder;
+
+                drawRoundedRect(ctx, x, y, cWidth, cHeight, 20, cardBg, true, currentBorder);
                 drawRoundedRect(ctx, x + 20, y + 20, 10, 34, 5, result.badgeColor, true);
 
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'top';
                 ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 22px "Plus Jakarta Sans", sans-serif';
+                ctx.font = 'bold 22px "Plus Jakarta Sans", "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
                 ctx.fillText(result.name, x + 40, y + 20);
 
                 ctx.fillStyle = '#cbd5e1';
@@ -1744,6 +1788,16 @@
                     ctx.fillText(line, x + 24, lineY);
                     lineY += lineHeight;
                 });
+
+                // Emoji grande flotando sobresaliendo de la esquina superior izquierda
+                if (hasEmoji) {
+                    ctx.save();
+                    ctx.font = '40px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(state.gameEmojis[result.id], x, y);
+                    ctx.restore();
+                }
             });
 
             const footerY = height - 45;
