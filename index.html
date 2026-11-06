@@ -3,726 +3,1847 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>Generador de Resultados - Amigos Delaware</title>
+    <title>Diarias Discord - Amigos Delaware</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js para el Radar -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Catálogo de Minijuegos Externo -->
-    <script src="listajuegos.html"></script>
+    <!-- Chart.js para el gráfico radar -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
                         sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                        }
                     }
                 }
             }
         }
     </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
 </head>
-<body class="h-full bg-slate-950 text-slate-100 font-sans flex flex-col antialiased selection:bg-purple-500 selection:text-white">
+<body class="h-full bg-slate-950 text-slate-100 font-sans flex flex-col antialiased selection:bg-brand-500 selection:text-white">
 
-    <!-- Header -->
-    <header class="border-b border-purple-900/40 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-20">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <!-- Iframe invisible para cargar listajuegos.html de forma paralela con anticaché -->
+    <iframe id="catalog-frame" style="display:none;" title="Catalog Module"></iframe>
+
+    <!-- Easter Egg Overlay & Audio -->
+    <audio id="easter-egg-audio" src="diarias.mp3" preload="auto"></audio>
+    <div id="easter-egg-overlay" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300 pointer-events-none">
+        <img id="easter-egg-img" src="diarias.png" alt="Easter Egg" class="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl scale-95 transition-transform duration-300">
+    </div>
+
+    <!-- Toast Notification Banner -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-out bg-slate-800 border border-slate-700 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+        <span id="toast-icon" class="text-xl">✨</span>
+        <span id="toast-message" class="font-medium text-sm">Notificación</span>
+    </div>
+
+    <!-- Modal: Catálogo de Juegos para Añadir -->
+    <div id="catalog-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
+        <div class="bg-slate-900 border border-purple-900/60 rounded-3xl max-w-2xl w-full p-6 shadow-2xl flex flex-col max-h-[88vh] space-y-4">
+            <div class="flex items-center justify-between border-b border-purple-900/40 pb-4">
+                <div>
+                    <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+                        <span>📚 Catálogo de Minijuegos</span>
+                        <span id="catalog-badge-total" class="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">Cargando...</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Elige los minijuegos que juegas habitualmente para incorporarlos a tu plantilla.</p>
+                </div>
+                <button id="btn-close-modal" type="button" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition">
+                    ✕
+                </button>
+            </div>
+
             <div class="flex items-center gap-3">
-                <!-- Easter Egg Target: Logo superior izquierdo -->
-                <div id="easter-egg-btn" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-700 to-indigo-500 flex items-center justify-center shadow-lg text-white font-bold text-lg cursor-pointer transform hover:scale-105 transition" title="Pulsa para sorpresa">
-                    <img src="image_b7a27f.png" alt="Logo" class="w-8 h-8 rounded-lg object-cover pointer-events-none">
+                <input type="text" id="modal-search-input" placeholder="Buscar juego en el catálogo..." class="flex-1 bg-slate-950 border border-purple-900/60 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500 transition">
+                <button id="btn-create-custom-inside-modal" class="px-3.5 py-2 rounded-xl bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 text-xs font-semibold transition flex items-center gap-1.5 whitespace-nowrap">
+                    <span>+ Juego Personalizado</span>
+                </button>
+            </div>
+
+            <!-- Listado dinámico del catálogo -->
+            <div id="modal-catalog-list" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
+
+            <div class="flex items-center justify-between border-t border-purple-900/40 pt-4">
+                <a href="listajuegos.html" target="_blank" class="text-xs text-purple-400 hover:text-purple-300 transition flex items-center gap-1">
+                    <span>Ver módulo listajuegos.html</span>
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+                <button id="btn-modal-done" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow-md">
+                    Guardar Selección
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="border-b border-purple-900/50 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div id="easter-egg-logo" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-700 to-indigo-500 flex items-center justify-center shadow-lg shadow-purple-900/30 ring-1 ring-white/20 cursor-pointer transform hover:scale-105 active:scale-95 transition" title="🐣">
+                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 0010 20.945M11 3.055T11 20.945M11 3.055a9 9 0 019 8.945M11 20.945a9 9 0 01-9-8.945M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
                 </div>
                 <div>
-                    <h1 class="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent">
-                        Amigos Delaware
-                    </h1>
-                    <p class="text-xs text-purple-300/70">Generador de Partidas Diarias</p>
+                    <h1 class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent">Diarias Discord</h1>
+                    <p class="text-xs text-purple-300/70 hidden sm:block">Amigos Delaware · Compilador de Minijuegos</p>
                 </div>
             </div>
-            
-            <div class="flex items-center gap-2.5">
-                <a href="listajuegos.html" class="px-3.5 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800/60 text-purple-200 border border-purple-700/60 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 shadow-sm">
-                    <span>Catálogo</span>
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                </a>
-                
-                <button id="config-btn" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-purple-900/50 transition shadow-sm" title="Configurar Perfil">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+
+            <div class="flex items-center gap-2">
+                <span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-950/80 border border-purple-800/60 text-[11px] text-purple-200 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Reinicio diario: 05:00 AM
+                </span>
+                <button id="btn-clear-all" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition" title="Limpiar resultados">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-
-        <!-- User Profile & Stats Bar -->
-        <div class="bg-slate-900/60 border border-purple-900/30 rounded-2xl p-4 sm:p-5 backdrop-blur-sm flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
-            <div class="flex items-center gap-4 w-full sm:w-auto">
-                <div id="user-avatar-container" class="relative group cursor-pointer" title="Cambiar avatar">
-                    <div id="user-avatar-display" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-2xl shadow-md overflow-hidden border-2 border-purple-500/40">
-                        👤
-                    </div>
-                    <div class="absolute inset-0 bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-xs text-white font-bold">
-                        Editar
-                    </div>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h2 id="user-name-display" class="font-bold text-lg text-white">Jugador</h2>
-                        <span class="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-medium">Activo</span>
-                    </div>
-                    <p class="text-xs text-slate-400 mt-0.5">Plantilla de juegos diarios compartida</p>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
-                <div class="bg-slate-950/80 border border-purple-900/40 rounded-xl px-4 py-2.5 text-center flex-1 sm:flex-initial">
-                    <div class="text-[10px] uppercase tracking-wider text-purple-300 font-semibold">Total Acumulado</div>
-                    <div id="total-score-display" class="text-base sm:text-lg font-extrabold text-white mt-0.5">0</div>
-                </div>
-                <button id="process-btn" class="px-5 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-purple-900/30 transition flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                    <span>Procesar Todo</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Radar Chart & Dashboard Section -->
-        <div class="bg-slate-900/60 border border-purple-900/30 rounded-2xl p-5 backdrop-blur-sm shadow-xl space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-purple-900/30">
-                <div>
-                    <h3 class="font-bold text-base text-white flex items-center gap-2">
-                        <span>Radar de Rendimiento vs Comunidad</span>
-                        <span id="radar-count-badge" class="px-2 py-0.5 rounded-full text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">0/20 juegos</span>
-                    </h3>
-                    <p class="text-xs text-slate-400 mt-0.5">Comparativa porcentual (0-100) entre tu rendimiento y la media global.</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button id="select-radar-games-btn" class="px-3 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800/60 text-purple-200 border border-purple-700/60 text-xs font-semibold transition flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
-                        <span>Elegir juegos del gráfico (máx 20)</span>
-                    </button>
-                    <button id="refresh-radar-btn" class="p-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-slate-300 border border-purple-900/50 text-xs font-semibold transition" title="Actualizar Datos">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Contenedor del Gráfico -->
-            <div class="relative w-full h-72 sm:h-96 flex items-center justify-center bg-slate-950/40 rounded-xl border border-purple-900/20 p-2">
-                <canvas id="radarChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Toolbar de Gestión -->
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-900/40 p-3 rounded-2xl border border-purple-900/30">
-            <div class="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
-                <button id="add-game-btn" class="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-600 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5 whitespace-nowrap">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    <span>Añadir nuevo juego</span>
-                </button>
-                <button id="clear-results-btn" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition whitespace-nowrap">
-                    Limpiar resultados
-                </button>
-            </div>
+    <!-- Main Grid Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left Panel: Input & Profile Form -->
+        <section class="lg:col-span-5 space-y-6">
             
-            <div class="text-xs text-slate-400 text-right hidden sm:block">
-                <span>Rellena los resultados diarios abajo para generar el texto final.</span>
+            <!-- User Info Card & Counters -->
+            <div class="bg-slate-900/80 border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4 backdrop-blur-sm">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-bold tracking-wider text-purple-300 uppercase flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                        PERFIL DE JUGADOR
+                    </h2>
+                </div>
+
+                <!-- Game Counters Banner -->
+                <div class="grid grid-cols-2 gap-3 p-3 bg-purple-950/40 border border-purple-800/40 rounded-xl text-center">
+                    <div class="space-y-0.5">
+                        <span class="text-[11px] font-semibold text-purple-300 block uppercase tracking-wider">En esta imagen</span>
+                        <div class="text-xl font-extrabold text-white flex items-center justify-center gap-1">
+                            <span id="counter-today">0</span>
+                            <span class="text-xs font-normal text-purple-300">juegos</span>
+                        </div>
+                    </div>
+                    <div class="space-y-0.5 border-l border-purple-800/40">
+                        <span class="text-[11px] font-semibold text-amber-300 block uppercase tracking-wider">Total Acumulado</span>
+                        <div class="text-xl font-extrabold text-amber-300 flex items-center justify-center gap-1">
+                            <span id="counter-lifetime">0</span>
+                            <span class="text-xs font-normal text-amber-200/80">juegos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Avatar Upload Section -->
+                <div class="flex items-center gap-4 p-3 bg-slate-950/60 rounded-xl border border-purple-900/30">
+                    <div class="relative group flex-shrink-0">
+                        <div id="avatar-preview-box" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-700 to-indigo-500 flex items-center justify-center text-white text-xl font-extrabold shadow-lg overflow-hidden border border-white/20">
+                            <span id="avatar-initial-text">U</span>
+                            <img id="avatar-img-preview" src="" class="w-full h-full object-cover hidden" alt="Avatar">
+                        </div>
+                    </div>
+
+                    <div class="flex-1 space-y-2">
+                        <span class="block text-xs font-semibold text-slate-300">Avatar / Foto de Perfil</span>
+                        <div class="flex flex-wrap gap-2">
+                            <input type="file" id="avatar-file-input" accept="image/*" class="hidden">
+                            <button id="btn-upload-avatar" type="button" class="px-2.5 py-1.5 bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span>Subir Imagen</span>
+                            </button>
+                            <button id="btn-remove-avatar" type="button" class="px-2 py-1.5 text-slate-400 hover:text-rose-400 text-xs transition hidden" title="Quitar foto">
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Nombre / Alias</label>
+                        <input type="text" id="user-name" placeholder="Ej: Alex, Gamer123..." class="w-full bg-slate-950 border border-purple-900/60 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Fecha del Resumen</label>
+                        <input type="date" id="summary-date" class="w-full bg-slate-950 border border-purple-900/60 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition">
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- Grid de Tarjetas de Minijuegos Activos -->
-        <div id="games-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Las tarjetas se generan dinámicamente aquí -->
-        </div>
+            <!-- Games Selection & Paste Boxes -->
+            <div class="bg-slate-900/80 border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4 backdrop-blur-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-sm font-bold tracking-wider text-purple-300 uppercase flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            MIS MINIJUEGOS
+                        </h2>
+                        <span id="active-games-count-badge" class="text-[11px] text-slate-400">0 juegos en tu plantilla</span>
+                    </div>
+                    <button id="btn-open-catalog-modal" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-md">
+                        <span>+ Añadir nuevo juego</span>
+                    </button>
+                </div>
 
-        <!-- Sección de Resultado Generado -->
-        <div class="bg-slate-900/80 border border-purple-900/40 rounded-2xl p-5 backdrop-blur-xl shadow-2xl space-y-3">
-            <div class="flex items-center justify-between">
-                <h3 class="font-bold text-sm text-white flex items-center gap-2">
-                    <span>Resultado para copiar (Discord / WhatsApp)</span>
-                </h3>
-                <button id="copy-result-btn" class="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-                    <span>Copiar Resultado</span>
-                </button>
+                <!-- Smart Auto Paste Input -->
+                <div class="relative">
+                    <textarea id="smart-paste-box" rows="3" placeholder="💡 ¡Pega aquí múltiples resultados de una vez y se procesarán automáticamente!" class="w-full bg-slate-950/80 border border-purple-500/40 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition resize-none placeholder-slate-500"></textarea>
+                    <button id="btn-process-smart" class="absolute bottom-3 right-3 px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-medium transition shadow-md">
+                        Procesar Todo
+                    </button>
+                </div>
+
+                <div class="border-t border-purple-900/40 my-3"></div>
+
+                <!-- Empty State for New Users -->
+                <div id="games-empty-state" class="p-8 border border-dashed border-purple-900/50 rounded-2xl bg-slate-950/40 text-center space-y-3">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-900/30 border border-purple-800/40 text-purple-300 flex items-center justify-center mx-auto text-xl">
+                        🎮
+                    </div>
+                    <div class="space-y-1">
+                        <h3 class="text-sm font-bold text-slate-200">Tu lista diaria está vacía</h3>
+                        <p class="text-xs text-slate-400 max-w-sm mx-auto">
+                            Personaliza tu plantilla eligiendo únicamente los juegos que juegas habitualmente desde nuestro catálogo.
+                        </p>
+                    </div>
+                    <button id="btn-empty-state-add" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition shadow-lg inline-flex items-center gap-1.5">
+                        <span>Seleccionar minijuegos del catálogo</span>
+                    </button>
+                </div>
+
+                <!-- Dynamic game inputs container -->
+                <div id="games-inputs-container" class="space-y-3"></div>
             </div>
-            <textarea id="final-output" readonly class="w-full h-36 bg-slate-950 border border-purple-900/50 rounded-xl p-3.5 text-xs text-purple-200 font-mono focus:outline-none resize-none shadow-inner" placeholder="Selecciona juegos e introduce resultados para generar el texto..."></textarea>
-        </div>
 
+        </section>
+
+        <!-- Right Panel: Canvas Live Preview & Actions -->
+        <section class="lg:col-span-7 sticky top-20 space-y-4">
+            
+            <!-- Sección del Gráfico Radar con Selector de Ejes (Máx 20) -->
+            <div class="bg-slate-900/80 border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4 backdrop-blur-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-sm font-bold tracking-wider text-purple-300 uppercase flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                            Rendimiento Global
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Comparativa vs Comunidad (Elige hasta 20 juegos)</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="btn-open-radar-selector" class="px-3 py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-800/80 text-xs font-semibold transition flex items-center gap-1.5">
+                            <span>⚙️ Elegir juegos del gráfico</span>
+                        </button>
+                        <div id="radar-loading" class="hidden flex items-center gap-1.5 text-[11px] text-purple-400 font-medium bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/20">
+                            <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
+                            Sincronizando...
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="relative w-full h-[280px] sm:h-[320px] flex items-center justify-center">
+                    <canvas id="radar-chart"></canvas>
+                    <!-- Overlay de estado vacío para el gráfico -->
+                    <div id="radar-empty-state" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center text-center p-4 rounded-xl border border-dashed border-slate-700 transition-opacity">
+                        <span class="text-2xl mb-2 opacity-60">🕸️</span>
+                        <h3 class="text-sm font-bold text-slate-300">No hay datos suficientes</h3>
+                        <p class="text-xs text-slate-500 mt-1 max-w-[220px]">Selecciona al menos 3 juegos en el selector para mostrar el gráfico radar.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Selector de Juegos para el Radar -->
+            <div id="radar-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
+                <div class="bg-slate-900 border border-purple-900/60 rounded-3xl max-w-lg w-full p-6 shadow-2xl flex flex-col max-h-[85vh] space-y-4">
+                    <div class="flex items-center justify-between border-b border-purple-900/40 pb-4">
+                        <div>
+                            <h3 class="text-base font-extrabold text-white">⚙️ Seleccionar Juegos para el Gráfico</h3>
+                            <p class="text-xs text-slate-400 mt-0.5">Marca hasta 20 juegos de tu plantilla para mostrarlos en el radar.</p>
+                        </div>
+                        <button id="btn-close-radar-modal" type="button" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition">
+                            ✕
+                        </button>
+                    </div>
+
+                    <div id="radar-checkboxes-container" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
+
+                    <div class="flex items-center justify-between border-t border-purple-900/40 pt-4">
+                        <span id="radar-selection-counter" class="text-xs text-purple-300 font-semibold">0 / 20 seleccionados</span>
+                        <button id="btn-radar-modal-done" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow-md">
+                            Aplicar al Gráfico
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vista Previa de Imagen -->
+            <div class="bg-slate-900/80 border border-purple-900/40 rounded-2xl p-5 shadow-xl space-y-4 backdrop-blur-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-sm font-bold tracking-wider text-purple-300 uppercase flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                            Vista Previa en Tiempo Real
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Plantilla Oficial Amigos Delaware</p>
+                    </div>
+                    <span class="text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 bg-purple-500/10 text-purple-300 border border-purple-500/20 rounded-full">HD 1080p</span>
+                </div>
+
+                <!-- Canvas Preview Box -->
+                <div class="relative rounded-xl overflow-hidden bg-slate-950 border border-purple-900/50 flex items-center justify-center min-h-[380px] p-2 sm:p-4 group">
+                    <canvas id="preview-canvas" class="max-w-full h-auto rounded-lg shadow-2xl transition-all duration-200"></canvas>
+                    
+                    <!-- Overlay empty state -->
+                    <div id="canvas-empty-state" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
+                        <div class="w-12 h-12 rounded-full bg-purple-900/40 flex items-center justify-center text-purple-300 mb-3 border border-purple-700/50">
+                            🎮
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-200">Aún no has añadido resultados hoy</h3>
+                        <p class="text-xs text-slate-400 mt-1 max-w-xs">Añade juegos a tu lista o pega resultados para probar la plantilla.</p>
+                    </div>
+                </div>
+
+                <!-- Export Action Buttons -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    <button id="btn-download" class="w-full py-2.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20 transition active:scale-[0.98]">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        <span>Descargar PNG</span>
+                    </button>
+
+                    <button id="btn-copy" class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002 0h2a2 2 0 002 0m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        <span>Copiar Imagen</span>
+                    </button>
+
+                    <button id="btn-sync-sheets" class="w-full py-2.5 px-4 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-700/25 border border-emerald-600/60 transition active:scale-[0.98]">
+                        <svg class="w-4 h-4 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span id="btn-sync-sheets-text">Guardar en Google Sheets</span>
+                    </button>
+
+                    <button id="btn-share" class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 11-6 0 3 3 0 016 0l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.368 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        </svg>
+                        <span>Compartir</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center text-xs text-slate-500">
+                Amigos Discord · Imagen generada en alta definición con módulo <code>listajuegos.html</code>.
+            </div>
+
+        </section>
     </main>
 
-    <!-- MODAL: Catálogo para Añadir Juegos -->
-    <div id="catalog-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-slate-900 border border-purple-900/50 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-            <div class="p-4 border-b border-purple-900/40 flex items-center justify-between bg-slate-950/50">
-                <h3 class="font-bold text-base text-white flex items-center gap-2">
-                    <span>Catálogo de Minijuegos Disponibles</span>
-                </h3>
-                <button id="close-catalog-modal" class="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            <div class="p-4 border-b border-purple-900/30">
-                <input type="text" id="catalog-search" placeholder="Filtrar juegos del catálogo..." class="w-full bg-slate-950 border border-purple-900/50 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
-            </div>
-            <div id="catalog-modal-list" class="p-4 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
-                <!-- Se llena dinámicamente -->
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: Selección de Juegos para el Radar -->
-    <div id="radar-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-slate-900 border border-purple-900/50 rounded-2xl max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-            <div class="p-4 border-b border-purple-900/40 flex items-center justify-between bg-slate-950/50">
-                <div>
-                    <h3 class="font-bold text-base text-white">Elegir juegos para el Gráfico Radar</h3>
-                    <p class="text-xs text-purple-300/70 mt-0.5">Selecciona hasta 20 juegos independientes de tu plantilla.</p>
-                </div>
-                <button id="close-radar-modal" class="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            <div class="p-4 overflow-y-auto space-y-2 flex-1" id="radar-modal-list">
-                <!-- Se llena dinámicamente -->
-            </div>
-            <div class="p-4 border-t border-purple-900/40 bg-slate-950/50 flex justify-end gap-2">
-                <button id="save-radar-selection" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition">
-                    Aplicar al Gráfico
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: Configuración de Perfil -->
-    <div id="config-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-slate-900 border border-purple-900/50 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b border-purple-900/40 pb-3">
-                <h3 class="font-bold text-base text-white">Configuración del Perfil</h3>
-                <button id="close-config-modal" class="text-slate-400 hover:text-white">✕</button>
-            </div>
-            <div class="space-y-3">
-                <div>
-                    <label class="text-xs font-semibold text-purple-300">Nombre / Alias</label>
-                    <input type="text" id="config-name-input" class="w-full mt-1 bg-slate-950 border border-purple-900/50 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
-                </div>
-                <div>
-                    <label class="text-xs font-semibold text-purple-300">URL o Emoji de Avatar</label>
-                    <div class="flex gap-2 mt-1">
-                        <input type="text" id="config-avatar-input" placeholder="Ej: 🦊 o https://..." class="flex-1 bg-slate-950 border border-purple-900/50 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
-                        <label class="px-3 py-2 bg-purple-900/40 hover:bg-purple-800 text-purple-200 text-xs font-semibold rounded-xl cursor-pointer border border-purple-700/50 flex items-center transition">
-                            <span>Subir</span>
-                            <input type="file" id="avatar-file-input" accept="image/*" class="hidden">
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button id="save-config-btn" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition">
-                    Guardar Cambios
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Easter Egg Overlays -->
-    <div id="easter-egg-overlay" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4 transition-opacity duration-300">
-        <img id="easter-egg-img" src="diarias.png" alt="Sorpresa Diaria" class="max-w-full max-h-[85vh] rounded-2xl shadow-2xl border-2 border-purple-500/50 animate-pulse">
-    </div>
-    <audio id="easter-egg-audio" src="diarias.mp3" preload="auto"></audio>
-
-    <!-- Main Logic Script -->
     <script>
+        // CONFIGURACIÓN DE CONEXIÓN CON GOOGLE SHEETS
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzxxz8CwgxI_OpQ-UnbGeXIqXNq8IhlkyYhvG2SzXgaVmhFGmAR9viLX1m9MoqLyO5exQ/exec';
-        const CATALOG = window.DELAWARE_CATALOG || {};
-        
-        // Emojis permitidos
-        const REACTION_EMOJIS = ['🥳', '😎', '😋', '😗', '🫤', '🙄', '🥲', '🫣', '🤐', '😭', '😒', '🥵', '😡', '🤪'];
+
+        const STORAGE_KEY = 'daily_game_hub_delaware_v3';
+        const BG_IMAGE_URL = 'diariasbg.png';
+
+        let CATALOG = {};
 
         let state = {
-            userName: 'Jugador',
-            avatar: '👤',
-            activeGames: ['geoguessr', 'crissle', 'zanagramas'],
-            radarGames: ['geoguessr', 'crissle', 'zanagramas'],
-            gameValues: {},
-            gameEmojis: {},
-            totalScore: 0
+            userName: 'Usuario desconocido',
+            avatarUrl: null,
+            date: new Date().toISOString().split('T')[0],
+            userSelectedGameIds: [],
+            radarSelectedIds: [],
+            results: {},
+            customGames: {},
+            lifetimeGamesCount: 0,
+            recordedGameKeys: {}
         };
 
+        let loadedAvatarImage = null;
+        let loadedBgImage = null;
+
+        function getGamingDateString() {
+            const now = new Date();
+            if (now.getHours() < 5) {
+                now.setDate(now.getDate() - 1);
+            }
+            return now.toISOString().split('T')[0];
+        }
+
+        async function fetchCatalogFromModule() {
+            const cacheBuster = '?t=' + Date.now();
+            try {
+                const response = await fetch('listajuegos.html' + cacheBuster, {
+                    cache: 'no-store',
+                    headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+                });
+                if (response.ok) {
+                    const htmlText = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlText, 'text/html');
+                    const scriptTag = doc.getElementById('delaware-catalog-script');
+                    if (scriptTag && scriptTag.textContent) {
+                        const runner = new Function(scriptTag.textContent);
+                        runner();
+                        if (window.DELAWARE_CATALOG && Object.keys(window.DELAWARE_CATALOG).length > 0) {
+                            CATALOG = window.DELAWARE_CATALOG;
+                            return;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn('Fetch local no disponible, intentando via iframe...', err);
+            }
+
+            const iframe = document.getElementById('catalog-frame');
+            if (iframe) {
+                iframe.src = 'listajuegos.html' + cacheBuster;
+                await new Promise(r => setTimeout(r, 150));
+                if (iframe.contentWindow && iframe.contentWindow.DELAWARE_CATALOG) {
+                    CATALOG = iframe.contentWindow.DELAWARE_CATALOG;
+                    return;
+                }
+            }
+
+            if (window.DELAWARE_CATALOG) {
+                CATALOG = window.DELAWARE_CATALOG;
+            }
+        }
+
+        function saveStateToStorage() {
+            try {
+                const dataToSave = {
+                    gamingDate: getGamingDateString(),
+                    userName: state.userName,
+                    avatarUrl: state.avatarUrl,
+                    userSelectedGameIds: state.userSelectedGameIds,
+                    radarSelectedIds: state.radarSelectedIds,
+                    results: state.results,
+                    customGames: state.customGames,
+                    lifetimeGamesCount: state.lifetimeGamesCount,
+                    recordedGameKeys: state.recordedGameKeys
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+            } catch (e) {
+                console.warn('No se pudo guardar en localStorage', e);
+            }
+        }
+
+        function loadStateFromStorage() {
+            try {
+                const savedRaw = localStorage.getItem(STORAGE_KEY);
+                if (!savedRaw) return;
+
+                const saved = JSON.parse(savedRaw);
+                const currentGamingDate = getGamingDateString();
+
+                state.userName = saved.userName || 'Usuario desconocido';
+                state.avatarUrl = saved.avatarUrl || null;
+                state.userSelectedGameIds = Array.isArray(saved.userSelectedGameIds) ? saved.userSelectedGameIds : [];
+                state.radarSelectedIds = Array.isArray(saved.radarSelectedIds) ? saved.radarSelectedIds : [...state.userSelectedGameIds];
+                state.customGames = saved.customGames || {};
+                state.lifetimeGamesCount = saved.lifetimeGamesCount || 0;
+                state.recordedGameKeys = saved.recordedGameKeys || {};
+
+                Object.keys(state.customGames).forEach(id => {
+                    state.customGames[id].isCustom = true;
+                    state.customGames[id].badgeColor = '#ffffff';
+                });
+
+                if (saved.gamingDate !== currentGamingDate) {
+                    state.results = {};
+                    saveStateToStorage();
+                } else {
+                    state.results = saved.results || {};
+                }
+            } catch (e) {
+                console.warn('No se pudo cargar desde localStorage', e);
+            }
+        }
+
+        function preloadBgImage() {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => { loadedBgImage = img; updateCanvas(); };
+            img.onerror = () => { updateCanvas(); };
+            img.src = BG_IMAGE_URL;
+        }
+
+        let canvas, ctx, userNameInput, dateInput, gamesContainer, gamesEmptyState, smartPasteBox;
+        let avatarFileInput, avatarImgPreview, avatarInitialText, btnRemoveAvatar;
+        let catalogModal, modalCatalogList, modalSearchInput;
+        let radarModal, radarCheckboxesContainer;
+
         let radarChartInstance = null;
+        let radarFetchTimeout = null;
+        let fetchedStats = {
+            jugador: {},
+            comunidad: {}
+        };
 
-        function loadState() {
-            const saved = localStorage.getItem('daily_game_hub_delaware_v4');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    state.userName = parsed.userName || state.userName;
-                    state.avatar = parsed.avatar || state.avatar;
-                    state.activeGames = parsed.activeGames || state.activeGames;
-                    state.radarGames = parsed.radarGames || state.radarGames;
-                    state.gameValues = parsed.gameValues || {};
-                    state.gameEmojis = parsed.gameEmojis || {};
-                } catch(e) {}
+        // --- EASTER EGG LOGIC ---
+        let easterEggTimeout = null;
+        function triggerEasterEgg() {
+            const overlay = document.getElementById('easter-egg-overlay');
+            const img = document.getElementById('easter-egg-img');
+            const audio = document.getElementById('easter-egg-audio');
+
+            if (easterEggTimeout) {
+                clearTimeout(easterEggTimeout);
+            }
+
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(e => console.warn('Audio autoplay blocked or file missing', e));
+            }
+
+            overlay.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                overlay.classList.remove('opacity-0');
+                overlay.classList.add('opacity-100', 'pointer-events-auto');
+                img.classList.remove('scale-95');
+                img.classList.add('scale-100');
+            });
+
+            easterEggTimeout = setTimeout(() => {
+                overlay.classList.remove('opacity-100', 'pointer-events-auto');
+                overlay.classList.add('opacity-0');
+                img.classList.remove('scale-100');
+                img.classList.add('scale-95');
+
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
+
+        async function init() {
+            canvas = document.getElementById('preview-canvas');
+            ctx = canvas.getContext('2d');
+            userNameInput = document.getElementById('user-name');
+            dateInput = document.getElementById('summary-date');
+            gamesContainer = document.getElementById('games-inputs-container');
+            gamesEmptyState = document.getElementById('games-empty-state');
+            smartPasteBox = document.getElementById('smart-paste-box');
+
+            avatarFileInput = document.getElementById('avatar-file-input');
+            avatarImgPreview = document.getElementById('avatar-img-preview');
+            avatarInitialText = document.getElementById('avatar-initial-text');
+            btnRemoveAvatar = document.getElementById('btn-remove-avatar');
+
+            catalogModal = document.getElementById('catalog-modal');
+            modalCatalogList = document.getElementById('modal-catalog-list');
+            modalSearchInput = document.getElementById('modal-search-input');
+
+            radarModal = document.getElementById('radar-modal');
+            radarCheckboxesContainer = document.getElementById('radar-checkboxes-container');
+
+            // Vincular evento Easter Egg al logo superior izquierdo
+            const easterEggLogo = document.getElementById('easter-egg-logo');
+            if (easterEggLogo) {
+                easterEggLogo.addEventListener('click', triggerEasterEgg);
+            }
+
+            await fetchCatalogFromModule();
+            loadStateFromStorage();
+
+            if (!state.radarSelectedIds || state.radarSelectedIds.length === 0) {
+                state.radarSelectedIds = [...state.userSelectedGameIds];
+            }
+
+            dateInput.value = state.date;
+            userNameInput.value = state.userName;
+
+            updateAvatarUI();
+            updateCountersUI();
+            renderActiveGames();
+            setupEventListeners();
+            preloadBgImage();
+            preloadAvatarAndUpdateCanvas();
+            
+            initRadarChart();
+            if (state.userName && state.userName !== 'Usuario desconocido') {
+                fetchStatsFromGoogle(state.userName);
+            }
+
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(() => updateCanvas());
             }
         }
 
-        function saveState() {
-            localStorage.setItem('daily_game_hub_delaware_v4', JSON.stringify({
-                userName: state.userName,
-                avatar: state.avatar,
-                activeGames: state.activeGames,
-                radarGames: state.radarGames,
-                gameValues: state.gameValues,
-                gameEmojis: state.gameEmojis
-            }));
-        }
-
-        function updateHeaderUI() {
-            document.getElementById('user-name-display').textContent = state.userName;
-            const avatarDisplay = document.getElementById('user-avatar-display');
-            if (state.avatar.startsWith('data:') || state.avatar.startsWith('http')) {
-                avatarDisplay.innerHTML = `<img src="${state.avatar}" class="w-full h-full object-cover">`;
-            } else {
-                avatarDisplay.textContent = state.avatar;
+        function getCombinedGameDefinition(gameId) {
+            if (state.customGames[gameId]) {
+                return state.customGames[gameId];
             }
-            document.getElementById('total-score-display').textContent = state.totalScore;
+            if (CATALOG[gameId]) {
+                return CATALOG[gameId];
+            }
+            return {
+                id: gameId,
+                name: 'Juego',
+                badgeColor: '#ffffff'
+            };
         }
 
         function renderActiveGames() {
-            const container = document.getElementById('games-container');
-            container.innerHTML = '';
+            gamesContainer.innerHTML = '';
+            const activeIds = state.userSelectedGameIds;
+            const badgeTotal = document.getElementById('active-games-count-badge');
+            if (badgeTotal) {
+                badgeTotal.textContent = `${activeIds.length} ${activeIds.length === 1 ? 'juego' : 'juegos'} en tu plantilla`;
+            }
 
-            if (state.activeGames.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full py-12 text-center text-slate-500 text-sm bg-slate-900/30 rounded-2xl border border-purple-900/20">
-                        No hay minijuegos activos. Haz clic en "+ Añadir nuevo juego" para empezar.
-                    </div>
-                `;
-                document.getElementById('final-output').value = '';
+            if (activeIds.length === 0) {
+                gamesEmptyState.classList.remove('hidden');
+                gamesContainer.classList.add('hidden');
+                updateCanvas();
+                updateRadarChart();
                 return;
             }
 
-            state.activeGames.forEach(gameId => {
-                const game = CATALOG[gameId];
-                if (!game) return;
+            gamesEmptyState.classList.add('hidden');
+            gamesContainer.classList.remove('hidden');
 
+            activeIds.forEach(id => {
+                const game = getCombinedGameDefinition(id);
                 const card = document.createElement('div');
-                card.className = 'bg-slate-900/80 border border-purple-900/30 rounded-2xl p-4 shadow-lg space-y-3 relative group hover:border-purple-500/40 transition';
-                
-                const val = state.gameValues[gameId] || '';
-                const emj = state.gameEmojis[gameId] || '';
+                card.className = 'bg-slate-950/80 border border-purple-900/40 rounded-xl p-3 space-y-2';
 
-                // Crear opciones del select (blanco + emojis)
-                let optionsHtml = `<option value="">💬</option>`;
-                REACTION_EMOJIS.forEach(e => {
-                    optionsHtml += `<option value="${e}" ${emj === e ? 'selected' : ''}>${e}</option>`;
-                });
+                let titleMarkup = '';
+                if (game.isCustom || id.startsWith('custom_')) {
+                    titleMarkup = `
+                        <input type="text" id="name-input-${id}" data-game="${id}" value="${game.name}" placeholder="Nombre del juego..." class="custom-game-name-input bg-slate-900/90 border border-purple-800/60 focus:border-purple-400 rounded-lg px-2.5 py-1 text-xs font-bold text-white focus:outline-none w-48 transition" title="Haz clic para editar el nombre">
+                    `;
+                } else if (game.url) {
+                    titleMarkup = `
+                        <a href="${game.url}" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-slate-200 hover:text-purple-300 no-underline transition flex items-center gap-1">
+                            <span>${game.name}</span>
+                            <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                        </a>
+                    `;
+                } else {
+                    titleMarkup = `<span class="text-xs font-bold text-slate-200">${game.name}</span>`;
+                }
+
+                const savedResultText = (state.results[id] && state.results[id].rawText) ? state.results[id].rawText : '';
 
                 card.innerHTML = `
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-3.5 h-3.5 rounded-full ring-1 ring-white/30" style="background-color: ${game.badgeColor}"></span>
-                            <span id="header-emoji-${gameId}" class="font-bold text-2xl" style="${!emj ? 'display:none;' : ''}">${emj}</span>
-                            <span class="font-bold text-sm text-white">${game.name}</span>
-                        </div>
                         <div class="flex items-center gap-2">
-                            <a href="${game.url}" target="_blank" rel="noopener noreferrer" class="text-xs text-purple-400 hover:text-purple-300 transition">Jugar ↗</a>
-                            <button onclick="removeGame('${gameId}')" class="text-slate-500 hover:text-red-400 p-1 transition" title="Quitar juego">✕</button>
+                            <span class="w-3 h-3 rounded-full shadow-sm ring-1 ring-white/30" style="background-color: ${game.badgeColor}"></span>
+                            ${titleMarkup}
+                        </div>
+                        <div class="flex items-center">
+                            <button type="button" data-game="${id}" class="btn-clear-game text-[11px] text-slate-500 hover:text-amber-400 transition">
+                                Limpiar
+                            </button>
+                            <button type="button" data-game="${id}" class="btn-remove-from-roster text-[11px] text-slate-500 hover:text-rose-400 transition ml-2.5 font-medium" title="Quitar de mi plantilla">
+                                ✕ Quitar
+                            </button>
                         </div>
                     </div>
-                    <div class="flex items-stretch gap-2">
-                        <select class="emoji-selector w-16 sm:w-20 bg-slate-950 border border-purple-900/50 rounded-xl text-center text-3xl sm:text-4xl cursor-pointer appearance-none outline-none focus:border-purple-500 transition shadow-inner" data-game="${gameId}" title="Añadir reacción">
-                            ${optionsHtml}
-                        </select>
-                        <textarea placeholder="Pega aquí tu resultado..." class="game-textarea flex-1 h-20 bg-slate-950 border border-purple-900/50 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-purple-500 resize-none font-mono shadow-inner" data-game="${gameId}">${val}</textarea>
+                    <textarea id="input-${id}" data-game="${id}" rows="2" placeholder="Pega aquí el resultado..." class="game-textarea w-full bg-slate-900 border border-purple-900/40 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-purple-500 transition resize-none placeholder-slate-600 font-mono">${savedResultText}</textarea>
+                `;
+                gamesContainer.appendChild(card);
+            });
+
+            updateCanvas();
+            updateRadarChart();
+        }
+
+        async function openCatalogModal() {
+            modalSearchInput.value = '';
+            await fetchCatalogFromModule();
+            renderModalCatalogList();
+            catalogModal.classList.remove('hidden');
+            requestAnimationFrame(() => catalogModal.classList.remove('opacity-0'));
+        }
+
+        function closeCatalogModal() {
+            catalogModal.classList.add('opacity-0');
+            setTimeout(() => { catalogModal.classList.add('hidden'); }, 200);
+        }
+
+        function renderModalCatalogList(searchQuery = '') {
+            modalCatalogList.innerHTML = '';
+            const allAvailable = { ...CATALOG, ...state.customGames };
+            const gamesArray = Object.values(allAvailable);
+
+            document.getElementById('catalog-badge-total').textContent = `${gamesArray.length} disponibles`;
+
+            const filtered = gamesArray.filter(g => 
+                g.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                (g.description && g.description.toLowerCase().includes(searchQuery.toLowerCase()))
+            );
+
+            if (filtered.length === 0) {
+                modalCatalogList.innerHTML = `
+                    <div class="p-6 text-center text-slate-500 text-xs">
+                        No se encontró ningún juego con ese término. Puedes crearlo como personalizado.
                     </div>
                 `;
-                container.appendChild(card);
-            });
+                return;
+            }
 
-            // Listeners de los Textareas
-            document.querySelectorAll('.game-textarea').forEach(ta => {
-                ta.addEventListener('input', (e) => {
-                    const gId = e.target.getAttribute('data-game');
-                    state.gameValues[gId] = e.target.value;
-                    saveState();
-                    generateFinalOutput();
-                });
-            });
+            filtered.forEach(game => {
+                const isSelected = state.userSelectedGameIds.includes(game.id);
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-xl border flex items-center justify-between gap-3 transition ${
+                    isSelected ? 'bg-purple-950/40 border-purple-600/60' : 'bg-slate-950/60 border-purple-900/30 hover:border-purple-700/50'
+                }`;
 
-            // Listeners de los Selectores de Emoji
-            document.querySelectorAll('.emoji-selector').forEach(sel => {
-                sel.addEventListener('change', (e) => {
-                    const gId = e.target.getAttribute('data-game');
-                    const selectedEmoji = e.target.value;
-                    state.gameEmojis[gId] = selectedEmoji;
-                    
-                    // Actualizar el emoji de la cabecera en tiempo real
-                    const headerSpan = document.getElementById(`header-emoji-${gId}`);
-                    if (headerSpan) {
-                        headerSpan.textContent = selectedEmoji;
-                        headerSpan.style.display = selectedEmoji ? 'inline' : 'none';
-                    }
-                    
-                    saveState();
-                    generateFinalOutput();
-                });
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="w-3.5 h-3.5 rounded-full ring-1 ring-white/30 flex-shrink-0" style="background-color: ${game.badgeColor}"></span>
+                        <div>
+                            <span class="text-xs font-bold text-white block">${game.name}</span>
+                            <span class="text-[11px] text-slate-400 block">${game.description || (game.isCustom ? 'Juego personalizado' : 'Minijuego diario')}</span>
+                        </div>
+                    </div>
+                    <button type="button" data-game="${game.id}" class="btn-toggle-modal-game px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                        isSelected ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30' : 'bg-purple-600 hover:bg-purple-500 text-white'
+                    }">
+                        ${isSelected ? '✕ Quitar' : '+ Añadir'}
+                    </button>
+                `;
+                modalCatalogList.appendChild(item);
             });
-
-            generateFinalOutput();
         }
 
-        function removeGame(gameId) {
-            state.activeGames = state.activeGames.filter(id => id !== gameId);
-            state.radarGames = state.radarGames.filter(id => id !== gameId);
-            saveState();
+        function toggleGameInRoster(gameId) {
+            const idx = state.userSelectedGameIds.indexOf(gameId);
+            if (idx > -1) {
+                state.userSelectedGameIds.splice(idx, 1);
+                delete state.results[gameId];
+                state.radarSelectedIds = state.radarSelectedIds.filter(id => id !== gameId);
+            } else {
+                state.userSelectedGameIds.push(gameId);
+                if (!state.radarSelectedIds.includes(gameId) && state.radarSelectedIds.length < 20) {
+                    state.radarSelectedIds.push(gameId);
+                }
+            }
+            saveStateToStorage();
+            renderModalCatalogList(modalSearchInput.value);
             renderActiveGames();
-            updateRadarChart();
+            updateCountersUI();
         }
 
-        function addGame(gameId) {
-            if (!state.activeGames.includes(gameId)) {
-                state.activeGames.push(gameId);
-            }
-            if (!state.radarGames.includes(gameId) && state.radarGames.length < 20) {
-                state.radarGames.push(gameId);
-            }
-            saveState();
-            renderActiveGames();
-            updateRadarChart();
-            document.getElementById('catalog-modal').classList.add('hidden');
-            document.getElementById('catalog-modal').classList.remove('flex');
-        }
+        function createCustomGame() {
+            const gameId = 'custom_' + Date.now();
+            const defaultName = 'Nuevo Juego';
 
-        function generateFinalOutput() {
-            let output = `🎮 RESUMEN DIARIO - ${state.userName.toUpperCase()} 🎮\n\n`;
-
-            state.activeGames.forEach(gameId => {
-                const game = CATALOG[gameId];
-                const rawText = state.gameValues[gameId];
-                const emj = state.gameEmojis[gameId] || '';
-                
-                if (!game || !rawText || !rawText.trim()) return;
-
-                let sanitized = rawText.trim();
-                if (game.rules && typeof game.rules.sanitize === 'function') {
-                    sanitized = game.rules.sanitize(sanitized);
-                }
-
-                // Limpiar URLs de la imagen residual
-                sanitized = sanitized.replace(/https?:\/\/\S+/gi, '').trim();
-
-                let sub = '';
-                if (game.rules && typeof game.rules.getSubtitle === 'function') {
-                    sub = game.rules.getSubtitle(rawText);
-                }
-
-                let scoreStr = '';
-                if (game.rules && typeof game.rules.getScore === 'function') {
-                    scoreStr = game.rules.getScore(rawText);
-                }
-
-                // Aquí inyectamos el Emoji para el resumen
-                output += `${emj ? emj + ' ' : ''}${game.name} ${sub ? '· ' + sub : ''}\n`;
-                if (scoreStr) {
-                    output += `Puntuación: ${scoreStr}\n`;
-                }
-                output += `${sanitized}\n\n`;
-            });
-
-            document.getElementById('final-output').value = output.trim();
-        }
-
-        async function updateRadarChart() {
-            try {
-                const res = await fetch(`${GOOGLE_SCRIPT_URL}?jugador=${encodeURIComponent(state.userName)}`);
-                const data = await res.json();
-
-                const statsJugador = data.statsJugador || {};
-                const statsComunidad = data.statsComunidad || {};
-
-                const labels = [];
-                const playerScores = [];
-                const communityScores = [];
-
-                const gamesToRender = state.radarGames.length > 0 ? state.radarGames : state.activeGames;
-                document.getElementById('radar-count-badge').textContent = `${gamesToRender.length}/20 juegos`;
-
-                gamesToRender.forEach(gId => {
-                    const game = CATALOG[gId];
-                    if (!game) return;
-
-                    labels.push(game.name);
-                    
-                    const pVal = statsJugador[game.name] !== undefined ? parseFloat(statsJugador[game.name]) : 0;
-                    const cVal = statsComunidad[game.name] !== undefined ? parseFloat(statsComunidad[game.name]) : 0;
-
-                    playerScores.push(isNaN(pVal) ? 0 : pVal);
-                    communityScores.push(isNaN(cVal) ? 0 : cVal);
-                });
-
-                const ctx = document.getElementById('radarChart').getContext('2d');
-                if (radarChartInstance) {
-                    radarChartInstance.destroy();
-                }
-
-                radarChartInstance = new Chart(ctx, {
-                    type: 'radar',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Comunidad',
-                                data: communityScores,
-                                backgroundColor: 'rgba(147, 51, 234, 0.2)',
-                                borderColor: 'rgba(147, 51, 234, 0.8)',
-                                pointBackgroundColor: 'rgba(147, 51, 234, 1)',
-                                borderWidth: 2
-                            },
-                            {
-                                label: state.userName,
-                                data: playerScores,
-                                backgroundColor: 'rgba(234, 179, 8, 0.1)',
-                                borderColor: 'rgba(234, 179, 8, 0.9)',
-                                pointBackgroundColor: 'rgba(234, 179, 8, 1)',
-                                borderWidth: 2.5
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            r: {
-                                angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                                pointLabels: {
-                                    font: { family: '"Plus Jakarta Sans"', size: 11, weight: 'bold' },
-                                    color: '#cbd5e1'
-                                },
-                                ticks: {
-                                    backdropColor: 'transparent',
-                                    color: '#94a3b8',
-                                    font: { size: 9 },
-                                    max: 100,
-                                    min: 0
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                labels: { color: '#f8fafc', font: { family: '"Plus Jakarta Sans"', size: 12 } }
-                            }
-                        }
-                    }
-                });
-
-            } catch (err) {
-                console.error("Error cargando datos del radar:", err);
-            }
-        }
-
-        async function syncToSheets() {
-            const payload = {
-                jugador: state.userName,
-                avatar: state.avatar,
-                juegos: {}
+            const newGame = {
+                id: gameId,
+                name: defaultName,
+                isCustom: true,
+                badgeColor: '#ffffff',
+                pattern: new RegExp(defaultName, 'i'),
+                sample: `${defaultName} #1\n¡Resultado completado con éxito!`
             };
 
-            // Solo enviamos al excel puntuaciones puras, los emojis quedan en el texto
-            state.activeGames.forEach(gId => {
-                const game = CATALOG[gId];
-                const rawText = state.gameValues[gId];
-                if (game && game.rules && typeof game.rules.getExportScore === 'function' && rawText && rawText.trim()) {
-                    payload.juegos[game.name] = game.rules.getExportScore(rawText);
+            state.customGames[gameId] = newGame;
+            state.userSelectedGameIds.push(gameId);
+            if (state.radarSelectedIds.length < 20) {
+                state.radarSelectedIds.push(gameId);
+            }
+            saveStateToStorage();
+
+            closeCatalogModal();
+            renderActiveGames();
+
+            setTimeout(() => {
+                const nameInput = document.getElementById(`name-input-${gameId}`);
+                if (nameInput) {
+                    nameInput.focus();
+                    nameInput.select();
+                }
+            }, 80);
+
+            showToast('Nuevo juego añadido. Escribe su nombre.', '✨');
+        }
+
+        // --- GESTIÓN MODAL SELECCIÓN RADAR (MÁX 20) ---
+        function openRadarModal() {
+            renderRadarCheckboxes();
+            radarModal.classList.remove('hidden');
+            requestAnimationFrame(() => radarModal.classList.remove('opacity-0'));
+        }
+
+        function closeRadarModal() {
+            radarModal.classList.add('opacity-0');
+            setTimeout(() => { radarModal.classList.add('hidden'); }, 200);
+        }
+
+        function renderRadarCheckboxes() {
+            radarCheckboxesContainer.innerHTML = '';
+            const activeIds = state.userSelectedGameIds;
+
+            if (activeIds.length === 0) {
+                radarCheckboxesContainer.innerHTML = `
+                    <div class="p-6 text-center text-slate-500 text-xs">
+                        Primero debes añadir minijuegos a tu plantilla en el panel izquierdo.
+                    </div>
+                `;
+                document.getElementById('radar-selection-counter').textContent = '0 / 20 seleccionados';
+                return;
+            }
+
+            activeIds.forEach(id => {
+                const game = getCombinedGameDefinition(id);
+                const isChecked = state.radarSelectedIds.includes(id);
+
+                const label = document.createElement('label');
+                label.className = `flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${
+                    isChecked ? 'bg-purple-950/40 border-purple-600/60' : 'bg-slate-950/60 border-purple-900/30 hover:border-purple-700/50'
+                }`;
+
+                label.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="w-3.5 h-3.5 rounded-full ring-1 ring-white/30 flex-shrink-0" style="background-color: ${game.badgeColor}"></span>
+                        <span class="text-xs font-bold text-white">${game.name}</span>
+                    </div>
+                    <input type="checkbox" value="${id}" ${isChecked ? 'checked' : ''} class="radar-game-checkbox w-4 h-4 accent-purple-600 rounded cursor-pointer">
+                `;
+                radarCheckboxesContainer.appendChild(label);
+            });
+
+            updateRadarModalCounter();
+        }
+
+        function updateRadarModalCounter() {
+            const checkedCount = radarCheckboxesContainer.querySelectorAll('.radar-game-checkbox:checked').length;
+            const counterElem = document.getElementById('radar-selection-counter');
+            if (counterElem) {
+                counterElem.textContent = `${checkedCount} / 20 seleccionados`;
+            }
+        }
+
+        function sanitizeGameText(gameId, text) {
+            if (!text) return '';
+            let cleaned = text.replace(/[\u200B-\u200D\uFEFF]/g, '');
+            cleaned = cleaned.replace(/https?:\/\/\S+/gi, '').replace(/www\.\S+/gi, '');
+
+            const gameDef = getCombinedGameDefinition(gameId);
+            if (gameDef && gameDef.rules && typeof gameDef.rules.sanitize === 'function') {
+                cleaned = gameDef.rules.sanitize(cleaned);
+            } else if (gameId === 'geoguessr') {
+                const lines = cleaned.split('\n');
+                cleaned = lines.map(line => line.replace(/^(\s*\d+\.\s*)([^:]+)(:\s*.*)$/, '$1📍$3')).join('\n');
+            }
+
+            const lines = cleaned.split('\n').map(l => l.trimEnd());
+            while (lines.length > 0 && lines[0].trim() === '') lines.shift();
+            while (lines.length > 0 && lines[lines.length - 1].trim() === '') lines.pop();
+            return lines.join('\n');
+        }
+
+        function parseAndSetGameResult(gameId, rawText) {
+            const cleanedText = sanitizeGameText(gameId, rawText);
+            if (!cleanedText || !cleanedText.trim()) {
+                delete state.results[gameId];
+                updateCountersUI();
+                return;
+            }
+
+            const gameDef = getCombinedGameDefinition(gameId);
+            let edition = '';
+            let score = '';
+            let exportScore = '';
+
+            if (gameDef.rules && typeof gameDef.rules.getSubtitle === 'function') {
+                edition = gameDef.rules.getSubtitle(cleanedText);
+            } else if (gameId === 'geoguessr') {
+                const lastCommaIdx = cleanedText.lastIndexOf(',');
+                if (lastCommaIdx !== -1) edition = cleanedText.substring(lastCommaIdx + 1).trim();
+            } else {
+                const edNumberMatch = cleanedText.match(/(?:#|\/\s*)(\d+)/);
+                const edDateMatch = cleanedText.match(/([A-Z][a-z]+\s+\d{1,2})/i);
+                if (edNumberMatch && edNumberMatch[1]) edition = `#${edNumberMatch[1]}`;
+                else if (edDateMatch && edDateMatch[1]) edition = edDateMatch[1];
+            }
+
+            // Reglas específicas adaptadas para cada juego
+            if (gameId === 'crissle') {
+                const timeMatch = cleanedText.match(/(?:⏱|tiempo)?\s*(\d{2}):(\d{2})/i) || cleanedText.match(/(\d{2}):(\d{2})/);
+                if (timeMatch) {
+                    const mins = parseInt(timeMatch[1], 10);
+                    const secs = parseInt(timeMatch[2], 10);
+                    let totalSecs = mins * 60 + secs;
+                    if (totalSecs > 120) totalSecs = 120;
+                    score = `${timeMatch[1]}:${timeMatch[2]}`;
+                    exportScore = totalSecs.toString();
                 } else {
-                    payload.juegos[game.name] = 0;
+                    score = 'Completado';
+                    exportScore = '120';
+                }
+            } else if (gameId === 'zanagramas') {
+                const timeMatch = cleanedText.match(/(?:tiempo|resuelto en)[:\s]*(\d{2}):(\d{2})/i) || cleanedText.match(/(\d{2}):(\d{2})/);
+                if (timeMatch) {
+                    const mins = parseInt(timeMatch[1], 10);
+                    const secs = parseInt(timeMatch[2], 10);
+                    let totalSecs = mins * 60 + secs;
+                    if (totalSecs > 300) totalSecs = 300;
+                    score = `${timeMatch[1]}:${timeMatch[2]}`;
+                    exportScore = totalSecs.toString();
+                } else {
+                    score = 'Completado';
+                    exportScore = '300';
+                }
+            } else if (gameId === 'krillion') {
+                const ptsMatch = cleanedText.match(/([\d,.]+)\s*pts/i);
+                if (ptsMatch) {
+                    score = `${ptsMatch[1]} pts`;
+                    exportScore = ptsMatch[1].replace(/[,.]/g, '');
+                } else {
+                    score = 'Completado';
+                    exportScore = '0';
+                }
+            } else if (gameId === 'catfishing') {
+                const match = cleanedText.match(/([\d.,]+)\s*\/\s*10/i);
+                if (match) {
+                    let valStr = match[1].replace('.', ',');
+                    score = `${valStr}/10`;
+                    let cleanNum = match[1].replace(',', '.');
+                    let num = parseFloat(cleanNum);
+                    if (!isNaN(num)) {
+                        exportScore = num.toString().replace('.', ',');
+                    } else {
+                        exportScore = match[1].replace('.', ',');
+                    }
+                } else {
+                    score = 'Completado';
+                    exportScore = '0';
+                }
+            } else if (gameId === 'framed') {
+                const gridMatch = cleanedText.match(/[🟩⬛🟥🟨⬜]/g);
+                if (gridMatch) {
+                    const greenIdx = gridMatch.indexOf('🟩');
+                    if (greenIdx !== -1) {
+                        const attemptNum = greenIdx + 1;
+                        score = `${attemptNum}/6`;
+                        exportScore = attemptNum.toString();
+                    } else {
+                        score = 'X/6';
+                        exportScore = '7';
+                    }
+                } else {
+                    score = 'Completado';
+                    exportScore = '7';
+                }
+            } else if (gameDef.rules && typeof gameDef.rules.getScore === 'function') {
+                score = gameDef.rules.getScore(cleanedText);
+            } else {
+                const scoreMatch = cleanedText.match(/Total\s*:\s*([\d,.]+\s*pts)/i) ||
+                                   cleanedText.match(/Overall\s*Score\s*([\d,.]+)/i) ||
+                                   cleanedText.match(/(?:Final\s*score|Score)\s*[:/]?\s*([\d,.]+)/i) || 
+                                   cleanedText.match(/(\d[\d,.]*\s*PTS(?:\s*·\s*\d+)?)/i) || 
+                                   cleanedText.match(/([\d,.]+\s*pts)/i) || 
+                                   cleanedText.match(/([X\d]\/\d+)/i) || 
+                                   cleanedText.match(/(\d+:\d+)/);
+
+                if (scoreMatch) {
+                    score = scoreMatch[1] || scoreMatch[0];
+                    if (!score.toLowerCase().includes('pts') && !score.includes('/') && !isNaN(score.replace(/,/g, ''))) {
+                        score = `${score} pts`;
+                    }
+                } else {
+                    score = 'Completado';
+                }
+            }
+
+            if (!exportScore) {
+                if (gameDef.rules && typeof gameDef.rules.getExportScore === 'function') {
+                    exportScore = gameDef.rules.getExportScore(cleanedText);
+                } else {
+                    let cleanedScore = score.replace(/pts/gi, '').trim();
+                    if (/^[\d.,]+$/.test(cleanedScore)) {
+                        exportScore = cleanedScore.replace(/[,.]/g, '');
+                    } else if (cleanedScore.match(/^([X\d])\/\d+$/i)) {
+                        const val = cleanedScore.match(/^([X\d])\/\d+$/i)[1];
+                        exportScore = val.toUpperCase() === 'X' ? '7' : val;
+                    } else {
+                        exportScore = cleanedScore;
+                    }
+                }
+            }
+
+            const lines = cleanedText.split('\n').map(line => line.trim()).filter(line => {
+                if (!line) return false;
+                if (line.toLowerCase() === gameDef.name.toLowerCase()) return false;
+                return true;
+            });
+
+            const recordKey = `${getGamingDateString()}_${gameId}`;
+            if (!state.recordedGameKeys[recordKey]) {
+                state.recordedGameKeys[recordKey] = true;
+                state.lifetimeGamesCount = (state.lifetimeGamesCount || 0) + 1;
+            }
+
+            state.results[gameId] = {
+                id: gameId,
+                name: gameDef.name,
+                badgeColor: gameDef.badgeColor || '#ffffff',
+                edition: edition || 'Diario',
+                score: score,
+                exportScore: exportScore,
+                rawText: cleanedText,
+                displayLines: lines.length > 0 ? lines : [cleanedText.substring(0, 40)]
+            };
+
+            updateCountersUI();
+        }
+
+        function processSmartPaste() {
+            const raw = smartPasteBox.value.trim();
+            if (!raw) {
+                showToast('Pega texto en el área primero', '⚠️');
+                return;
+            }
+
+            const allCatalog = { ...CATALOG, ...state.customGames };
+            const matches = [];
+
+            Object.keys(allCatalog).forEach(id => {
+                const game = allCatalog[id];
+                if (game.pattern) {
+                    const match = raw.match(game.pattern);
+                    if (match && match.index !== undefined) {
+                        matches.push({ id, index: match.index });
+                    }
                 }
             });
 
+            if (matches.length === 0) {
+                showToast('No se identificó ningún juego del catálogo.', '💡');
+                return;
+            }
+
+            matches.sort((a, b) => a.index - b.index);
+
+            let matchedCount = 0;
+            for (let i = 0; i < matches.length; i++) {
+                const gameId = matches[i].id;
+                const start = matches[i].index;
+                const end = (i + 1 < matches.length) ? matches[i + 1].index : raw.length;
+                const segment = raw.substring(start, end).trim();
+
+                if (!state.userSelectedGameIds.includes(gameId)) {
+                    state.userSelectedGameIds.push(gameId);
+                    if (!state.radarSelectedIds.includes(gameId) && state.radarSelectedIds.length < 20) {
+                        state.radarSelectedIds.push(gameId);
+                    }
+                }
+
+                const cleaned = sanitizeGameText(gameId, segment);
+                if (cleaned) {
+                    parseAndSetGameResult(gameId, cleaned);
+                    matchedCount++;
+                }
+            }
+
+            if (matchedCount > 0) {
+                smartPasteBox.value = '';
+                saveStateToStorage();
+                renderActiveGames();
+                updateCanvas();
+                showToast(`Se han procesado ${matchedCount} juego(s) sin URLs`, '🎉');
+            }
+        }
+
+        async function sendResultsToGoogleSheet(quiet = false) {
+            const activeResults = Object.values(state.results);
+            if (activeResults.length === 0) {
+                if (!quiet) showToast('Añade al menos un resultado antes de enviar', '⚠️');
+                return false;
+            }
+
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT' || !GOOGLE_SCRIPT_URL.startsWith('http')) {
+                if (!quiet) showToast('Falta configurar la URL de Apps Script', '⚠️');
+                return false;
+            }
+
+            const btnSync = document.getElementById('btn-sync-sheets');
+            const btnText = document.getElementById('btn-sync-sheets-text');
+            if (btnSync && btnText) {
+                btnSync.disabled = true;
+                btnText.textContent = 'Enviando a Sheets...';
+            }
+
             try {
-                const btn = document.getElementById('process-btn');
-                btn.textContent = 'Enviando...';
+                const payload = {
+                    date: state.date,
+                    userName: state.userName || 'Anónimo',
+                    results: activeResults.map(r => ({
+                        id: r.id,
+                        name: r.name,
+                        edition: r.edition,
+                        score: r.exportScore !== undefined ? r.exportScore : r.score
+                    }))
+                };
+
                 await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
-                
-                // Si todo va bien, borramos los datos para el día siguiente
-                state.gameValues = {};
-                state.gameEmojis = {};
-                saveState();
-                renderActiveGames();
 
-                btn.textContent = '✓ Procesado';
-                setTimeout(() => { btn.innerHTML = `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg><span>Procesar Todo</span>`; }, 2500);
-                updateRadarChart();
-            } catch(e) {
-                alert('Error al sincronizar con Google Sheets.');
-                document.getElementById('process-btn').textContent = 'Error';
+                showToast(`¡${activeResults.length} juego(s) guardados en Google Sheets!`, '📊');
+                setTimeout(() => fetchStatsFromGoogle(state.userName), 1500);
+                return true;
+
+            } catch (error) {
+                console.error('Error al sincronizar con Google Sheets:', error);
+                if (!quiet) showToast('No se pudo enviar a Google Sheets', '❌');
+                return false;
+            } finally {
+                if (btnSync && btnText) {
+                    btnSync.disabled = false;
+                    btnText.textContent = 'Guardar en Google Sheets';
+                }
             }
         }
 
-        // Eventos y Modales
-        document.addEventListener('DOMContentLoaded', () => {
-            loadState();
-            updateHeaderUI();
-            renderActiveGames();
-            updateRadarChart();
+        function clearAll() {
+            state.results = {};
+            state.userSelectedGameIds.forEach(id => {
+                const textarea = document.getElementById(`input-${id}`);
+                if (textarea) textarea.value = '';
+            });
+            smartPasteBox.value = '';
+            saveStateToStorage();
+            updateCountersUI();
+            updateCanvas();
+            showToast('Resultados del día limpiados', '🗑️');
+        }
 
-            // Easter Egg Logic
-            const easterBtn = document.getElementById('easter-egg-btn');
-            const easterOverlay = document.getElementById('easter-egg-overlay');
-            const easterAudio = document.getElementById('easter-egg-audio');
+        function updateAvatarUI() {
+            const initial = (state.userName || 'U').charAt(0).toUpperCase();
+            avatarInitialText.textContent = initial;
 
-            easterBtn.addEventListener('click', () => {
-                easterOverlay.classList.remove('hidden');
-                easterOverlay.classList.add('flex');
-                easterAudio.currentTime = 0;
-                easterAudio.play().catch(e => console.log("Audio play blocked", e));
+            if (state.avatarUrl) {
+                avatarImgPreview.src = state.avatarUrl;
+                avatarImgPreview.classList.remove('hidden');
+                avatarInitialText.classList.add('hidden');
+                btnRemoveAvatar.classList.remove('hidden');
+            } else {
+                avatarImgPreview.src = '';
+                avatarImgPreview.classList.add('hidden');
+                avatarInitialText.classList.remove('hidden');
+                btnRemoveAvatar.classList.add('hidden');
+            }
+        }
 
-                setTimeout(() => {
-                    easterOverlay.classList.add('hidden');
-                    easterOverlay.classList.remove('flex');
-                    easterAudio.pause();
-                }, 3000);
+        function preloadAvatarAndUpdateCanvas() {
+            if (!state.avatarUrl) {
+                loadedAvatarImage = null;
+                updateCanvas();
+                return;
+            }
+
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => { loadedAvatarImage = img; updateCanvas(); };
+            img.onerror = () => { loadedAvatarImage = null; updateCanvas(); };
+            img.src = state.avatarUrl;
+        }
+
+        function updateCountersUI() {
+            const todayCount = Object.keys(state.results).length;
+            const todayCounterElem = document.getElementById('counter-today');
+            const lifetimeCounterElem = document.getElementById('counter-lifetime');
+
+            if (todayCounterElem) todayCounterElem.textContent = todayCount;
+            if (lifetimeCounterElem) lifetimeCounterElem.textContent = state.lifetimeGamesCount;
+        }
+
+        function setupEventListeners() {
+            userNameInput.addEventListener('input', (e) => {
+                state.userName = e.target.value || 'Usuario desconocido';
+                updateAvatarUI();
+                saveStateToStorage();
+                updateCanvas();
+
+                clearTimeout(radarFetchTimeout);
+                if (state.userName && state.userName !== 'Usuario desconocido') {
+                    radarFetchTimeout = setTimeout(() => {
+                        fetchStatsFromGoogle(state.userName);
+                    }, 1000);
+                }
             });
 
-            // Config Modal
-            document.getElementById('config-btn').addEventListener('click', () => {
-                document.getElementById('config-name-input').value = state.userName;
-                document.getElementById('config-avatar-input').value = state.avatar.startsWith('data:') ? '' : state.avatar;
-                document.getElementById('config-modal').classList.remove('hidden');
-                document.getElementById('config-modal').classList.add('flex');
-            });
-            document.getElementById('close-config-modal').addEventListener('click', () => {
-                document.getElementById('config-modal').classList.add('hidden');
-                document.getElementById('config-modal').classList.remove('flex');
-            });
-            document.getElementById('save-config-btn').addEventListener('click', () => {
-                const name = document.getElementById('config-name-input').value.trim();
-                const av = document.getElementById('config-avatar-input').value.trim();
-                if (name) state.userName = name;
-                if (av) state.avatar = av;
-                saveState();
-                updateHeaderUI();
-                document.getElementById('config-modal').classList.add('hidden');
-                document.getElementById('config-modal').classList.remove('flex');
-                updateRadarChart();
-            });
-
-            document.getElementById('avatar-file-input').addEventListener('change', (e) => {
+            document.getElementById('btn-upload-avatar').addEventListener('click', () => avatarFileInput.click());
+            avatarFileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(evt) {
-                        state.avatar = evt.target.result;
-                        saveState();
-                        updateHeaderUI();
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const tempImg = new Image();
+                    tempImg.onload = () => {
+                        const offCanvas = document.createElement('canvas');
+                        offCanvas.width = 180;
+                        offCanvas.height = 180;
+                        const offCtx = offCanvas.getContext('2d');
+                        const minDim = Math.min(tempImg.width, tempImg.height);
+                        const sx = (tempImg.width - minDim) / 2;
+                        const sy = (tempImg.height - minDim) / 2;
+                        offCtx.drawImage(tempImg, sx, sy, minDim, minDim, 0, 0, 180, 180);
+
+                        state.avatarUrl = offCanvas.toDataURL('image/jpeg', 0.85);
+                        updateAvatarUI();
+                        saveStateToStorage();
+                        preloadAvatarAndUpdateCanvas();
+                        showToast('¡Avatar actualizado!', '🖼️');
                     };
-                    reader.readAsDataURL(file);
-                }
+                    tempImg.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
             });
 
-            // Add Game Modal
-            document.getElementById('add-game-btn').addEventListener('click', () => {
-                const list = document.getElementById('catalog-modal-list');
-                list.innerHTML = '';
-                Object.values(CATALOG).forEach(game => {
-                    const isAdded = state.activeGames.includes(game.id);
-                    const div = document.createElement('div');
-                    div.className = 'bg-slate-950/60 border border-purple-900/40 rounded-xl p-3 flex items-center justify-between gap-3 hover:border-purple-500/50 transition';
-                    div.innerHTML = `
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-3 h-3 rounded-full" style="background-color: ${game.badgeColor}"></span>
-                            <span class="font-bold text-xs text-white">${game.name}</span>
-                        </div>
-                        <button onclick="addGame('${game.id}')" class="px-3 py-1 rounded-lg ${isAdded ? 'bg-slate-800 text-slate-400' : 'bg-purple-600 hover:bg-purple-500 text-white'} text-xs font-semibold transition">
-                            ${isAdded ? 'Añadido' : '+ Añadir'}
-                        </button>
-                    `;
-                    list.appendChild(div);
-                });
-                document.getElementById('catalog-modal').classList.remove('hidden');
-                document.getElementById('catalog-modal').classList.add('flex');
-            });
-            document.getElementById('close-catalog-modal').addEventListener('click', () => {
-                document.getElementById('catalog-modal').classList.add('hidden');
-                document.getElementById('catalog-modal').classList.remove('flex');
+            btnRemoveAvatar.addEventListener('click', () => {
+                state.avatarUrl = null;
+                loadedAvatarImage = null;
+                updateAvatarUI();
+                saveStateToStorage();
+                updateCanvas();
+                showToast('Avatar restablecido', '🗑️');
             });
 
-            // Radar Games Modal
-            document.getElementById('select-radar-games-btn').addEventListener('click', () => {
-                const list = document.getElementById('radar-modal-list');
-                list.innerHTML = '';
-                Object.values(CATALOG).forEach(game => {
-                    const isChecked = state.radarGames.includes(game.id);
-                    const div = document.createElement('label');
-                    div.className = 'flex items-center justify-between p-2.5 rounded-xl bg-slate-950/60 border border-purple-900/40 hover:border-purple-500/50 cursor-pointer transition';
-                    div.innerHTML = `
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-3 h-3 rounded-full" style="background-color: ${game.badgeColor}"></span>
-                            <span class="font-bold text-xs text-white">${game.name}</span>
-                        </div>
-                        <input type="checkbox" value="${game.id}" class="radar-checkbox w-4 h-4 accent-purple-600 rounded" ${isChecked ? 'checked' : ''}>
-                    `;
-                    list.appendChild(div);
+            dateInput.addEventListener('change', (e) => {
+                state.date = e.target.value;
+                saveStateToStorage();
+                updateCanvas();
+            });
+
+            document.getElementById('btn-open-catalog-modal').addEventListener('click', openCatalogModal);
+            document.getElementById('btn-empty-state-add').addEventListener('click', openCatalogModal);
+            document.getElementById('btn-close-modal').addEventListener('click', closeCatalogModal);
+            document.getElementById('btn-modal-done').addEventListener('click', closeCatalogModal);
+            document.getElementById('btn-create-custom-inside-modal').addEventListener('click', createCustomGame);
+
+            modalSearchInput.addEventListener('input', (e) => { renderModalCatalogList(e.target.value); });
+            modalCatalogList.addEventListener('click', (e) => {
+                const btn = e.target.closest('.btn-toggle-modal-game');
+                if (btn) toggleGameInRoster(btn.dataset.game);
+            });
+
+            document.getElementById('btn-open-radar-selector').addEventListener('click', openRadarModal);
+            document.getElementById('btn-close-radar-modal').addEventListener('click', closeRadarModal);
+            document.getElementById('btn-radar-modal-done').addEventListener('click', () => {
+                const checkboxes = radarCheckboxesContainer.querySelectorAll('.radar-game-checkbox');
+                const selected = [];
+                checkboxes.forEach(cb => {
+                    if (cb.checked) selected.push(cb.value);
                 });
-                document.getElementById('radar-modal').classList.remove('hidden');
-                document.getElementById('radar-modal').classList.add('flex');
-            });
-            document.getElementById('close-radar-modal').addEventListener('click', () => {
-                document.getElementById('radar-modal').classList.add('hidden');
-                document.getElementById('radar-modal').classList.remove('flex');
-            });
-            document.getElementById('save-radar-selection').addEventListener('click', () => {
-                const checkboxes = document.querySelectorAll('.radar-checkbox:checked');
-                if (checkboxes.length > 20) {
-                    alert('Puedes seleccionar un máximo de 20 juegos para el gráfico radar.');
-                    return;
-                }
-                state.radarGames = Array.from(checkboxes).map(cb => cb.value);
-                saveState();
+                state.radarSelectedIds = selected;
+                saveStateToStorage();
+                closeRadarModal();
                 updateRadarChart();
-                document.getElementById('radar-modal').classList.add('hidden');
-                document.getElementById('radar-modal').classList.remove('flex');
+                showToast('Gráfico radar actualizado', '📊');
             });
 
-            document.getElementById('refresh-radar-btn').addEventListener('click', updateRadarChart);
-            
-            // Botón de procesar ahora se enlaza aquí
-            document.getElementById('process-btn').addEventListener('click', syncToSheets);
-            
-            document.getElementById('clear-results-btn').addEventListener('click', () => {
-                if (confirm('¿Estás seguro de limpiar todos los resultados actuales?')) {
-                    state.gameValues = {};
-                    state.gameEmojis = {};
-                    saveState();
-                    renderActiveGames();
+            radarCheckboxesContainer.addEventListener('change', (e) => {
+                if (e.target.classList.contains('radar-game-checkbox')) {
+                    const checkedCount = radarCheckboxesContainer.querySelectorAll('.radar-game-checkbox:checked').length;
+                    if (checkedCount > 20) {
+                        e.target.checked = false;
+                        showToast('Máximo 20 juegos permitidos en el radar', '⚠️');
+                    }
+                    updateRadarModalCounter();
                 }
             });
 
-            document.getElementById('copy-result-btn').addEventListener('click', () => {
-                const ta = document.getElementById('final-output');
-                ta.select();
-                navigator.clipboard.writeText(ta.value);
-                const btn = document.getElementById('copy-result-btn');
-                btn.textContent = '✓ ¡Copiado!';
-                setTimeout(() => { btn.innerHTML = `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg><span>Copiar Resultado</span>`; }, 2000);
+            gamesContainer.addEventListener('input', (e) => {
+                if (e.target.classList.contains('custom-game-name-input')) {
+                    const gameId = e.target.dataset.game;
+                    const newName = e.target.value.trim() || 'Juego';
+                    if (state.customGames[gameId]) {
+                        state.customGames[gameId].name = newName;
+                        state.customGames[gameId].pattern = new RegExp(newName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+                    }
+                    if (state.results[gameId]) state.results[gameId].name = newName;
+                    saveStateToStorage();
+                    updateCanvas();
+                } else if (e.target.classList.contains('game-textarea')) {
+                    const gameId = e.target.dataset.game;
+                    parseAndSetGameResult(gameId, e.target.value);
+                    saveStateToStorage();
+                    updateCanvas();
+                }
             });
-        });
+
+            gamesContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('btn-clear-game')) {
+                    const gameId = e.target.dataset.game;
+                    const textarea = document.getElementById(`input-${gameId}`);
+                    if (textarea) textarea.value = '';
+                    delete state.results[gameId];
+                    saveStateToStorage();
+                    updateCountersUI();
+                    updateCanvas();
+                } else if (e.target.classList.contains('btn-remove-from-roster')) {
+                    const gameId = e.target.dataset.game;
+                    state.userSelectedGameIds = state.userSelectedGameIds.filter(id => id !== gameId);
+                    delete state.results[gameId];
+                    state.radarSelectedIds = state.radarSelectedIds.filter(id => id !== gameId);
+                    if (state.customGames[gameId]) delete state.customGames[gameId];
+                    saveStateToStorage();
+                    renderActiveGames();
+                    updateCountersUI();
+                    showToast('Juego quitado de tu plantilla', '🗑️');
+                }
+            });
+
+            document.getElementById('btn-process-smart').addEventListener('click', processSmartPaste);
+            document.getElementById('btn-clear-all').addEventListener('click', clearAll);
+
+            document.getElementById('btn-download').addEventListener('click', () => {
+                downloadCanvasImage();
+                sendResultsToGoogleSheet(true);
+            });
+            document.getElementById('btn-copy').addEventListener('click', () => {
+                copyCanvasImage();
+                sendResultsToGoogleSheet(true);
+            });
+            document.getElementById('btn-sync-sheets').addEventListener('click', () => {
+                sendResultsToGoogleSheet(false);
+            });
+            document.getElementById('btn-share').addEventListener('click', shareCanvasImage);
+        }
+
+        // =========================================================================
+        // LÓGICA DEL GRÁFICO RADAR (CHART.JS - MÁX 20 JUEGOS)
+        // =========================================================================
+        
+        function initRadarChart() {
+            const ctxRadar = document.getElementById('radar-chart').getContext('2d');
+            
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.font.family = '"Plus Jakarta Sans", sans-serif';
+            
+            radarChartInstance = new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Comunidad',
+                            data: [],
+                            backgroundColor: 'rgba(168, 85, 247, 0.3)',
+                            borderColor: 'rgba(168, 85, 247, 0.8)',
+                            borderWidth: 1.5,
+                            pointBackgroundColor: '#a855f7',
+                            pointBorderColor: '#1e293b',
+                            pointRadius: 3,
+                            fill: true,
+                            order: 2
+                        },
+                        {
+                            label: 'Tú',
+                            data: [],
+                            backgroundColor: 'transparent',
+                            borderColor: '#fbbf24',
+                            borderWidth: 2.5,
+                            pointBackgroundColor: '#1e293b',
+                            pointBorderColor: '#fbbf24',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            fill: false,
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 100,
+                            ticks: { display: false, stepSize: 20 },
+                            grid: { color: 'rgba(148, 163, 184, 0.15)', circular: true },
+                            angleLines: { color: 'rgba(148, 163, 184, 0.15)' },
+                            pointLabels: {
+                                color: '#cbd5e1',
+                                font: { size: 10, weight: '600' }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                color: '#e2e8f0',
+                                font: { size: 11, weight: '600' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#cbd5e1',
+                            borderColor: 'rgba(168, 85, 247, 0.3)',
+                            borderWidth: 1,
+                            padding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.dataset.label}: ${context.raw || 0}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function fetchStatsFromGoogle(playerName) {
+            if (!GOOGLE_SCRIPT_URL || !GOOGLE_SCRIPT_URL.startsWith('http')) return;
+            
+            const loadingIndicator = document.getElementById('radar-loading');
+            loadingIndicator.classList.remove('hidden');
+
+            try {
+                const url = `${GOOGLE_SCRIPT_URL}?jugador=${encodeURIComponent(playerName)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data && data.statsJugador && data.statsComunidad) {
+                    fetchedStats = data;
+                    updateRadarChart();
+                }
+            } catch (error) {
+                console.error("Error al obtener estadísticas para el radar:", error);
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        function updateRadarChart() {
+            if (!radarChartInstance) return;
+
+            const emptyState = document.getElementById('radar-empty-state');
+            const radarIds = (state.radarSelectedIds && state.radarSelectedIds.length > 0) 
+                ? state.radarSelectedIds.slice(0, 20) 
+                : state.userSelectedGameIds.slice(0, 20);
+
+            if (radarIds.length < 3) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+
+            const labels = [];
+            const dataComunidad = [];
+            const dataJugador = [];
+
+            radarIds.forEach(gameId => {
+                const gameDef = getCombinedGameDefinition(gameId);
+                labels.push(gameDef.name);
+
+                let pctJugador = 0;
+                let pctComunidad = 0;
+
+                if (fetchedStats.statsJugador) {
+                    const key = Object.keys(fetchedStats.statsJugador).find(k => k.toLowerCase() === gameId.toLowerCase() || k.toLowerCase() === gameDef.name.toLowerCase());
+                    if (key && !isNaN(parseFloat(fetchedStats.statsJugador[key]))) {
+                        pctJugador = parseFloat(fetchedStats.statsJugador[key]);
+                    }
+                }
+
+                if (fetchedStats.statsComunidad) {
+                    const key = Object.keys(fetchedStats.statsComunidad).find(k => k.toLowerCase() === gameId.toLowerCase() || k.toLowerCase() === gameDef.name.toLowerCase());
+                    if (key && !isNaN(parseFloat(fetchedStats.statsComunidad[key]))) {
+                        pctComunidad = parseFloat(fetchedStats.statsComunidad[key]);
+                    }
+                }
+
+                dataJugador.push(pctJugador);
+                dataComunidad.push(pctComunidad);
+            });
+
+            radarChartInstance.data.labels = labels;
+            radarChartInstance.data.datasets[0].data = dataComunidad;
+            radarChartInstance.data.datasets[1].data = dataJugador;
+            
+            radarChartInstance.update();
+        }
+
+        function wrapTextLines(ctx, text, maxWidth) {
+            if (!text) return [''];
+            if (ctx.measureText(text).width <= maxWidth) return [text];
+
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = '';
+
+            for (let word of words) {
+                const testLine = currentLine ? currentLine + ' ' + word : word;
+                if (ctx.measureText(testLine).width <= maxWidth) {
+                    currentLine = testLine;
+                } else {
+                    if (currentLine) {
+                        lines.push(currentLine);
+                        currentLine = '';
+                    }
+                    if (ctx.measureText(word).width <= maxWidth) {
+                        currentLine = word;
+                    } else {
+                        let segment = '';
+                        const characters = Array.from(word);
+                        for (let ch of characters) {
+                            if (ctx.measureText(segment + ch).width <= maxWidth) {
+                                segment += ch;
+                            } else {
+                                if (segment) lines.push(segment);
+                                segment = ch;
+                            }
+                        }
+                        currentLine = segment;
+                    }
+                }
+            }
+            if (currentLine) lines.push(currentLine);
+            return lines;
+        }
+
+        function updateCanvas() {
+            if (!canvas) return;
+            const activeResults = Object.values(state.results);
+            const emptyState = document.getElementById('canvas-empty-state');
+
+            if (activeResults.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            const width = 1080;
+            const padding = 60;
+            const columnGap = 30;
+            const colWidth = (width - (padding * 2) - columnGap) / 2;
+            const cardInnerPadding = 24;
+            const maxTextWidth = colWidth - (cardInnerPadding * 2);
+            const lineHeight = 30;
+            const headerHeight = 85;
+
+            const measuredCards = activeResults.map(result => {
+                const wrappedLines = [];
+                result.displayLines.forEach(rawLine => {
+                    const hasEmojis = /(\p{Extended_Pictographic}|[🟩🟨⬛⬜🟪🟦🟫🟡🔴🟥🟧⚪⚫📍])/u.test(rawLine);
+                    ctx.save();
+                    if (hasEmojis) {
+                        ctx.font = '22px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+                    } else {
+                        ctx.font = '600 16px "Plus Jakarta Sans", sans-serif';
+                    }
+                    const wrapped = wrapTextLines(ctx, rawLine, maxTextWidth);
+                    wrappedLines.push(...wrapped);
+                    ctx.restore();
+                });
+
+                const contentHeight = Math.max(wrappedLines.length * lineHeight, lineHeight);
+                const cardHeight = headerHeight + contentHeight + 28;
+
+                return {
+                    result,
+                    wrappedLines,
+                    height: cardHeight
+                };
+            });
+
+            const avatarSize = 90;
+            const startY = padding + avatarSize + 40;
+            const colY = [startY, startY];
+
+            const cardPlacements = measuredCards.map(item => {
+                const col = colY[0] <= colY[1] ? 0 : 1;
+                const x = padding + (col * (colWidth + columnGap));
+                const y = colY[col];
+                colY[col] += item.height + 24;
+
+                return {
+                    ...item,
+                    x,
+                    y,
+                    width: colWidth
+                };
+            });
+
+            const cardsMaxY = activeResults.length === 0 ? startY + 200 : Math.max(...colY);
+            const height = Math.max(1400, cardsMaxY + 95);
+
+            canvas.width = width;
+            canvas.height = height;
+
+            if (loadedBgImage) {
+                ctx.fillStyle = '#18191c';
+                ctx.fillRect(0, 0, width, height);
+                const bgSourceHeight = loadedBgImage.naturalHeight || 1920;
+                const cropHeight = Math.min(height, bgSourceHeight);
+                ctx.drawImage(loadedBgImage, 0, 0, width, cropHeight, 0, 0, width, cropHeight);
+            } else {
+                const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
+                bgGradient.addColorStop(0, '#32353b');
+                bgGradient.addColorStop(0.3, '#2a2c32');
+                bgGradient.addColorStop(0.7, '#212328');
+                bgGradient.addColorStop(1, '#18191c');
+                ctx.fillStyle = bgGradient;
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            const avatarX = padding;
+            const avatarY = padding;
+            
+            if (loadedAvatarImage) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.drawImage(loadedAvatarImage, avatarX, avatarY, avatarSize, avatarSize);
+                ctx.restore();
+
+                ctx.save();
+                ctx.strokeStyle = '#a855f7';
+                ctx.lineWidth = 3.5;
+                ctx.beginPath();
+                ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+            } else {
+                drawRoundedRect(ctx, avatarX, avatarY, avatarSize, avatarSize, 26, '#7c3aed', true);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '800 40px "Plus Jakarta Sans", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const initial = (state.userName || 'U').charAt(0).toUpperCase();
+                ctx.fillText(initial, avatarX + avatarSize/2, avatarY + avatarSize/2);
+            }
+
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '800 44px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText(state.userName || 'Usuario desconocido', avatarX + avatarSize + 24, avatarY + 8);
+
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = '600 20px "Plus Jakarta Sans", sans-serif';
+            const formattedDate = new Date(state.date).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            ctx.fillText(formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1), avatarX + avatarSize + 24, avatarY + 56);
+
+            const todayCount = Object.keys(state.results).length;
+            const lifetimeCount = state.lifetimeGamesCount || 0;
+            const badgeY = avatarY + 48;
+            const badgeHeight = 34;
+
+            const lifetimeText = `🏆 Total: ${lifetimeCount}`;
+            ctx.font = 'bold 15px "Plus Jakarta Sans", sans-serif';
+            const lifetimeWidth = ctx.measureText(lifetimeText).width + 24;
+            const lifetimeX = width - padding - lifetimeWidth;
+
+            drawRoundedRect(ctx, lifetimeX, badgeY, lifetimeWidth, badgeHeight, 10, 'rgba(245, 158, 11, 0.16)', true, 'rgba(245, 158, 11, 0.50)');
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#fde68a';
+            ctx.fillText(lifetimeText, lifetimeX + (lifetimeWidth / 2), badgeY + (badgeHeight / 2));
+
+            const todayText = `⚡ Hoy: ${todayCount}`;
+            const todayWidth = ctx.measureText(todayText).width + 24;
+            const todayX = lifetimeX - todayWidth - 12;
+
+            drawRoundedRect(ctx, todayX, badgeY, todayWidth, badgeHeight, 10, 'rgba(168, 85, 247, 0.18)', true, 'rgba(168, 85, 247, 0.50)');
+            ctx.fillStyle = '#e9d5ff';
+            ctx.fillText(todayText, todayX + (todayWidth / 2), badgeY + (badgeHeight / 2));
+
+            const cardBg = 'rgba(28, 30, 36, 0.88)';
+            const cardBorder = 'rgba(168, 85, 247, 0.30)';
+
+            cardPlacements.forEach(item => {
+                const { result, wrappedLines, x, y, width: cWidth, height: cHeight } = item;
+
+                drawRoundedRect(ctx, x, y, cWidth, cHeight, 20, cardBg, true, cardBorder);
+                drawRoundedRect(ctx, x + 20, y + 20, 10, 34, 5, result.badgeColor, true);
+
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 22px "Plus Jakarta Sans", sans-serif';
+                ctx.fillText(result.name, x + 40, y + 20);
+
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '500 16px "Plus Jakarta Sans", sans-serif';
+                ctx.fillText(result.edition, x + 40, y + 46);
+
+                const scoreText = result.score;
+                ctx.font = 'bold 18px "Plus Jakarta Sans", sans-serif';
+                const scoreWidth = ctx.measureText(scoreText).width + 30;
+                drawRoundedRect(ctx, x + cWidth - scoreWidth - 20, y + 20, scoreWidth, 36, 12, 'rgba(255,255,255,0.12)', true);
+                
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(scoreText, x + cWidth - (scoreWidth/2) - 20, y + 26);
+
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+                ctx.beginPath();
+                ctx.moveTo(x + 20, y + 78);
+                ctx.lineTo(x + cWidth - 20, y + 78);
+                ctx.stroke();
+
+                ctx.textAlign = 'left';
+                let lineY = y + 98;
+
+                wrappedLines.forEach(line => {
+                    const hasEmojis = /(\p{Extended_Pictographic}|[🟩🟨⬛⬜🟪🟦🟫🟡🔴🟥🟧⚪⚫📍])/u.test(line);
+                    if (hasEmojis) {
+                        ctx.font = '22px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+                        ctx.fillStyle = '#ffffff';
+                    } else {
+                        ctx.font = '600 16px "Plus Jakarta Sans", sans-serif';
+                        ctx.fillStyle = '#f1f5f9';
+                    }
+                    ctx.fillText(line, x + 24, lineY);
+                    lineY += lineHeight;
+                });
+            });
+
+            const footerY = height - 45;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#cbd5e1';
+            ctx.font = '600 16px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('Generado con Diarias Discord · Amigos Delaware', width / 2, footerY);
+        }
+
+        function drawRoundedRect(ctx, x, y, width, height, radius, fillStyle, fill = true, strokeStyle = null) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.arcTo(x + width, y, x + width, y + height, radius);
+            ctx.arcTo(x + width, y + height, x, y + height, radius);
+            ctx.arcTo(x, y + height, x, y, radius);
+            ctx.arcTo(x, y, x + width, y, radius);
+            ctx.closePath();
+
+            if (fill && fillStyle) {
+                ctx.fillStyle = fillStyle;
+                ctx.fill();
+            }
+
+            if (strokeStyle) {
+                ctx.strokeStyle = strokeStyle;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function downloadCanvasImage() {
+            if (Object.keys(state.results).length === 0) {
+                showToast('Añade al menos un resultado antes de descargar', '⚠️');
+                return;
+            }
+            const link = document.createElement('a');
+            link.download = `diarias-discord-${state.date}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            showToast('¡Imagen descargada!', '💾');
+        }
+
+        async function copyCanvasImage() {
+            if (Object.keys(state.results).length === 0) {
+                showToast('Añade al menos un resultado antes de copiar', '⚠️');
+                return;
+            }
+            try {
+                canvas.toBlob(async (blob) => {
+                    const item = new ClipboardItem({ 'image/png': blob });
+                    await navigator.clipboard.write([item]);
+                    showToast('¡Imagen copiada al portapapeles!', '📋');
+                });
+            } catch (err) {
+                showToast('Error al copiar. Intenta descargarla.', '❌');
+            }
+        }
+
+        async function shareCanvasImage() {
+            if (Object.keys(state.results).length === 0) {
+                showToast('Añade al menos un resultado antes de compartir', '⚠️');
+                return;
+            }
+            try {
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], `diarias-${state.date}.png`, { type: 'image/png' });
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            title: 'Diarias Discord - Amigos Delaware',
+                            text: '¡Mis resultados de minijuegos de hoy!',
+                            files: [file]
+                        });
+                        showToast('Compartido con éxito', '🚀');
+                    } else {
+                        copyCanvasImage();
+                    }
+                });
+            } catch (err) {
+                showToast('No se pudo abrir el menú nativo de compartir', '⚠️');
+            }
+        }
+
+        function showToast(message, icon = '✨') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            document.getElementById('toast-icon').textContent = icon;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        window.onload = init;
     </script>
 </body>
 </html>
