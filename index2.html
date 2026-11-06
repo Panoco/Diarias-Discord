@@ -1735,12 +1735,17 @@
             ctx.fillText(todayText, todayX + (todayWidth / 2), badgeY + (badgeHeight / 2));
 
             const cardBg = 'rgba(28, 30, 36, 0.88)';
-            const cardBorder = 'rgba(168, 85, 247, 0.30)';
+            const defaultCardBorder = 'rgba(168, 85, 247, 0.30)';
+            const goldenCardBorder = 'rgba(251, 191, 36, 0.85)'; // Borde dorado más visible
 
             cardPlacements.forEach(item => {
                 const { result, wrappedLines, x, y, width: cWidth, height: cHeight } = item;
 
-                drawRoundedRect(ctx, x, y, cWidth, cHeight, 20, cardBg, true, cardBorder);
+                // Comprobar si tiene emoji asignado para cambiar el color del borde
+                const hasEmoji = Boolean(state.gameEmojis[result.id]);
+                const currentBorder = hasEmoji ? goldenCardBorder : defaultCardBorder;
+
+                drawRoundedRect(ctx, x, y, cWidth, cHeight, 20, cardBg, true, currentBorder);
                 drawRoundedRect(ctx, x + 20, y + 20, 10, 34, 5, result.badgeColor, true);
 
                 ctx.textAlign = 'left';
@@ -1784,15 +1789,13 @@
                     lineY += lineHeight;
                 });
 
-                // NUEVO: Dibujar el emoji grande flotando sobresaliendo de la esquina superior izquierda
-                const emj = state.gameEmojis[result.id];
-                if (emj) {
+                // Emoji grande flotando sobresaliendo de la esquina superior izquierda
+                if (hasEmoji) {
                     ctx.save();
                     ctx.font = '40px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    // Posicionado exactamente en la esquina superior izquierda del recuadro
-                    ctx.fillText(emj, x, y);
+                    ctx.fillText(state.gameEmojis[result.id], x, y);
                     ctx.restore();
                 }
             });
