@@ -218,12 +218,19 @@
                     </button>
                 </div>
 
-                <!-- Smart Auto Paste Input -->
-                <div class="relative">
-                    <textarea id="smart-paste-box" rows="3" placeholder="💡 ¡Pega aquí múltiples resultados de una vez y se procesarán automáticamente!" class="w-full bg-slate-950/80 border border-purple-500/40 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition resize-none placeholder-slate-500"></textarea>
-                    <button id="btn-process-smart" class="absolute bottom-3 right-3 px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-medium transition shadow-md">
-                        Procesar Todo
-                    </button>
+                <!-- Smart Auto Paste Input with Integrated Reaction Emoji Selector -->
+                <div class="space-y-2">
+                    <div class="relative flex items-stretch gap-2">
+                        <select id="smart-reaction-selector" class="w-16 bg-slate-950 border border-purple-500/40 rounded-xl text-center text-3xl cursor-pointer appearance-none outline-none focus:border-purple-500 transition shadow-inner" title="Elige reacción para el siguiente juego a procesar">
+                            <option value="">💬</option>
+                        </select>
+                        <textarea id="smart-paste-box" rows="3" placeholder="💡 ¡Pega aquí múltiples resultados de una vez y se procesarán automáticamente!" class="flex-1 bg-slate-950/80 border border-purple-500/40 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition resize-none placeholder-slate-500 font-mono"></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                        <button id="btn-process-smart" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center gap-1.5">
+                            <span>Procesar Todo</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="border-t border-purple-900/40 my-3"></div>
@@ -377,7 +384,6 @@
 
     <script>
         // CONFIGURACIÓN DE CONEXIÓN CON GOOGLE SHEETS
-        const GOGOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzxxz8CwgxI_OpQ-UnbGeXIqXNq8IhlkyYhvG2SzXgaVmhFGmAR9viLX1m9MoqLyO5exQ/exec';
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzxxz8CwgxI_OpQ-UnbGeXIqXNq8IhlkyYhvG2SzXgaVmhFGmAR9viLX1m9MoqLyO5exQ/exec';
 
         const STORAGE_KEY = 'daily_game_hub_delaware_v3';
@@ -471,7 +477,6 @@
         }
 
         function loadStateFromStorage() {
-            // Buscamos también en versiones anteriores para blindar la recuperación ante reseteos
             const keysToTry = [STORAGE_KEY, 'daily_game_hub_delaware_v2', 'daily_game_hub_delaware'];
             let saved = null;
             
@@ -501,7 +506,6 @@
                 state.customGames[id].badgeColor = '#ffffff';
             });
 
-            // Respetamos la fecha guardada o asignamos la de hoy por defecto
             if (saved.date) {
                 state.date = saved.date;
             } else {
@@ -519,7 +523,7 @@
             img.src = BG_IMAGE_URL;
         }
 
-        let canvas, ctx, userNameInput, dateInput, gamesContainer, gamesEmptyState, smartPasteBox;
+        let canvas, ctx, userNameInput, dateInput, gamesContainer, gamesEmptyState, smartPasteBox, smartReactionSelector;
         let avatarFileInput, avatarImgPreview, avatarInitialText, btnRemoveAvatar;
         let catalogModal, modalCatalogList, modalSearchInput;
         let radarModal, radarCheckboxesContainer;
@@ -575,6 +579,14 @@
             gamesContainer = document.getElementById('games-inputs-container');
             gamesEmptyState = document.getElementById('games-empty-state');
             smartPasteBox = document.getElementById('smart-paste-box');
+            smartReactionSelector = document.getElementById('smart-reaction-selector');
+
+            // Poblar las opciones del selector unificado de reacciones
+            let optionsHtml = '<option value="">💬</option>';
+            REACTION_EMOJIS.forEach(e => {
+                optionsHtml += `<option value="${e}">${e}</option>`;
+            });
+            smartReactionSelector.innerHTML = optionsHtml;
 
             avatarFileInput = document.getElementById('avatar-file-input');
             avatarImgPreview = document.getElementById('avatar-img-preview');
@@ -681,11 +693,6 @@
 
                 const savedResultText = (state.results[id] && state.results[id].rawText) ? state.results[id].rawText : '';
 
-                let optionsHtml = '<option value="">💬</option>';
-                REACTION_EMOJIS.forEach(e => {
-                    optionsHtml += `<option value="${e}" ${emj === e ? 'selected' : ''}>${e}</option>`;
-                });
-
                 card.innerHTML = `
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
@@ -701,11 +708,8 @@
                             </button>
                         </div>
                     </div>
-                    <div class="flex items-stretch gap-2 mt-2">
-                        <select data-game="${id}" class="emoji-selector w-[60px] bg-slate-900 border border-purple-900/40 rounded-lg text-center text-2xl appearance-none outline-none focus:border-purple-500 cursor-pointer shadow-sm transition">
-                            ${optionsHtml}
-                        </select>
-                        <textarea id="input-${id}" data-game="${id}" rows="2" placeholder="Pega aquí el resultado..." class="game-textarea flex-1 bg-slate-900 border border-purple-900/40 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-purple-500 transition resize-none placeholder-slate-600 font-mono">${savedResultText}</textarea>
+                    <div class="mt-2">
+                        <textarea id="input-${id}" data-game="${id}" rows="2" placeholder="Pega aquí el resultado..." class="game-textarea w-full bg-slate-900 border border-purple-900/40 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-purple-500 transition resize-none placeholder-slate-600 font-mono">${savedResultText}</textarea>
                     </div>
                 `;
                 gamesContainer.appendChild(card);
@@ -779,6 +783,7 @@
             if (idx > -1) {
                 state.userSelectedGameIds.splice(idx, 1);
                 delete state.results[gameId];
+                delete state.gameEmojis[gameId];
                 state.radarSelectedIds = state.radarSelectedIds.filter(id => id !== gameId);
             } else {
                 state.userSelectedGameIds.push(gameId);
@@ -1082,6 +1087,9 @@
 
             matches.sort((a, b) => a.index - b.index);
 
+            // Capturar la reacción seleccionada actualmente en el panel superior
+            const currentSelectedEmoji = smartReactionSelector.value;
+
             let matchedCount = 0;
             for (let i = 0; i < matches.length; i++) {
                 const gameId = matches[i].id;
@@ -1099,16 +1107,25 @@
                 const cleaned = sanitizeGameText(gameId, segment);
                 if (cleaned) {
                     parseAndSetGameResult(gameId, cleaned);
+                    
+                    // Asignar el emoji seleccionado al juego procesado si hay alguno elegido
+                    if (currentSelectedEmoji) {
+                        state.gameEmojis[gameId] = currentSelectedEmoji;
+                    }
+                    
                     matchedCount++;
                 }
             }
 
             if (matchedCount > 0) {
+                // Limpiar la caja de texto y resetear el selector de emoji para la siguiente tanda
                 smartPasteBox.value = '';
+                smartReactionSelector.value = '';
+                
                 saveStateToStorage();
                 renderActiveGames();
                 updateCanvas();
-                showToast(`Se han procesado ${matchedCount} juego(s) sin URLs`, '🎉');
+                showToast(`Se han procesado ${matchedCount} juego(s) con éxito`, '🎉');
             }
         }
 
@@ -1171,11 +1188,10 @@
             state.userSelectedGameIds.forEach(id => {
                 const textarea = document.getElementById(`input-${id}`);
                 if (textarea) textarea.value = '';
-                const selector = document.querySelector(`.emoji-selector[data-game="${id}"]`);
-                if (selector) selector.value = '';
             });
             state.gameEmojis = {};
             smartPasteBox.value = '';
+            smartReactionSelector.value = '';
             saveStateToStorage();
             renderActiveGames();
             updateCountersUI();
@@ -1238,659 +1254,4 @@
                 }
             });
 
-            document.getElementById('btn-upload-avatar').addEventListener('click', () => avatarFileInput.click());
-            avatarFileInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const tempImg = new Image();
-                    tempImg.onload = () => {
-                        const offCanvas = document.createElement('canvas');
-                        offCanvas.width = 180;
-                        offCanvas.height = 180;
-                        const offCtx = offCanvas.getContext('2d');
-                        const minDim = Math.min(tempImg.width, tempImg.height);
-                        const sx = (tempImg.width - minDim) / 2;
-                        const sy = (tempImg.height - minDim) / 2;
-                        offCtx.drawImage(tempImg, sx, sy, minDim, minDim, 0, 0, 180, 180);
-
-                        state.avatarUrl = offCanvas.toDataURL('image/jpeg', 0.85);
-                        updateAvatarUI();
-                        saveStateToStorage();
-                        preloadAvatarAndUpdateCanvas();
-                        showToast('¡Avatar actualizado!', '🖼️');
-                    };
-                    tempImg.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
-
-            btnRemoveAvatar.addEventListener('click', () => {
-                state.avatarUrl = null;
-                loadedAvatarImage = null;
-                updateAvatarUI();
-                saveStateToStorage();
-                updateCanvas();
-                showToast('Avatar restablecido', '🗑️');
-            });
-
-            dateInput.addEventListener('change', (e) => {
-                state.date = e.target.value;
-                saveStateToStorage();
-                updateCanvas();
-            });
-
-            document.getElementById('btn-open-catalog-modal').addEventListener('click', openCatalogModal);
-            document.getElementById('btn-empty-state-add').addEventListener('click', openCatalogModal);
-            document.getElementById('btn-close-modal').addEventListener('click', closeCatalogModal);
-            document.getElementById('btn-modal-done').addEventListener('click', closeCatalogModal);
-            document.getElementById('btn-create-custom-inside-modal').addEventListener('click', createCustomGame);
-
-            modalSearchInput.addEventListener('input', (e) => { renderModalCatalogList(e.target.value); });
-            modalCatalogList.addEventListener('click', (e) => {
-                const btn = e.target.closest('.btn-toggle-modal-game');
-                if (btn) toggleGameInRoster(btn.dataset.game);
-            });
-
-            document.getElementById('btn-open-radar-selector').addEventListener('click', openRadarModal);
-            document.getElementById('btn-close-radar-modal').addEventListener('click', closeRadarModal);
-            document.getElementById('btn-radar-modal-done').addEventListener('click', () => {
-                const checkboxes = radarCheckboxesContainer.querySelectorAll('.radar-game-checkbox');
-                const selected = [];
-                checkboxes.forEach(cb => {
-                    if (cb.checked) selected.push(cb.value);
-                });
-                state.radarSelectedIds = selected;
-                saveStateToStorage();
-                closeRadarModal();
-                updateRadarChart();
-                showToast('Gráfico radar actualizado', '📊');
-            });
-
-            radarCheckboxesContainer.addEventListener('change', (e) => {
-                if (e.target.classList.contains('radar-game-checkbox')) {
-                    const checkedCount = radarCheckboxesContainer.querySelectorAll('.radar-game-checkbox:checked').length;
-                    if (checkedCount > 20) {
-                        e.target.checked = false;
-                        showToast('Máximo 20 juegos permitidos en el radar', '⚠️');
-                    }
-                    updateRadarModalCounter();
-                }
-            });
-
-            gamesContainer.addEventListener('input', (e) => {
-                if (e.target.classList.contains('custom-game-name-input')) {
-                    const gameId = e.target.dataset.game;
-                    const newName = e.target.value.trim() || 'Juego';
-                    if (state.customGames[gameId]) {
-                        state.customGames[gameId].name = newName;
-                        state.customGames[gameId].pattern = new RegExp(newName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-                    }
-                    if (state.results[gameId]) state.results[gameId].name = newName;
-                    saveStateToStorage();
-                    updateCanvas();
-                } else if (e.target.classList.contains('game-textarea')) {
-                    const gameId = e.target.dataset.game;
-                    parseAndSetGameResult(gameId, e.target.value);
-                    saveStateToStorage();
-                    updateCanvas();
-                }
-            });
-
-            gamesContainer.addEventListener('change', (e) => {
-                if (e.target.classList.contains('emoji-selector')) {
-                    const gameId = e.target.dataset.game;
-                    state.gameEmojis[gameId] = e.target.value;
-                    saveStateToStorage();
-                    
-                    const headerEmojiSpan = document.getElementById(`header-emoji-${gameId}`);
-                    if (headerEmojiSpan) {
-                        headerEmojiSpan.textContent = e.target.value;
-                        headerEmojiSpan.style.display = e.target.value ? 'inline' : 'none';
-                    }
-                    updateCanvas();
-                }
-            });
-
-            gamesContainer.addEventListener('click', (e) => {
-                if (e.target.classList.contains('btn-clear-game')) {
-                    const gameId = e.target.dataset.game;
-                    const textarea = document.getElementById(`input-${gameId}`);
-                    if (textarea) textarea.value = '';
-                    delete state.results[gameId];
-                    saveStateToStorage();
-                    updateCountersUI();
-                    updateCanvas();
-                } else if (e.target.classList.contains('btn-remove-from-roster')) {
-                    const gameId = e.target.dataset.game;
-                    state.userSelectedGameIds = state.userSelectedGameIds.filter(id => id !== gameId);
-                    delete state.results[gameId];
-                    state.radarSelectedIds = state.radarSelectedIds.filter(id => id !== gameId);
-                    if (state.customGames[gameId]) delete state.customGames[gameId];
-                    saveStateToStorage();
-                    renderActiveGames();
-                    updateCountersUI();
-                    showToast('Juego quitado de tu plantilla', '🗑️');
-                }
-            });
-
-            document.getElementById('btn-process-smart').addEventListener('click', processSmartPaste);
-            document.getElementById('btn-clear-all').addEventListener('click', clearAll);
-
-            document.getElementById('btn-download').addEventListener('click', () => {
-                downloadCanvasImage();
-                sendResultsToGoogleSheet(true);
-            });
-            document.getElementById('btn-copy').addEventListener('click', () => {
-                copyCanvasImage();
-                sendResultsToGoogleSheet(true);
-            });
-            document.getElementById('btn-sync-sheets').addEventListener('click', () => {
-                sendResultsToGoogleSheet(false);
-            });
-            document.getElementById('btn-share').addEventListener('click', shareCanvasImage);
-        }
-
-        // =========================================================================
-        // LÓGICA DEL GRÁFICO RADAR (CHART.JS - MÁX 20 JUEGOS)
-        // =========================================================================
-        
-        function initRadarChart() {
-            const ctxRadar = document.getElementById('radar-chart').getContext('2d');
-            
-            Chart.defaults.color = '#94a3b8';
-            Chart.defaults.font.family = '"Plus Jakarta Sans", sans-serif';
-            
-            radarChartInstance = new Chart(ctxRadar, {
-                type: 'radar',
-                data: {
-                    labels: [],
-                    datasets: [
-                        {
-                            label: 'Comunidad',
-                            data: [],
-                            backgroundColor: 'rgba(168, 85, 247, 0.3)',
-                            borderColor: 'rgba(168, 85, 247, 0.8)',
-                            borderWidth: 1.5,
-                            pointBackgroundColor: '#a855f7',
-                            pointBorderColor: '#1e293b',
-                            pointRadius: 3,
-                            fill: true,
-                            order: 2
-                        },
-                        {
-                            label: 'Tú',
-                            data: [],
-                            backgroundColor: 'transparent',
-                            borderColor: '#fbbf24',
-                            borderWidth: 2.5,
-                            pointBackgroundColor: '#1e293b',
-                            pointBorderColor: '#fbbf24',
-                            pointBorderWidth: 2,
-                            pointRadius: 4,
-                            fill: false,
-                            order: 1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            min: 0,
-                            max: 100,
-                            ticks: { display: false, stepSize: 20 },
-                            grid: { color: 'rgba(148, 163, 184, 0.15)', circular: true },
-                            angleLines: { color: 'rgba(148, 163, 184, 0.15)' },
-                            pointLabels: {
-                                color: '#cbd5e1',
-                                font: { size: 10, weight: '600' }
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 15,
-                                color: '#e2e8f0',
-                                font: { size: 11, weight: '600' }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            titleColor: '#fff',
-                            bodyColor: '#cbd5e1',
-                            borderColor: 'rgba(168, 85, 247, 0.3)',
-                            borderWidth: 1,
-                            padding: 10,
-                            callbacks: {
-                                label: function(context) {
-                                    return ` ${context.dataset.label}: ${context.raw || 0}%`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        async function fetchStatsFromGoogle(playerName) {
-            if (!GOOGLE_SCRIPT_URL || !GOOGLE_SCRIPT_URL.startsWith('http')) return;
-            
-            const loadingIndicator = document.getElementById('radar-loading');
-            loadingIndicator.classList.remove('hidden');
-
-            try {
-                const url = `${GOOGLE_SCRIPT_URL}?jugador=${encodeURIComponent(playerName)}`;
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data && data.statsJugador && data.statsComunidad) {
-                    fetchedStats = data;
-                    updateRadarChart();
-                }
-            } catch (error) {
-                console.error("Error al obtener estadísticas para el radar:", error);
-            } finally {
-                loadingIndicator.classList.add('hidden');
-            }
-        }
-
-        function updateRadarChart() {
-            if (!radarChartInstance) return;
-
-            const emptyState = document.getElementById('radar-empty-state');
-            const radarIds = (state.radarSelectedIds && state.radarSelectedIds.length > 0) 
-                ? state.radarSelectedIds.slice(0, 20) 
-                : state.userSelectedGameIds.slice(0, 20);
-
-            if (radarIds.length < 3) {
-                emptyState.classList.remove('hidden');
-                emptyState.classList.add('flex');
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-            emptyState.classList.remove('flex');
-
-            const labels = [];
-            const dataComunidad = [];
-            const dataJugador = [];
-
-            radarIds.forEach(gameId => {
-                const gameDef = getCombinedGameDefinition(gameId);
-                labels.push(gameDef.name);
-
-                let pctJugador = 0;
-                let pctComunidad = 0;
-
-                if (fetchedStats.statsJugador) {
-                    const key = Object.keys(fetchedStats.statsJugador).find(k => k.toLowerCase() === gameId.toLowerCase() || k.toLowerCase() === gameDef.name.toLowerCase());
-                    if (key && !isNaN(parseFloat(fetchedStats.statsJugador[key]))) {
-                        pctJugador = parseFloat(fetchedStats.statsJugador[key]);
-                    }
-                }
-
-                if (fetchedStats.statsComunidad) {
-                    const key = Object.keys(fetchedStats.statsComunidad).find(k => k.toLowerCase() === gameId.toLowerCase() || k.toLowerCase() === gameDef.name.toLowerCase());
-                    if (key && !isNaN(parseFloat(fetchedStats.statsComunidad[key]))) {
-                        pctComunidad = parseFloat(fetchedStats.statsComunidad[key]);
-                    }
-                }
-
-                dataJugador.push(pctJugador);
-                dataComunidad.push(pctComunidad);
-            });
-
-            radarChartInstance.data.labels = labels;
-            radarChartInstance.data.datasets[0].data = dataComunidad;
-            radarChartInstance.data.datasets[1].data = dataJugador;
-            
-            radarChartInstance.update();
-        }
-
-        function wrapTextLines(ctx, text, maxWidth) {
-            if (!text) return [''];
-            if (ctx.measureText(text).width <= maxWidth) return [text];
-
-            const words = text.split(' ');
-            const lines = [];
-            let currentLine = '';
-
-            for (let word of words) {
-                const testLine = currentLine ? currentLine + ' ' + word : word;
-                if (ctx.measureText(testLine).width <= maxWidth) {
-                    currentLine = testLine;
-                } else {
-                    if (currentLine) {
-                        lines.push(currentLine);
-                        currentLine = '';
-                    }
-                    if (ctx.measureText(word).width <= maxWidth) {
-                        currentLine = word;
-                    } else {
-                        let segment = '';
-                        const characters = Array.from(word);
-                        for (let ch of characters) {
-                            if (ctx.measureText(segment + ch).width <= maxWidth) {
-                                segment += ch;
-                            } else {
-                                if (segment) lines.push(segment);
-                                segment = ch;
-                            }
-                        }
-                        currentLine = segment;
-                    }
-                }
-            }
-            if (currentLine) lines.push(currentLine);
-            return lines;
-        }
-
-        function updateCanvas() {
-            if (!canvas) return;
-            const activeResults = Object.values(state.results);
-            const emptyState = document.getElementById('canvas-empty-state');
-
-            if (activeResults.length === 0) {
-                emptyState.classList.remove('hidden');
-            } else {
-                emptyState.classList.add('hidden');
-            }
-
-            const width = 1080;
-            const padding = 60;
-            const columnGap = 30;
-            const colWidth = (width - (padding * 2) - columnGap) / 2;
-            const cardInnerPadding = 24;
-            const maxTextWidth = colWidth - (cardInnerPadding * 2);
-            const lineHeight = 30;
-            const headerHeight = 85;
-
-            const measuredCards = activeResults.map(result => {
-                const wrappedLines = [];
-                result.displayLines.forEach(rawLine => {
-                    const hasEmojis = /(\p{Extended_Pictographic}|[🟩🟨⬛⬜🟪🟦🟫🟡🔴🟥🟧⚪⚫📍])/u.test(rawLine);
-                    ctx.save();
-                    if (hasEmojis) {
-                        ctx.font = '22px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
-                    } else {
-                        ctx.font = '600 16px "Plus Jakarta Sans", sans-serif';
-                    }
-                    const wrapped = wrapTextLines(ctx, rawLine, maxTextWidth);
-                    wrappedLines.push(...wrapped);
-                    ctx.restore();
-                });
-
-                const contentHeight = Math.max(wrappedLines.length * lineHeight, lineHeight);
-                const cardHeight = headerHeight + contentHeight + 28;
-
-                return {
-                    result,
-                    wrappedLines,
-                    height: cardHeight
-                };
-            });
-
-            const avatarSize = 90;
-            const startY = padding + avatarSize + 40;
-            const colY = [startY, startY];
-
-            const cardPlacements = measuredCards.map(item => {
-                const col = colY[0] <= colY[1] ? 0 : 1;
-                const x = padding + (col * (colWidth + columnGap));
-                const y = colY[col];
-                colY[col] += item.height + 24;
-
-                return {
-                    ...item,
-                    x,
-                    y,
-                    width: colWidth
-                };
-            });
-
-            const cardsMaxY = activeResults.length === 0 ? startY + 200 : Math.max(...colY);
-            const height = Math.max(1400, cardsMaxY + 95);
-
-            canvas.width = width;
-            canvas.height = height;
-
-            if (loadedBgImage) {
-                ctx.fillStyle = '#18191c';
-                ctx.fillRect(0, 0, width, height);
-                const bgSourceHeight = loadedBgImage.naturalHeight || 1920;
-                const cropHeight = Math.min(height, bgSourceHeight);
-                ctx.drawImage(loadedBgImage, 0, 0, width, cropHeight, 0, 0, width, cropHeight);
-            } else {
-                const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
-                bgGradient.addColorStop(0, '#32353b');
-                bgGradient.addColorStop(0.3, '#2a2c32');
-                bgGradient.addColorStop(0.7, '#212328');
-                bgGradient.addColorStop(1, '#18191c');
-                ctx.fillStyle = bgGradient;
-                ctx.fillRect(0, 0, width, height);
-            }
-
-            const avatarX = padding;
-            const avatarY = padding;
-            
-            if (loadedAvatarImage) {
-                ctx.save();
-                ctx.beginPath();
-                ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, Math.PI * 2);
-                ctx.clip();
-                ctx.drawImage(loadedAvatarImage, avatarX, avatarY, avatarSize, avatarSize);
-                ctx.restore();
-
-                ctx.save();
-                ctx.strokeStyle = '#a855f7';
-                ctx.lineWidth = 3.5;
-                ctx.beginPath();
-                ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, Math.PI * 2);
-                ctx.stroke();
-                ctx.restore();
-            } else {
-                drawRoundedRect(ctx, avatarX, avatarY, avatarSize, avatarSize, 26, '#7c3aed', true);
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '800 40px "Plus Jakarta Sans", sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                const initial = (state.userName || 'U').charAt(0).toUpperCase();
-                ctx.fillText(initial, avatarX + avatarSize/2, avatarY + avatarSize/2);
-            }
-
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'top';
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '800 44px "Plus Jakarta Sans", sans-serif';
-            ctx.fillText(state.userName || 'Usuario desconocido', avatarX + avatarSize + 24, avatarY + 8);
-
-            ctx.fillStyle = '#e2e8f0';
-            ctx.font = '600 20px "Plus Jakarta Sans", sans-serif';
-            const formattedDate = new Date(state.date).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            ctx.fillText(formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1), avatarX + avatarSize + 24, avatarY + 56);
-
-            const todayCount = Object.keys(state.results).length;
-            const lifetimeCount = state.lifetimeGamesCount || 0;
-            const badgeY = avatarY + 48;
-            const badgeHeight = 34;
-
-            const lifetimeText = `🏆 Total: ${lifetimeCount}`;
-            ctx.font = 'bold 15px "Plus Jakarta Sans", sans-serif';
-            const lifetimeWidth = ctx.measureText(lifetimeText).width + 24;
-            const lifetimeX = width - padding - lifetimeWidth;
-
-            drawRoundedRect(ctx, lifetimeX, badgeY, lifetimeWidth, badgeHeight, 10, 'rgba(245, 158, 11, 0.16)', true, 'rgba(245, 158, 11, 0.50)');
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = '#fde68a';
-            ctx.fillText(lifetimeText, lifetimeX + (lifetimeWidth / 2), badgeY + (badgeHeight / 2));
-
-            const todayText = `⚡ Hoy: ${todayCount}`;
-            const todayWidth = ctx.measureText(todayText).width + 24;
-            const todayX = lifetimeX - todayWidth - 12;
-
-            drawRoundedRect(ctx, todayX, badgeY, todayWidth, badgeHeight, 10, 'rgba(168, 85, 247, 0.18)', true, 'rgba(168, 85, 247, 0.50)');
-            ctx.fillStyle = '#e9d5ff';
-            ctx.fillText(todayText, todayX + (todayWidth / 2), badgeY + (badgeHeight / 2));
-
-            const cardBg = 'rgba(28, 30, 36, 0.88)';
-            const cardBorder = 'rgba(168, 85, 247, 0.30)';
-
-            cardPlacements.forEach(item => {
-                const { result, wrappedLines, x, y, width: cWidth, height: cHeight } = item;
-
-                drawRoundedRect(ctx, x, y, cWidth, cHeight, 20, cardBg, true, cardBorder);
-                drawRoundedRect(ctx, x + 20, y + 20, 10, 34, 5, result.badgeColor, true);
-
-                ctx.textAlign = 'left';
-                ctx.textBaseline = 'top';
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 22px "Plus Jakarta Sans", "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
-                
-                const emj = state.gameEmojis[result.id] || '';
-                const titleText = emj ? `${emj} ${result.name}` : result.name;
-                ctx.fillText(titleText, x + 40, y + 20);
-
-                ctx.fillStyle = '#cbd5e1';
-                ctx.font = '500 16px "Plus Jakarta Sans", sans-serif';
-                ctx.fillText(result.edition, x + 40, y + 46);
-
-                const scoreText = result.score;
-                ctx.font = 'bold 18px "Plus Jakarta Sans", sans-serif';
-                const scoreWidth = ctx.measureText(scoreText).width + 30;
-                drawRoundedRect(ctx, x + cWidth - scoreWidth - 20, y + 20, scoreWidth, 36, 12, 'rgba(255,255,255,0.12)', true);
-                
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#ffffff';
-                ctx.fillText(scoreText, x + cWidth - (scoreWidth/2) - 20, y + 26);
-
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-                ctx.beginPath();
-                ctx.moveTo(x + 20, y + 78);
-                ctx.lineTo(x + cWidth - 20, y + 78);
-                ctx.stroke();
-
-                ctx.textAlign = 'left';
-                let lineY = y + 98;
-
-                wrappedLines.forEach(line => {
-                    const hasEmojis = /(\p{Extended_Pictographic}|[🟩🟨⬛⬜🟪🟦🟫🟡🔴🟥🟧⚪⚫📍])/u.test(line);
-                    if (hasEmojis) {
-                        ctx.font = '22px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
-                        ctx.fillStyle = '#ffffff';
-                    } else {
-                        ctx.font = '600 16px "Plus Jakarta Sans", sans-serif';
-                        ctx.fillStyle = '#f1f5f9';
-                    }
-                    ctx.fillText(line, x + 24, lineY);
-                    lineY += lineHeight;
-                });
-            });
-
-            const footerY = height - 45;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = '#cbd5e1';
-            ctx.font = '600 16px "Plus Jakarta Sans", sans-serif';
-            ctx.fillText('Generado con Diarias Discord · Amigos Delaware', width / 2, footerY);
-        }
-
-        function drawRoundedRect(ctx, x, y, width, height, radius, fillStyle, fill = true, strokeStyle = null) {
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(x + radius, y);
-            ctx.arcTo(x + width, y, x + width, y + height, radius);
-            ctx.arcTo(x + width, y + height, x, y + height, radius);
-            ctx.arcTo(x, y + height, x, y, radius);
-            ctx.arcTo(x, y, x + width, y, radius);
-            ctx.closePath();
-
-            if (fill && fillStyle) {
-                ctx.fillStyle = fillStyle;
-                ctx.fill();
-            }
-
-            if (strokeStyle) {
-                ctx.strokeStyle = strokeStyle;
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
-            }
-            ctx.restore();
-        }
-
-        function downloadCanvasImage() {
-            if (Object.keys(state.results).length === 0) {
-                showToast('Añade al menos un resultado antes de descargar', '⚠️');
-                return;
-            }
-            const link = document.createElement('a');
-            link.download = `diarias-discord-${state.date}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            showToast('¡Imagen descargada!', '💾');
-        }
-
-        async function copyCanvasImage() {
-            if (Object.keys(state.results).length === 0) {
-                showToast('Añade al menos un resultado antes de copiar', '⚠️');
-                return;
-            }
-            try {
-                canvas.toBlob(async (blob) => {
-                    const item = new ClipboardItem({ 'image/png': blob });
-                    await navigator.clipboard.write([item]);
-                    showToast('¡Imagen copiada al portapapeles!', '📋');
-                });
-            } catch (err) {
-                showToast('Error al copiar. Intenta descargarla.', '❌');
-            }
-        }
-
-        async function shareCanvasImage() {
-            if (Object.keys(state.results).length === 0) {
-                showToast('Añade al menos un resultado antes de compartir', '⚠️');
-                return;
-            }
-            try {
-                canvas.toBlob(async (blob) => {
-                    const file = new File([blob], `diarias-${state.date}.png`, { type: 'image/png' });
-                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            title: 'Diarias Discord - Amigos Delaware',
-                            text: '¡Mis resultados de minijuegos de hoy!',
-                            files: [file]
-                        });
-                        showToast('Compartido con éxito', '🚀');
-                    } else {
-                        copyCanvasImage();
-                    }
-                });
-            } catch (err) {
-                showToast('No se pudo abrir el menú nativo de compartir', '⚠️');
-            }
-        }
-
-        function showToast(message, icon = '✨') {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').textContent = message;
-            document.getElementById('toast-icon').textContent = icon;
-
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
-        }
-
-        window.onload = init;
-    </script>
-</body>
-</html>
+            document.getElementById('btn-upload-avatar').addEventListener('click', ()
