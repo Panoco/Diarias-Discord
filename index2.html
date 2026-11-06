@@ -377,6 +377,7 @@
 
     <script>
         // CONFIGURACIÓN DE CONEXIÓN CON GOOGLE SHEETS
+        const GOGOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzxxz8CwgxI_OpQ-UnbGeXIqXNq8IhlkyYhvG2SzXgaVmhFGmAR9viLX1m9MoqLyO5exQ/exec';
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzxxz8CwgxI_OpQ-UnbGeXIqXNq8IhlkyYhvG2SzXgaVmhFGmAR9viLX1m9MoqLyO5exQ/exec';
 
         const STORAGE_KEY = 'daily_game_hub_delaware_v3';
@@ -470,36 +471,44 @@
         }
 
         function loadStateFromStorage() {
-            try {
-                const savedRaw = localStorage.getItem(STORAGE_KEY);
-                if (!savedRaw) return;
-
-                const saved = JSON.parse(savedRaw);
-                const currentGamingDate = getGamingDateString();
-
-                state.userName = saved.userName || 'Usuario desconocido';
-                state.avatarUrl = saved.avatarUrl || null;
-                state.userSelectedGameIds = Array.isArray(saved.userSelectedGameIds) ? saved.userSelectedGameIds : [];
-                state.radarSelectedIds = Array.isArray(saved.radarSelectedIds) ? saved.radarSelectedIds : [...state.userSelectedGameIds];
-                state.customGames = saved.customGames || {};
-                state.gameEmojis = saved.gameEmojis || {};
-                state.lifetimeGamesCount = saved.lifetimeGamesCount || 0;
-                state.recordedGameKeys = saved.recordedGameKeys || {};
-
-                Object.keys(state.customGames).forEach(id => {
-                    state.customGames[id].isCustom = true;
-                    state.customGames[id].badgeColor = '#ffffff';
-                });
-
-                if (saved.gamingDate !== currentGamingDate) {
-                    state.results = {};
-                    saveStateToStorage();
-                } else {
-                    state.results = saved.results || {};
+            // Buscamos también en versiones anteriores para blindar la recuperación ante reseteos
+            const keysToTry = [STORAGE_KEY, 'daily_game_hub_delaware_v2', 'daily_game_hub_delaware'];
+            let saved = null;
+            
+            for (const k of keysToTry) {
+                const raw = localStorage.getItem(k);
+                if (raw) {
+                    try {
+                        saved = JSON.parse(raw);
+                        break;
+                    } catch(err) {}
                 }
-            } catch (e) {
-                console.warn('No se pudo cargar desde localStorage', e);
             }
+
+            if (!saved) return;
+
+            state.userName = saved.userName || 'Usuario desconocido';
+            state.avatarUrl = saved.avatarUrl || null;
+            state.userSelectedGameIds = Array.isArray(saved.userSelectedGameIds) ? saved.userSelectedGameIds : [];
+            state.radarSelectedIds = Array.isArray(saved.radarSelectedIds) ? saved.radarSelectedIds : [...state.userSelectedGameIds];
+            state.customGames = saved.customGames || {};
+            state.gameEmojis = saved.gameEmojis || {};
+            state.lifetimeGamesCount = saved.lifetimeGamesCount || 0;
+            state.recordedGameKeys = saved.recordedGameKeys || {};
+
+            Object.keys(state.customGames).forEach(id => {
+                state.customGames[id].isCustom = true;
+                state.customGames[id].badgeColor = '#ffffff';
+            });
+
+            // Respetamos la fecha guardada o asignamos la de hoy por defecto
+            if (saved.date) {
+                state.date = saved.date;
+            } else {
+                state.date = getGamingDateString();
+            }
+
+            state.results = saved.results || {};
         }
 
         function preloadBgImage() {
@@ -579,7 +588,6 @@
             radarModal = document.getElementById('radar-modal');
             radarCheckboxesContainer = document.getElementById('radar-checkboxes-container');
 
-            // Vincular evento Easter Egg al logo superior izquierdo
             const easterEggLogo = document.getElementById('easter-egg-logo');
             if (easterEggLogo) {
                 easterEggLogo.addEventListener('click', triggerEasterEgg);
@@ -610,6 +618,7 @@
             if (document.fonts && document.fonts.ready) {
                 document.fonts.ready.then(() => updateCanvas());
             }
+            updateCanvas();
         }
 
         function getCombinedGameDefinition(gameId) {
@@ -817,7 +826,6 @@
             showToast('Nuevo juego añadido. Escribe su nombre.', '✨');
         }
 
-        // --- GESTIÓN MODAL SELECCIÓN RADAR (MÁX 20) ---
         function openRadarModal() {
             renderRadarCheckboxes();
             radarModal.classList.remove('hidden');
@@ -917,7 +925,6 @@
                 else if (edDateMatch && edDateMatch[1]) edition = edDateMatch[1];
             }
 
-            // Reglas específicas adaptadas para cada juego
             if (gameId === 'crissle') {
                 const timeMatch = cleanedText.match(/(?:⏱|tiempo)?\s*(\d{2}):(\d{2})/i) || cleanedText.match(/(\d{2}):(\d{2})/);
                 if (timeMatch) {
@@ -1112,7 +1119,7 @@
                 return false;
             }
 
-            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT' || !GOOGLE_SCRIPT_URL.startsWith('http')) {
+            if (!GOOGLE_SCRIPT_URL || !GOOGLE_SCRIPT_URL.startsWith('http')) {
                 if (!quiet) showToast('Falta configurar la URL de Apps Script', '⚠️');
                 return false;
             }
@@ -1331,7 +1338,6 @@
                 }
             });
 
-            // NUEVO: Escuchador para guardar los Emojis y actualizar interfaz/canvas
             gamesContainer.addEventListener('change', (e) => {
                 if (e.target.classList.contains('emoji-selector')) {
                     const gameId = e.target.dataset.game;
