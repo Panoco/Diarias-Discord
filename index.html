@@ -506,13 +506,18 @@
                 state.customGames[id].badgeColor = '#ffffff';
             });
 
-            if (saved.date) {
-                state.date = saved.date;
+            const currentGamingDate = getGamingDateString();
+            
+            // COMPROBACIÓN DE REINICIO A LAS 05:00 AM
+            if (saved.gamingDate && saved.gamingDate === currentGamingDate) {
+                state.results = saved.results || {};
+                state.date = saved.date || currentGamingDate;
             } else {
-                state.date = getGamingDateString();
+                // Nuevo día detectado: se limpian resultados y se actualiza la fecha al día de juego actual
+                state.results = {};
+                state.gameEmojis = {};
+                state.date = currentGamingDate;
             }
-
-            state.results = saved.results || {};
         }
 
         function preloadBgImage() {
@@ -1734,18 +1739,19 @@
             ctx.fillStyle = '#e9d5ff';
             ctx.fillText(todayText, todayX + (todayWidth / 2), badgeY + (badgeHeight / 2));
 
-            const cardBg = 'rgba(28, 30, 36, 0.88)';
+            const defaultCardBg = 'rgba(28, 30, 36, 0.88)';
+            const goldenCardBg = 'rgba(251, 191, 36, 0.08)'; // Fondo dorado translúcido
             const defaultCardBorder = 'rgba(168, 85, 247, 0.30)';
-            const goldenCardBorder = 'rgba(251, 191, 36, 0.85)'; // Borde dorado más visible
+            const goldenCardBorder = 'rgba(251, 191, 36, 0.85)';
 
             cardPlacements.forEach(item => {
                 const { result, wrappedLines, x, y, width: cWidth, height: cHeight } = item;
 
-                // Comprobar si tiene emoji asignado para cambiar el color del borde
                 const hasEmoji = Boolean(state.gameEmojis[result.id]);
+                const currentBg = hasEmoji ? goldenCardBg : defaultCardBg;
                 const currentBorder = hasEmoji ? goldenCardBorder : defaultCardBorder;
 
-                drawRoundedRect(ctx, x, y, cWidth, cHeight, 20, cardBg, true, currentBorder);
+                drawRoundedRect(ctx, x, y, cWidth, cHeight, 20, currentBg, true, currentBorder);
                 drawRoundedRect(ctx, x + 20, y + 20, 10, 34, 5, result.badgeColor, true);
 
                 ctx.textAlign = 'left';
